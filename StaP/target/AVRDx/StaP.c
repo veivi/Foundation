@@ -689,9 +689,12 @@ void STAP_Initialize(void)
 
   // Serial I/O outputs
 
+#if STAP_MCU_PINS > 28
   PORTB.DIRSET = 1<<0;
-  PORTC.DIRSET = 1<<0;
   PORTE.DIRSET = 1<<0;
+#endif
+  
+  PORTC.DIRSET = 1<<0;
   PORTF.DIRSET = 1<<0;
 
   // Initialize LED control
