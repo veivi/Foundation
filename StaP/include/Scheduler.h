@@ -51,7 +51,7 @@ extern const int StaP_NumOfTasks;
 #define END_OF_TASKS TASK_BY_PERIOD(NULL, 0, NULL, 0, 0)
 
 void StaP_SchedulerStart( void );
-void StaP_SchedulerReport(void)
+void StaP_SchedulerReport(void);
 struct TaskDecl *StaP_CurrentTask(void);
 
 #endif
