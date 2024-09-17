@@ -29,8 +29,6 @@
 
 #include "VPTime.h"
 
-#define ALP_FREERTOS_DEBUG    1
-
 /*
  * #define TCB_t to avoid conflicts between the
  * FreeRTOS task control block type (TCB_t) and the
@@ -61,8 +59,8 @@ For other frequency values, update clock_config.h with your own settings */
 #define configCPU_CLOCK_HZ F_CPU
 
 #define configTICK_RATE_HZ 1000
-#define configMAX_PRIORITIES 4
-#define configMINIMAL_STACK_SIZE (3<<7)
+#define configMAX_PRIORITIES (STAP_FREERTOS_PRIORITIES+1)
+#define configMINIMAL_STACK_SIZE STAP_FREERTOS_MIN_STACK
 #define configMAX_TASK_NAME_LEN 8
 #define configUSE_16_BIT_TICKS 1
 #define configIDLE_SHOULD_YIELD 0
@@ -81,13 +79,13 @@ For other frequency values, update clock_config.h with your own settings */
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION 0
 #define configSUPPORT_DYNAMIC_ALLOCATION 1
-#define configTOTAL_HEAP_SIZE 0x2800
+#define configTOTAL_HEAP_SIZE STAP_FREERTOS_HEAP
 #define configAPPLICATION_ALLOCATED_HEAP 0
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK 0
 #define configUSE_TICK_HOOK 0
-#define configCHECK_FOR_STACK_OVERFLOW ALP_FREERTOS_DEBUG ? 2 : 0
+#define configCHECK_FOR_STACK_OVERFLOW STAP_FREERTOS_DEBUG ? 2 : 0
 #define configUSE_MALLOC_FAILED_HOOK 1
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 0
 
@@ -124,8 +122,8 @@ For other frequency values, update clock_config.h with your own settings */
 #define INCLUDE_xTaskAbortDelay 0
 #define INCLUDE_xTaskGetHandle 1
 #define INCLUDE_xTaskResumeFromISR 0
-#define INCLUDE_ulTaskGetRunTimeCounter 0 // ALP_FREERTOS_DEBUG
-#define INCLUDE_xTaskGetRunTimePercent ALP_FREERTOS_DEBUG
+#define INCLUDE_ulTaskGetRunTimeCounter STAP__FREERTOS_DEBUG
+#define INCLUDE_xTaskGetRunTimePercent STAP_FREERTOS_DEBUG
 
 typedef VP_TIME_MICROS_T configRUN_TIME_COUNTER_TYPE;
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
