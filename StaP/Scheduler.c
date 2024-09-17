@@ -540,7 +540,7 @@ void StaP_SchedulerStart( void )
   vTaskStartScheduler();
 }
 
-void STAP_SchedulerReport(void)
+void StaP_SchedulerReport(void)
 {
   static VP_TIME_MICROS_T prev;
   VP_TIME_MICROS_T delta = VP_ELAPSED_MICROS(prev);
