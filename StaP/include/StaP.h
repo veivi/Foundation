@@ -24,14 +24,6 @@
 #endif
 
 //
-// Target hardware dependent stuff
-//
-
-#ifndef __APPLE__
-#include "StaP_TARGET.h"
-#endif
-
-//
 // System mode
 //
 
@@ -134,7 +126,7 @@ bool stap_sensorRead(stap_Vector3f_t *acc, stap_Vector3f_t *atti, stap_Vector3f_
 #define LINK_MODE_RXTX   (LINK_MODE_RX | LINK_MODE_TX)
 
 typedef struct StaP_LinkRecord {
-  StaP_Txcv_T txcv;
+  uint8_t txcv;
   uint32_t rate;
   uint8_t mode;
   volatile VPBuffer_t buffer;
@@ -143,6 +135,15 @@ typedef struct StaP_LinkRecord {
 } StaP_LinkRecord_T;
 
 extern StaP_LinkRecord_T StaP_LinkTable[];
+
+//
+// Target hardware dependent stuff
+//
+
+#ifndef __APPLE__
+#include "StaP_TARGET.h"
+#endif
+
 
 #endif
 
