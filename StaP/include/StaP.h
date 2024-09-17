@@ -24,6 +24,14 @@
 #endif
 
 //
+// Target hardware dependent stuff
+//
+
+#ifndef __APPLE__
+#include "StaP_TARGET.h"
+#endif
+
+//
 // System mode
 //
 
@@ -116,14 +124,6 @@ bool stap_gyroUpdate(void);
 bool stap_attiUpdate(void);
 bool stap_accUpdate(void);
 bool stap_sensorRead(stap_Vector3f_t *acc, stap_Vector3f_t *atti, stap_Vector3f_t *rot);
-
-//
-// Target hardware dependent stuff
-//
-
-#ifndef __APPLE__
-#include "StaP_TARGET.h"
-#endif
 
 //
 // Serial link definition
