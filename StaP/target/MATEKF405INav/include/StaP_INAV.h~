@@ -1,0 +1,101 @@
+#ifndef STAP_INAV_H
+#define STAP_INAV_H
+
+#include "VPTime.h"
+#include "drivers/light_led.h"
+#include "sensors/gyro.h"
+
+#define STAP_SENSOR_OVERSAMPLE    4
+#define STAP_SENSOR_ASYNC
+
+#define STAP_ENTROPY_SRC(mask)  (vpTimeMicros() & mask)
+
+#define STAP_LinkQuiescent(port, time) inavStaP_LinkQuiescent(port, time)
+#define STAP_LinkIsIdle(port) inavStaP_LinkIsIdle(port)
+#define STAP_LinkIsUsable(port) inavStaP_LinkIsUsable(port)
+#define STAP_LinkSetRate(port, rate) inavStaP_LinkSetRate(port, rate)
+#define STAP_LinkStatus(port) inavStaP_LinkStatus(port)
+#define STAP_LinkGetChar(port) inavStaP_LinkGetChar(port)
+#define STAP_LinkGet(port, b, s) inavStaP_LinkGet(port, b, s)
+#define STAP_LinkHasOverrun(port) inavStaP_LinkHasOverrun(port)
+#define STAP_LinkPutChar(port, c, to) inavStaP_LinkPutChar(port, c, to)
+#define STAP_LinkPut(port, b, s, to) inavStaP_LinkPut(port, b, s, to)
+#define STAP_LinkDrain(port) inavStaP_LinkDrain(port)
+#define STAP_LinkTxEnable(port) inavStaP_LinkTxEnable(port)
+#define STAP_LinkTxDisable(port) inavStaP_LinkTxDisable(port)
+#define STAP_LinkTxBegin(port) inavStaP_LinkTxBegin(port)
+#define STAP_LinkTxEnd(port) inavStaP_LinkTxEnd(port)
+
+#define STAP_I2CWrite(dev, a, as, b, bn) inavStaP_I2CWrite(dev, a, as, b, bn)
+#define STAP_I2CRead(dev, a, as, d, ds) inavStaP_I2CRead(dev, a, as, d, ds)
+#define STAP_I2CWait(dev) inavStaP_I2CWait(dev)
+#define STAP_I2CErrorCount inavStaP_I2CErrorCount()
+#define STAP_I2CErrorCode  inavStaP_I2CErrorCode()
+#define STAP_pwmOutput(num, pulse) inavStaP_pwmOutput(num, pulse)
+
+#define STAP_GyroCalibrate inavStaP_GyroCalibrate()
+#define STAP_GyroIsGood inavStaP_GyroIsGood()
+#define STAP_GyroUpdate inavStaP_GyroUpdate()
+#define STAP_BaroUpdate inavStaP_BaroUpdate()
+#define STAP_BaroRead inavStaP_BaroRead()
+
+#define STAP_SensorCalib     inavStaP_CalibrateAccel()
+#define STAP_FuelFlowSensor  inavStaP_SwitchRead(0)
+#define STAP_CanopySwitch    inavStaP_SwitchRead(1)
+
+#define STAP_Arm         inavStaP_Arm()
+
+void inavStaP_Arm(void);
+void inavStaP_CalibrateAccel(void);
+bool inavStaP_LinkQuiescent(uint8_t, VP_TIME_MICROS_T);
+bool inavStaP_LinkIsIdle(uint8_t);
+bool inavStaP_LinkIsUsable(uint8_t);
+void inavStaP_LinkSetRate(uint8_t, uint32_t);
+void inavStaP_LinkTxEnable(uint8_t);
+void inavStaP_LinkTxDisable(uint8_t);
+void inavStaP_LinkTxBegin(uint8_t);
+void inavStaP_LinkTxEnd(uint8_t);
+int inavStaP_LinkStatus(uint8_t);
+bool inavStaP_LinkHasOverrun(uint8_t);
+char inavStaP_LinkGetChar(uint8_t);
+int inavStaP_LinkGet(uint8_t, char*, int);
+int inavStaP_LinkPutChar(uint8_t, char, VP_TIME_MILLIS_T);
+int inavStaP_LinkPut(uint8_t, const char*, int, VP_TIME_MILLIS_T);
+void inavStaP_LinkDrain(uint8_t);
+
+uint8_t inavStaP_I2CWrite(uint8_t, const uint8_t*, uint8_t, const STAP_I2CBuffer_t*, int);
+uint8_t inavStaP_I2CRead(uint8_t, const uint8_t*, uint8_t, uint8_t*, uint8_t);
+uint8_t inavStaP_I2CWait(uint8_t);
+uint16_t inavStaP_I2CErrorCount(void);
+uint16_t inavStaP_I2CErrorCode(void);
+void inavStaP_pwmOutput(int, const uint16_t []);
+void inavStaP_GyroUpdate(void);
+bool inavStaP_GyroIsGood(void);
+void inavStaP_GyroCalibrate(void);
+void inavStaP_BaroUpdate(void);
+float inavStaP_BaroRead(void);
+uint8_t inavStaP_SwitchRead(uint8_t);
+
+#define STAP_PERIOD_GYRO            gyro.targetLooptime
+#define STAP_PERIOD_GYRO_STATIC     HZ_TO_PERIOD(400)
+
+#define STAP_FORBID      { __disable_irq(); nestCount++; }
+#define STAP_PERMIT      if(!--nestCount) __enable_irq()
+#define STAP_LED0_ON      ledSet(1, true)
+#define STAP_LED0_OFF     ledSet(1, false)
+#define STAP_LED1_ON      ledSet(0, true)
+#define STAP_LED1_OFF     ledSet(0, false)
+
+extern volatile uint8_t nestCount;
+
+//
+// Constant storage access (alias nasty AVR hack called "progmem")
+//
+
+#define CS_QUALIFIER  
+#define CS_MEMCPY memcpy
+#define CS_READCHAR(s) (*((const char *)s))
+#define CS_STRNCPY(dst, src, s) strncpy(dst, src, s)
+#define CS_STRING(s) s
+
+#endif

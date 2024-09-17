@@ -1,0 +1,99 @@
+#include "USART.h"
+#include "StaP.h"
+
+/* Compute the baud rate */
+#define USART0_BAUD_RATE(r) (((float)F_CPU * 64 / (16 * (float)r)) + 0.5)
+
+void USART_Init(volatile USART_t *hw, uint32_t rate, uint8_t mode)
+{
+  hw->CTRLC = USART_CHSIZE_8BIT_gc;
+  USART_SetRate(hw, rate);
+  USART_SetMode(hw, mode);
+}
+
+void USART_SetRate(volatile USART_t *hw, uint32_t rate)
+{
+    hw->BAUD = (uint16_t) USART0_BAUD_RATE(rate);
+}
+
+void USART_SetMode(volatile USART_t *hw, uint8_t mode)
+{
+  uint8_t ctrlA = 0, ctrlB = 0;
+
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  
+  if(mode & LINK_MODE_RX) {
+    ctrlA |= USART_RXCIE_bm;
+    ctrlB |= USART_RXEN_bm;
+  }
+    
+  if(mode & LINK_MODE_TX)
+    ctrlB |= USART_TXEN_bm;
+
+  hw->CTRLB = ctrlB;
+  hw->CTRLA = ctrlA;
+
+  STAP_PERMIT_SAFE(c);
+}
+
+/* This function transmits one byte through USART */
+void USART_Transmit(volatile USART_t *hw, const uint8_t *data, uint8_t size)
+{
+  while(size-- > 0) {
+    /* Check if USART buffer is ready to transmit data */
+    while (!(hw->STATUS & USART_DREIF_bm));
+    /* Transmit data using TXDATAL register */
+    hw->TXDATAL = *data++;
+  }
+}
+
+bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout)
+{
+  VP_TIME_MILLIS_T started = vpTimeMillisApprox;
+  
+  if(!(hw->CTRLB & USART_TXEN_bm))
+    return false;
+
+  // Wait until SW buffer is empty <==> DRE interrupt is disabled
+  
+  while(hw->CTRLA & USART_DREIE_bm) {
+    if(failSafeMode)
+      STAP_DelayMillisFromISR(1);
+    else
+      STAP_DelayMillis(1);
+    
+    if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout)
+      return false;
+  }
+
+  // Wait until HW buffer is empty
+
+  started = vpTimeMillisApprox;
+  
+  while(!(hw->STATUS & USART_DREIF_bm)) {
+    if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout)
+      return false;
+  }
+    
+  // Wait until last frame is transmitted
+
+  while(!(hw->STATUS & USART_TXCIF_bm)) {
+    if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout)
+      return false;
+  }
+
+  return true;
+}
+
+void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
+{
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  
+  if(VPBUFFER_GAUGE(*buffer) && !(hw->CTRLA & USART_DREIE_bm))
+    hw->CTRLA |= USART_DREIE_bm;
+  
+  STAP_PERMIT_SAFE(c);
+}
+
+
+

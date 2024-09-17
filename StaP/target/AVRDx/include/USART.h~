@@ -1,0 +1,36 @@
+/* 
+ * File:   USART.h
+ * Author: veivi
+ *
+ * Created on January 30, 2024, 5:31 PM
+ */
+
+#ifndef USART_H
+#define	USART_H
+
+#include <stdint.h>
+#include <avr/io.h>
+#include "Buffer.h"
+
+extern USART_t *USART_Table[];
+
+void USART_Init(uint8_t index, uint32_t rate, uint8_t mode);
+void USART_SetRate(uint8_t index, uint32_t rate);
+void USART_SetMode(uint8_t index, uint8_t mode);
+void USART_Transmit(uint8_t index, const uint8_t *data, uint8_t size);    
+void USART_TransmitStart(uint8_t index, VPBuffer_t *buffer);   
+void USART_ReceiveWorker(uint8_t index, VPBuffer_t *buffer);    
+void USART_TransmitWorker(uint8_t index, VPBuffer_t *buffer);    
+void USART_Drain(uint8_t index, VPBuffer_t *buffer);
+
+#define USART_TransmitWorker(index, buffer) \
+    if(VPBUFFER_GAUGE(buffer)) \
+      USART_Table[index]->TXDATAL = vpbuffer_extractChar(&buffer);	\
+    else \
+      USART_Table[index]->CTRLA &= ~USART_DREIE_bm
+
+#define USART_ReceiveWorker(index, buffer) \
+  vpbuffer_insertChar(&buffer, USART_Table[index]->RXDATAL)
+
+#endif	/* USART_H */
+

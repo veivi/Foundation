@@ -1,0 +1,115 @@
+#include "FreeRTOS.h"
+#include "task.h"
+#include "Scheduler.h"
+#include "Console.h"
+#include "StaP.h"
+
+// #define BLOB             3   // This defines the blobetiness level
+
+TaskHandle_t taskToNotify[StaP_Notifications];
+
+static void genericTaskWrapper( void *pvParameters )
+{
+  struct TaskDecl *appTask = (struct TaskDecl*) pvParameters;
+  
+  for(;;) {
+    if(appTask->signal) {
+      if(appTask->periodIsTimeout)
+	// We have a timeout specification
+	STAP_NotifyWaitTimeout(appTask->period);
+      else
+	STAP_NotifyWait();
+    }
+
+    if(!appTask->periodIsTimeout)
+      // We have a latency/period specification
+      vTaskDelay(pdMS_TO_TICKS(appTask->period));
+      
+    (*appTask->code)();
+  }
+}
+
+#ifdef BLOB
+
+void blobTask(void *params)
+{
+  int i = 0;
+
+  for(;;) {
+    consolePrint(params ? " Blobeti " : " BlobBlob ");
+    consolePrintUI(vpTimeMillis());
+    // consoleFlush();
+
+    STAP_DelayMillis(100);
+   }    
+}
+
+void flushTask(void *params)
+{
+  for(;;) {
+    consoleFlush();
+    vTaskDelay(pdMS_TO_TICKS(100));
+  }
+}
+
+#endif
+
+void StaP_SchedulerInit( void )
+{
+  TaskHandle_t handle = NULL;
+  int i = 0;
+
+#ifdef BLOB
+
+  if(xTaskCreate(blobTask, "Task", 2*STAP_TASK_MIN_STACK,
+		 (void*) 0, tskIDLE_PRIORITY + 1, &handle) != pdPASS)
+    STAP_Panic(STAP_ERR_TASK_CREATE);
+#if BLOB > 1
+  if(xTaskCreate(blobTask, "Task", 2*STAP_TASK_MIN_STACK,
+		 (void*) 1, tskIDLE_PRIORITY + 1, &handle) != pdPASS)
+    STAP_Panic(STAP_ERR_TASK_CREATE+1);
+#endif
+
+#if BLOB > 2
+  if(xTaskCreate(flushTask, "Task", 2*STAP_TASK_MIN_STACK,
+		 (void*) 0, tskIDLE_PRIORITY + 2, &handle) != pdPASS)
+    STAP_Panic(STAP_ERR_TASK_CREATE+2);
+#endif
+#else
+
+  // Notify as all invalid
+  
+  memset((void*) taskToNotify, 0xFF, sizeof(taskToNotify));
+	 
+  while(taskList[i].code) {
+#ifdef ONLY_TASK_NAME
+    if(strcmp(ONLY_TASK_NAME, taskList[i].name)) {
+      i++;
+      continue;
+    }
+#endif
+
+    uint16_t userStack = taskList[i].stack;
+
+    if(userStack < STAP_TASK_MIN_STACK)
+      userStack = STAP_TASK_MIN_STACK;
+    
+    if(xTaskCreate(genericTaskWrapper, taskList[i].name,
+		   configMINIMAL_STACK_SIZE + userStack,
+		   (void*) &taskList[i],
+		   tskIDLE_PRIORITY + 1 + taskList[i].priority,
+		   &handle) != pdPASS)
+      STAP_Panic(STAP_ERR_TASK_CREATE+i);
+
+    if(!handle)
+      STAP_Panic(STAP_ERR_TASK_CREATE+i);
+
+    taskList[i].handle = handle;
+    
+    if(taskList[i].signal)
+      taskToNotify[taskList[i].signal] = handle;
+    
+    i++;
+  }
+#endif
+}

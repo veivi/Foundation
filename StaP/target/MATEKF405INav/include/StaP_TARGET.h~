@@ -1,0 +1,17 @@
+#ifndef STAP_TARGET_H
+#define STAP_TARGET_H
+
+#include "StaP_INAV.h"
+#include "StaP_FEATURE.h"
+
+#define STAP_I2C_BUS              MAG_I2C_BUS
+
+#define STAP_UART_ALINK           USART1
+#define STAP_UART_SRXLBUSA        USART2
+#define STAP_UART_SRXLINB         UART4
+#define STAP_UART_SRXLOUTA        USART3
+#define STAP_UART_SRXLOUTB        UART5
+#define STAP_UART_TELEM           USART6
+
+#endif
+
