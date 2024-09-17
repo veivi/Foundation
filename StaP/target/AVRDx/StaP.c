@@ -436,6 +436,8 @@ VP_TIME_SECS_T STAP_TimeSecs(void)
 
 uint16_t STAP_CPUIdlePermille(void)
 {
+  return 0;
+  /*
   static VP_TIME_MICROS_T prevTime, prevIdle;
   VP_TIME_MICROS_T cycle = VP_ELAPSED_MICROS(prevTime),
     idleTime = ulTaskGetIdleRunTimeCounter() - prevIdle;
@@ -444,6 +446,7 @@ uint16_t STAP_CPUIdlePermille(void)
   prevIdle += idleTime;
 
   return (uint16_t) (1000UL*idleTime / cycle);
+  */
 }
 
 void CPUINT_Initialize()
