@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "VPTime.h"
-#include "StaP.h"
+#include "StaP_CONFIG.h"
 
 #define DG_TRANSMIT_MAX  (1<<9)
 #define DG_MAX_NODES     0x40
