@@ -398,8 +398,9 @@ static void serialTaskWrapper( void *pvParameters )
       } 
       
       if(!timed_out) {
-	// Now we know the buffer is not empty, we need to consider
-	// the link-specific latency as a timeout as we wait for more
+	// We didn't time out but now the buffer is no longer empty,
+	// we need to consider the link-specific latency as a timeout
+	// as we wait for more
 	
 	if(StaP_LinkTable[link].latency/1000 < timeout)
 	  timeout = StaP_LinkTable[link].latency/1000;
@@ -419,9 +420,6 @@ static void serialTaskWrapper( void *pvParameters )
     
     // Invoke the code
     
-    if(link == GS_Link_GNSSRX)
-      STAP_DEBUG(0, "inv ");
-	  
     invokeAgain = (*appTask->code)();
   }
 }
