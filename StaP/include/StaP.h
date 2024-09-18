@@ -18,7 +18,6 @@
 #include "StaP_CONFIG.h"
 
 #if defined(STAP_DEBUG_LEVEL) && STAP_DEBUG_LEVEL > 0
-#include "Console.h"
 #define STAP_DEBUG  consoleDebugf
 #else
 #define STAP_DEBUG  (void)
