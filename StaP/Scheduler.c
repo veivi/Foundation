@@ -393,7 +393,7 @@ static void serialTaskWrapper( void *pvParameters )
 	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer));	
       }
 
-      //      if(sig) {
+      if(VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) > 0) {
 	// Now we know the buffer is not empty, we need to consider
 	// the link-specific latency as a timeout as we wait for more
 	
@@ -410,7 +410,7 @@ static void serialTaskWrapper( void *pvParameters )
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
 	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer)
 		<= StaP_LinkTable[link].buffer.watermark);
-	//      } 	
+      } 	
     }
     
     // Invoke the code
