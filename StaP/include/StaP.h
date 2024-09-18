@@ -134,7 +134,7 @@ typedef struct StaP_LinkRecord {
   VP_TIME_MICROS_T latency, lastReceived;
 } StaP_LinkRecord_T;
 
-extern StaP_LinkRecord_T StaP_LinkTable[];
+extern volatile StaP_LinkRecord_T StaP_LinkTable[];
 
 //
 // Target hardware dependent stuff
