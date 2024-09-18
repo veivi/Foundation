@@ -391,7 +391,8 @@ static void serialTaskWrapper( void *pvParameters )
 	  sig = STAP_SignalWaitTimeout
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
 
-	  STAP_DEBUG(0, "sig 0x%X ",sig);
+	  if(link == GS_Link_GNSSRX)
+	    STAP_DEBUG(0, "sig 0x%X ",sig);
 	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer));	
       }
       
@@ -412,7 +413,8 @@ static void serialTaskWrapper( void *pvParameters )
 	do {
 	  sig = STAP_SignalWaitTimeout
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
-	  STAP_DEBUG(0, "sig2 0x%X ",sig);
+	  if(link == GS_Link_GNSSRX)
+	    STAP_DEBUG(0, "sig2 0x%X ",sig);
 	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer)
 		<= StaP_LinkTable[link].buffer.watermark);
       } 	
@@ -420,6 +422,9 @@ static void serialTaskWrapper( void *pvParameters )
     
     // Invoke the code
     
+    if(link == GS_Link_GNSSRX)
+      STAP_DEBUG(0, "inv ");
+	  
     invokeAgain = (*appTask->code)();
   }
 }
