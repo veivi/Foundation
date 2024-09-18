@@ -4,6 +4,7 @@
 #include "AlphaLink.h"
 #include "HostLink.h"
 #include "Console.h"
+#include "Datagram.h"
 #include "Buffer.h"
 #include "StringFmt.h"
 
