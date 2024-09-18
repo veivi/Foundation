@@ -391,8 +391,10 @@ static void serialTaskWrapper( void *pvParameters )
 	  sig = STAP_SignalWaitTimeout
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
 	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer));	
-      }
 
+	STAP_DEBUG(0, "sig 0x%X ",sig);
+      }
+      
       if(VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) > 0
 	 && VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) <
 	 (StaP_LinkTable[link].buffer.mask>>1)) {
