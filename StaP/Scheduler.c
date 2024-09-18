@@ -374,6 +374,7 @@ static void serialTaskWrapper( void *pvParameters )
 
       VP_TIME_MILLIS_T timeout = VP_TIME_MILLIS_MAX;
       StaP_SignalSet_T sig = 0;
+      bool timed_out = false;
 
       if(invokeAgain) 
 	// The task wants be unconditionally re-invoked at a specific time
@@ -390,11 +391,13 @@ static void serialTaskWrapper( void *pvParameters )
 	do {
 	  sig = STAP_SignalWaitTimeout
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
-	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer));	
-      }
+	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer));
+
+	if(!sig)
+	  timed_out = true;
+      } 
       
-      if(sig && VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) <
-	 (StaP_LinkTable[link].buffer.mask>>1)) {
+      if(!timed_out) {
 	// Now we know the buffer is not empty, we need to consider
 	// the link-specific latency as a timeout as we wait for more
 	
