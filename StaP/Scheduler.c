@@ -384,9 +384,9 @@ static void serialTaskWrapper( void *pvParameters )
 	// Buffer not empty and the link specifies a latency that's less
 	// than required by the task
       
-	timeout = StaP_LinkTable[link].latency/1000;
+	timeout = 50;
+      //timeout = StaP_LinkTable[link].latency/1000;
 
-      //      timeout = 50;
     
       if(VP_MILLIS_FINITE(timeout))
 	// We're waiting for more data
