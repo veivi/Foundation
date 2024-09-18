@@ -390,14 +390,10 @@ static void serialTaskWrapper( void *pvParameters )
 	do {
 	  sig = STAP_SignalWaitTimeout
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
-
-	  if(link == GS_Link_GNSSRX)
-	    STAP_DEBUG(0, "sig 0x%X ",sig);
 	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer));	
       }
       
-      if(VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) > 0
-	 && VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) <
+      if(sig && VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) <
 	 (StaP_LinkTable[link].buffer.mask>>1)) {
 	// Now we know the buffer is not empty, we need to consider
 	// the link-specific latency as a timeout as we wait for more
@@ -413,8 +409,6 @@ static void serialTaskWrapper( void *pvParameters )
 	do {
 	  sig = STAP_SignalWaitTimeout
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
-	  if(link == GS_Link_GNSSRX)
-	    STAP_DEBUG(0, "sig2 0x%X ",sig);
 	} while(sig && VPBUFFER_GAUGE(StaP_LinkTable[link].buffer)
 		<= StaP_LinkTable[link].buffer.watermark);
       } 	
