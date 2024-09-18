@@ -380,10 +380,14 @@ static void serialTaskWrapper( void *pvParameters )
 	timeout = invokeAgain < 1000 ? 1 : invokeAgain/1000;
 
     if(VPBUFFER_GAUGE(StaP_LinkTable[link].buffer)
-       && StaP_LinkTable[link].latency < timeout)
-	timeout = StaP_LinkTable[link].latency/1000;
+       && StaP_LinkTable[link].latency/1000 < timeout)
+      // Buffer not empty and the link specifies a latency that's less
+      // than required by the task, we want to limit the latency
+      
+      timeout = StaP_LinkTable[link].latency/1000;
 
-    if(timeout < VP_TIME_MILLIS_MAX)
+    timeout = 50000;
+    if(VP_MILLIS_FINITE(timeout))
       // We're waiting for more data
       StaP_LinkTable[link].buffer.watermark =
 	StaP_LinkTable[link].buffer.mask>>1;
@@ -392,7 +396,8 @@ static void serialTaskWrapper( void *pvParameters )
       StaP_LinkTable[link].buffer.watermark = 0;
       
       do {
-	sig = STAP_SignalWaitTimeout(STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
+	sig = STAP_SignalWaitTimeout
+	  (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
       } while(sig && VPBUFFER_GAUGE(StaP_LinkTable[link].buffer) <= StaP_LinkTable[link].buffer.watermark);
     }
     
