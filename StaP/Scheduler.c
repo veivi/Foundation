@@ -377,16 +377,16 @@ static void serialTaskWrapper( void *pvParameters )
 
       if(invokeAgain) 
 	// The task wants be unconditionally re-invoked at a specific time
-	timeout = invokeAgain < 1000 ? 1 : invokeAgain/1000;
+	timeout = invokeAgain < 1000 ? 1 : (invokeAgain/1000);
 
       if(VPBUFFER_GAUGE(StaP_LinkTable[link].buffer)
 	 && StaP_LinkTable[link].latency/1000 < timeout)
 	// Buffer not empty and the link specifies a latency that's less
-	// than required by the task, we want to limit the latency
+	// than required by the task
       
 	timeout = StaP_LinkTable[link].latency/1000;
 
-      timeout = 50;
+      //      timeout = 50;
     
       if(VP_MILLIS_FINITE(timeout))
 	// We're waiting for more data
