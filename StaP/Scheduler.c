@@ -415,7 +415,7 @@ static void serialTaskWrapper( void *pvParameters )
 	    (STAP_SignalSet(StaP_LinkTable[link].signal), timeout);
 	  if(link == GS_Link_GNSSRX)
 	    STAP_DEBUG(0, "sig2 0x%X ",sig);
-	} while(sig && !VPBUFFER_GAUGE(StaP_LinkTable[link].buffer)
+	} while(sig && VPBUFFER_GAUGE(StaP_LinkTable[link].buffer)
 		<= StaP_LinkTable[link].buffer.watermark);
       } 	
     }
