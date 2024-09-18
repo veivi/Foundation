@@ -399,7 +399,7 @@ static void serialTaskWrapper( void *pvParameters )
 	// Now we know the buffer is not empty, we need to consider
 	// the link-specific latency as a timeout as we wait for more
 	
-	if(StaP_LinkTable[link].latency/1000 < timeout)
+	//if(StaP_LinkTable[link].latency/1000 < timeout)
 	  timeout = StaP_LinkTable[link].latency/1000;
 
 	StaP_LinkTable[link].buffer.watermark =
