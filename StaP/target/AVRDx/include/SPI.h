@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <avr/io.h>
 
 typedef enum { SPI_DIR_TX, SPI_DIR_RX } SPI_DIR_T;
 
