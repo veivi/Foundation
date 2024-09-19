@@ -385,7 +385,7 @@ int AVRDxSTAP_LinkPutChar(uint8_t port, char c, VP_TIME_MILLIS_T timeout)
   return AVRDxSTAP_LinkPut(port, &c, 1, timeout);
 }
 
-void AVRDxSTAP_LinkSetRate(uint8_t port, ulong rate)
+void AVRDxSTAP_LinkSetRate(uint8_t port, unsigned long rate)
 {
   USART_SetRate(STAP_LINK_HW(port), rate);
 }
