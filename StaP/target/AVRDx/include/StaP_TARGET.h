@@ -71,7 +71,7 @@ typedef SemaphoreHandle_t    STAP_MutexRef_T;
 #define STAP_LinkTalk(port) AVRDxSTAP_LinkTalk(port)
 #define STAP_LinkDrain(port, timeout) AVRDxSTAP_LinkDrain(port, timeout)
 #define STAP_LinkListen(port, timeout) AVRDxSTAP_LinkListen(port, timeout)
-#define STAP_LinkSetRate(port, rate)
+#define STAP_LinkSetRate(port, rate) AVRDxSTAP_LinkSetRate(port, rate)
 #define STAP_NVStoreWrite(addr, buffer, size) AVRDxSTAP_NVStoreWrite(addr, buffer, size)
 #define STAP_NVStoreRead(addr, buffer, size) AVRDxSTAP_NVStoreRead(addr, buffer, size)
 
@@ -85,6 +85,7 @@ bool AVRDxSTAP_NVStoreRead(const void *addr, void *buffer, size_t size);
 void AVRDxSTAP_LinkTalk(uint8_t);
 void AVRDxSTAP_LinkListen(uint8_t, VP_TIME_MILLIS_T);
 void AVRDxSTAP_LinkDrain(uint8_t, VP_TIME_MILLIS_T);
+void AVRDxSTAP_LinkSetRate(uint8_t port, ulong rate);
 
 #define STAP_pwmOutput(num, pulse) AVRDxSTAP_pwmOutput(num, pulse)
 void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[]);
