@@ -149,6 +149,16 @@ void STAP_Reboot(bool loader)
   STAP_Panic(STAP_ERR_FELLTHROUGH+1);
 }
 
+void AVRDx_DelayMillis(VP_TIME_MILLIS_T d)
+{
+  vTaskDelay(pdMS_TO_TICKS(d));
+}
+
+void AVRDx_DelayUntil(STAP_NativeTime_T s, VP_TIME_MILLIS_T d)
+{
+  vTaskDelayUntil(s, pdMS_TO_TICKS(d));
+}
+
 bool AVRDxSTAP_NVStoreWrite(void *addr, const void *buffer, size_t size)
 {
   // EEPROM_Write((uint16_t) addr, (const uint8_t*) buffer, size);

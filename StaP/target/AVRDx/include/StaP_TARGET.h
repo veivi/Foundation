@@ -34,8 +34,11 @@ typedef TickType_t STAP_NativeTime_T;
 // Multitasking friendly delay
 //
 
-#define STAP_DelayMillis(d)         vTaskDelay(pdMS_TO_TICKS(d))
-#define STAP_DelayUntil(start, d)   vTaskDelayUntil(start, pdMS_TO_TICKS(d))
+#define STAP_DelayMillis(d)         AVRDx_DelayMillis(d)
+#define STAP_DelayUntil(start, d)   AVRDx_DelayUntil(start, d)
+
+void AVRDx_DelayMillis(VP_TIME_MILLIS_T);
+void AVRDx_DelayUntil(STAP_NativeTime_T, VP_TIME_MILLIS_T);
 
 //
 // Signals
