@@ -483,6 +483,7 @@ void CLKCTRL_init(void)
 #endif
 }
 
+#if STAP_USE_PWMOUTPUT
 struct PWMOutput {
   volatile TCA_t *TCA;
   volatile uint16_t *CMP;
@@ -524,6 +525,7 @@ void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[])
   
   TCA0.SINGLE.CNT = ~0;
 }
+#endif
   
 void STAP_Initialize(void)
 {
