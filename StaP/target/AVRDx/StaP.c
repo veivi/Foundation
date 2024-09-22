@@ -483,165 +483,6 @@ void CLKCTRL_init(void)
 #endif
 }
 
-/*
-extern const struct PortDescriptor portTable[];
-  
-extern const portName_t pcIntPort[];
-extern const uint8_t pcIntMask[];
-const struct PinDescriptor led = { PortA, 5 };
-const struct PinDescriptor latch = { PortF, 0 };
-
-const struct PortDescriptor portTable[] = {
-  [PortA] = { &PINA, &PORTA, &DDRA },
-  [PortB] = { &PINB, &PORTB, &DDRB, &PCMSK0, 0 },
-  [PortC] = { &PINC, &PORTC, &DDRC },
-  [PortD] = { &PIND, &PORTD, &DDRD },
-  [PortE] = { &PINE, &PORTE, &DDRE },
-  [PortF] = { &PINF, &PORTF, &DDRF },
-  [PortG] = { &PING, &PORTG, &DDRG },
-  [PortH] = { &PINH, &PORTH, &DDRH },
-  [PortK] = { &PINK, &PORTK, &DDRK, &PCMSK2, 2 },
-  [PortL] = { &PINL, &PORTL, &DDRL }
-};
-
-const portName_t pcIntPort[] = {
-  PortB, PortF, PortK
-};
-
-const uint8_t pcIntMask[] = {
-  1<<PCIE0, 1<<PCIE1, 1<<PCIE2
-};
-
-void pinOutputEnable(const struct PinDescriptor *pin, bool output)
-{
-  if(output)
-    *(portTable[pin->port].ddr) |= 1<<(pin->index);
-  else
-    *(portTable[pin->port].ddr) &= ~(1<<(pin->index));
-}  
-
-void setPinState(const struct PinDescriptor *pin, uint8_t state)
-{
-  if(state > 0)
-    *(portTable[pin->port].port) |= 1<<(pin->index);
-  else
-    *(portTable[pin->port].port) &= ~(1<<(pin->index));
-}
-
-uint8_t getPinState(const struct PinDescriptor *pin)
-{
-  return (*(portTable[pin->port].pin)>>(pin->index)) & 1;
-}
-
-void configureInput(const struct PinDescriptor *pin, bool pullup)
-{
-  pinOutputEnable(pin, false);
-  setPinState(pin, pullup ? 1 : 0);
-}
-
-void configureOutput(const struct PinDescriptor *pin)
-{
-  pinOutputEnable(pin, true);
-}
-
-typedef enum { COMnA = 0, COMnB = 1, COMnC = 2 } PWM_Ch_t;
-
-struct HWTimer {
-  volatile uint8_t *TCCRA, *TCCRB;
-  volatile uint16_t *ICR;
-  volatile uint16_t *OCR[3]; // 0... 2 = A ... C
-  volatile uint16_t *TCNT;
-  bool sync;
-  int8_t log2scale;
-};
-
-struct PWMOutput {
-  struct PinDescriptor pin;
-  const struct HWTimer *timer;
-  PWM_Ch_t pwmCh; // COMnA / COMnB / COMnC
-  bool active;
-};
-
-static const uint8_t outputModeMask[] = { 1<<COM1A1, 1<<COM1B1, 1<<COM1C1 };
-
-//
-// HW timer declarations
-//
-
-const struct HWTimer hwTimer1 =
-  { &TCCR1A, &TCCR1B, &ICR1, { &OCR1A, &OCR1B, &OCR1C }, &TCNT1, SYNC_PWM_OUTPUT, -2 };
-  // const struct HWTimer hwTimer3 =
-  // { &TCCR3A, &TCCR3B, &ICR3, { &OCR3A, &OCR3B, &OCR3C }, &TCNT3, false, 1 };
-const struct HWTimer hwTimer3 =
-  { &TCCR3A, &TCCR3B, &ICR3, { &OCR3A, &OCR3B, &OCR3C }, &TCNT3, SYNC_PWM_OUTPUT, -2 };
-const struct HWTimer hwTimer4 =
-  { &TCCR4A, &TCCR4B, &ICR4, { &OCR4A, &OCR4B, &OCR4C }, &TCNT4, SYNC_PWM_OUTPUT, -2 };
-
-const struct HWTimer *hwTimersOwn[] = 
-  { &hwTimer1, &hwTimer3, &hwTimer4 };
-
-const struct HWTimer hwTimer5 =
-  { &TCCR5A, &TCCR5B, &OCR5A, { &OCR5A, &OCR5B, &OCR5C }, &TCNT5, false, 1 };
-
-struct PWMOutput pwmOutput[MAX_SERVO] = {
-  { { PortB, 6 }, &hwTimer1, COMnB },
-  { { PortB, 5 }, &hwTimer1, COMnA },
-  { { PortH, 5 }, &hwTimer4, COMnC },
-  { { PortH, 4 }, &hwTimer4, COMnB },
-  { { PortH, 3 }, &hwTimer4, COMnA },
-  { { PortE, 5 }, &hwTimer3, COMnC },
-  { { PortE, 4 }, &hwTimer3, COMnB },
-  { { PortE, 3 }, &hwTimer3, COMnA },
-  { { PortB, 7 }, &hwTimer1, COMnC },
-  { { PortL, 4 }, &hwTimer5, COMnB },
-  { { PortL, 5 }, &hwTimer5, COMnC }
-};
-
-static void pwmTimerInit(const struct HWTimer *timer[], int num)
-{
-  int i = 0, j = 0;
-  
-  for(i = 0; i < num; i++) { 
-    // WGM, prescaling
-
-    *(timer[i]->TCCRA) = 1<<WGM11;
-    *(timer[i]->TCCRB) = (1<<WGM13) | (1<<WGM12) | (1<<CS11) | (timer[i]->sync ? (1<<CS10) : 0);
-    
-   // PWM frequency
-
-    if(timer[i]->sync)
-      *(timer[i]->ICR) = 0xFFFF;
-    else
-      *(timer[i]->ICR) = MICROS_TO_CNT(timer[i], 1000000UL/PWM_HZ) - 1;
-    
-   // Output set to 1.5 ms by default
-
-    for(j = 0; j < 3; j++)
-      *(timer[i]->OCR[j]) = MICROS_TO_CNT(timer[i], 1500U);
-  }
-}
-
-static void pwmTimerSync(const struct HWTimer *timer[], int num)
-{
-  int i = 0;
-
-  for(i = 0; i < num; i++) {
-    if(*(timer[i]->TCNT) > MICROS_TO_CNT(timer[i], 5000U))
-      *(timer[i]->TCNT) = 0xFFFF;
-  }
-}
-
-static void pwmEnable(const struct PWMOutput *output)
-{
-   *(output->timer->TCCRA) |= outputModeMask[output->pwmCh];
-}
-
-static void pwmDisable(const struct PWMOutput *output)
-{
-   *(output->timer->TCCRA) &= ~outputModeMask[output->pwmCh];
-}
-*/
-
 struct PWMOutput {
   volatile TCA_t *TCA;
   volatile uint16_t *CMP;
@@ -691,10 +532,6 @@ void STAP_Initialize(void)
   // Initialize clocks
 
   CLKCTRL_init();
-
-  // Initialize interrupt handling
-
-  //  CPUINT_Initialize();
 
   // Serial I/O outputs
 
@@ -767,8 +604,15 @@ void STAP_Initialize(void)
     }
   }
 
+  // I2C
+
+#ifdef STAP_USE_I2C_0
+  I2C_0_init();
+#endif
+	
 // PWM output
 
+#ifdef STAP_USE_PWMOUTPUT
   PORTMUX.TCAROUTEA = 0x3;
 
   PORTD.DIRSET = (1<<5)-1;
@@ -776,7 +620,7 @@ void STAP_Initialize(void)
   TCA0.SINGLE.CTRLA = (4<<1) | 1;  // EN + prescale 16
   TCA0.SINGLE.CTRLB = (7<<4) | 3;
   TCA0.SINGLE.PER = ~0;
-
+#endif
 }
 
 //
