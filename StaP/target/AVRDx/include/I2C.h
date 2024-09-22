@@ -30,6 +30,7 @@
 
 #include <xc.h>
 #include <stdint.h>
+#include "StaP.h"
 
 void    I2C_0_Init(void);
 int8_t I2C_0_Transfer(uint8_t device, StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize);
