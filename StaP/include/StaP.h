@@ -72,13 +72,13 @@ uint16_t STAP_CPUIdlePermille(void);
 #define ALPHAPILOT_SRXL      1
 
 //
-// I2C interface
+// I2C/SPI interface
 //
 
 typedef struct {
     const uint8_t *data;
-    uint8_t size;
-} STAP_I2CBuffer_t;
+    size_t size;
+} StaP_TransferUnit_t;
 
 //
 // System interface

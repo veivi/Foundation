@@ -90,11 +90,7 @@ void AVRDxSTAP_LinkSetRate(uint8_t port, unsigned long rate);
 #define STAP_pwmOutput(num, pulse) AVRDxSTAP_pwmOutput(num, pulse)
 void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[]);
 
-// #define STAP_I2CWrite(dev, a, as, b, bn) AVRDxSTAP_I2CWrite(dev, a, as, b, bn)
-// #define STAP_I2CRead(dev, a, as, d, ds) AVRDxSTAP_I2CRead(dev, a, as, d, ds)
-// #define STAP_I2CWait(dev) AVRDxSTAP_I2CWait(dev)
-// #define STAP_I2CErrorCount AVRDxSTAP_I2CErrorCount()
-// #define STAP_I2CErrorCode  AVRDxSTAP_I2CErrorCode()
+#define STAP_I2CTransfer(dev, up, num_up, down, size_down) I2C_0_Transfer(dev, up, num_up, down, size_down)
 
 #define CS_QUALIFIER  // PROGMEM
 #define CS_MEMCPY memcpy // memcpy_P

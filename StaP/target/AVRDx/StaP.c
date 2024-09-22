@@ -527,7 +527,24 @@ void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[])
   TCA0.SINGLE.CNT = ~0;
 }
 #endif
-  
+
+uint8_t AVRDxSTAP_I2CWrite(uint8_t dev, const uint8_t *a, uint8_t as, const StaP_TransterUnit_t *b, uint8_t bn)
+{
+}
+
+uint8_t AVRDxSTAP_I2CRead(uint8_t dev, const uint8_t *a, uint8_t as, uint8_t *d, uint8_t ds)
+{
+}
+
+uint8_t AVRDxSTAP_I2CErrorCount(void)
+{
+}
+
+uint8_t AVRDxSTAP_I2CErrorCode(void)
+{
+  return 0xFE;
+}
+
 void STAP_Initialize(void)
 {
   int i = 0;

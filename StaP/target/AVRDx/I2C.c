@@ -30,6 +30,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "I2C.h"
+#include "StaP.h"
 #include "VPTime.h"
 
 #ifdef TWI0_BAUD
@@ -141,12 +142,7 @@ static uint8_t i2c_0_WaitR(void)
 
 /* Generic uni/bidirectional transfer */
 
-typedef struct {
-    const uint8_t *data;
-    size_t size;
-} I2C_buffer_t;
-
-uint8_t I2C_0_Transfer(uint8_t device, I2C_buffer_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize)
+int8_t I2C_0_Transfer(uint8_t device, StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize)
 {
     uint8_t status = 0x00;
     int i = 0;
@@ -214,7 +210,7 @@ void I2C_0_EndSession(void)
 
 uint8_t I2C_0_Write(uint8_t device, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize)
 {
-    I2C_buffer_t buffer[] = { 
+    StaP_TransferUnit_t buffer[] = { 
         { addr, addrSize },
         { value, valueSize } 
     };
@@ -224,7 +220,7 @@ uint8_t I2C_0_Write(uint8_t device, const uint8_t *addr, size_t addrSize, const 
 
 uint8_t I2C_0_Read(uint8_t device, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
 {
-    I2C_buffer_t buffer = { addr, addrSize };
+    StaP_TransferUnit_t buffer = { addr, addrSize };
      
     if(addrSize > 0)
         return I2C_0_Transfer(device, &buffer, 1, value, valueSize);
