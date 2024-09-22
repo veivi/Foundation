@@ -37,7 +37,7 @@ struct TaskDecl {
 extern struct TaskDecl StaP_TaskList[];
 extern const int StaP_NumOfTasks;
 
-#define HZ_TO_PERIOD(f) ((VP_TIME_MILLIS_T) (1.0e3f/(f)))
+#define HZ_TO_PERIOD(f) (f) > 0 ? ((VP_TIME_MILLIS_T) (1.0e3f/(f))) : VP_TIME_MILLIS_MAX
 
 #define TASK_BY_PERIOD(N, P, C, PER, ST)		\
   { .type = StaP_Task_Period, .name = N, .code = C, .typeSpecific.period = PER, .priority = P, .stackSize = ST }

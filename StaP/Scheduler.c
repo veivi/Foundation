@@ -314,9 +314,14 @@ static void periodTaskWrapper( void *pvParameters )
   for(;;) {
     VP_TIME_MICROS_T callAgain = (*appTask->code)();
     
-    if(appTask->typeSpecific.period)
+    if(!VP_MILLIS_FINITE(appTask->typeSpecific.period))
+      // Period if infinite, wait forever
+      vTaskDelay(portMAX_DELAY);
+    else if(appTask->typeSpecific.period)
+      // Period is finite
       vTaskDelay(pdMS_TO_TICKS(appTask->typeSpecific.period));
     else
+      // Period is zero, we go by what the code returned
       vTaskDelay(pdMS_TO_TICKS(callAgain / 1000));
   }
 }
