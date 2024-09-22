@@ -316,7 +316,8 @@ static void periodTaskWrapper( void *pvParameters )
     
     if(!VP_MILLIS_FINITE(appTask->typeSpecific.period))
       // Period if infinite, wait forever
-      vTaskDelay(portMAX_DELAY);
+      for(;;)
+	vTaskDelay(portMAX_DELAY);
     else if(appTask->typeSpecific.period)
       // Period is finite
       vTaskDelay(pdMS_TO_TICKS(appTask->typeSpecific.period));
