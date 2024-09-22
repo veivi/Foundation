@@ -4,6 +4,7 @@
 #include "Objects.h"
 #include "USART.h"
 #include "SPI.h"
+#include "I2C.h"
 #include "Timer.h"
 #include <stdarg.h>
 #include <avr/io.h>
@@ -613,7 +614,7 @@ void STAP_Initialize(void)
   // I2C
 
 #if STAP_USE_I2C_0
-  I2C_0_init();
+  I2C_0_Init();
 #endif
 	
 // PWM output
