@@ -9,6 +9,7 @@
 #include "task.h"
 #include "semphr.h"
 #include "SPI.h"
+#include "I2C.h"
 
 typedef enum { StaP_Txcv_Invalid, AVRDx_Txcv_UART0, AVRDx_Txcv_UART1, AVRDx_Txcv_UART2, AVRDx_Txcv_UART3,  AVRDx_Txcv_UART4, StaP_NumOfTxcvs } StaP_Txcv_T;
 
