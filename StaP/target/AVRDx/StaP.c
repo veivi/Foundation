@@ -573,12 +573,16 @@ void STAP_Initialize(void)
   
   TCB_SetCaptIsrCallback(timerCallback);
 
-  // RTC is HW time for perf monitoring
+  // RTC
 
   RTC.CTRLA |= 1;
 
+  // SPI
+
+#if STAP_USE_SPI_0
   SPI_Initialize(&SPI0);
-  
+#endif
+	
   // Serial I/O initialization
 
   for(i = 0; i < StaP_NumOfLinks; i++) {
@@ -606,13 +610,13 @@ void STAP_Initialize(void)
 
   // I2C
 
-#ifdef STAP_USE_I2C_0
+#if STAP_USE_I2C_0
   I2C_0_init();
 #endif
 	
 // PWM output
 
-#ifdef STAP_USE_PWMOUTPUT
+#if STAP_USE_PWMOUTPUT
   PORTMUX.TCAROUTEA = 0x3;
 
   PORTD.DIRSET = (1<<5)-1;
