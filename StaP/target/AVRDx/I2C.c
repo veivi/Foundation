@@ -201,62 +201,6 @@ uint8_t I2C_0_Transfer(uint8_t device, I2C_buffer_t *upSegment, size_t numSegmen
     return status;
 }
 
- /* Returns how many bytes have been sent, -1 means NACK at device, 0 means client ACKed to client device */
-uint8_t I2C_0_Transmit(uint8_t device, const uint8_t *pData, uint8_t len)
-{
-    /* start transmitting the client device */
-    TWI0.MADDR = device<<1;
-    if(i2c_0_WaitW() != I2C_ACKED)
-        return 0x01;
-
-    if((len != 0) && (pData != NULL))
-    {
-        while(len)
-        {
-            TWI0.MDATA = *pData;
-            if(i2c_0_WaitW() == I2C_ACKED)
-            {
-                pData++;
-                len--;
-                continue;
-            }
-            else // did not get ACK after client device
-            {
-                return 0x02;
-            }
-        }
-    }
-    
-    return 0x00;
-}
-
-/* Returns how many bytes have been received, -1 means NACK at device */
-uint8_t I2C_0_Receive(uint8_t device, uint8_t *pData, uint8_t len)
-{
-    /* start transmitting the client address */
-    TWI0.MADDR = (device<<1) | 0x01;
-    if(i2c_0_WaitW() != I2C_ACKED)
-        return 0x11;
-
-    if((len != 0) && (pData !=NULL ))
-    {
-        while(len--)
-        {
-            if(i2c_0_WaitR() == I2C_READY)
-            {
-               *pData = TWI0.MDATA;
-                TWI0.MCTRLB = (len == 0)? TWI_ACKACT_bm | TWI_MCMD_STOP_gc : TWI_MCMD_RECVTRANS_gc;
-                pData++;
-                continue;
-            }
-            else
-                return 0x12;
-        }
-    }
-    
-    return 0x00;
-}
-
 void I2C_0_EndSession(void)
 {
     if(timedOut) {
