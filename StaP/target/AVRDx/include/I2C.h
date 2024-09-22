@@ -31,13 +31,8 @@
 #include <xc.h>
 #include <stdint.h>
 
-#ifdef	__cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 void    I2C_0_Init(void);
-uint8_t I2C_0_Transmit(uint8_t device, const uint8_t *pData, uint8_t len); // returns how many bytes have been sent, -1 means NACK at address
-uint8_t I2C_0_Receive(uint8_t device, uint8_t *pData, uint8_t len);
+int8_t I2C_0_Transfer(uint8_t device, StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize);
 void    I2C_0_EndSession(void);
 uint8_t I2C_0_Write(uint8_t device, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize);
 uint8_t I2C_0_Read(uint8_t device, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize);
