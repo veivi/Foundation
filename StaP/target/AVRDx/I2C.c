@@ -215,7 +215,7 @@ uint8_t I2C_0_Write(uint8_t device, const uint8_t *addr, size_t addrSize, const 
         { value, valueSize } 
     };
 
-    return I2C_0_Transfer(device, buffer, sizeof(buffer)/sizeof(I2C_buffer_t), NULL, 0);
+    return I2C_0_Transfer(device, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t), NULL, 0);
 }
 
 uint8_t I2C_0_Read(uint8_t device, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
