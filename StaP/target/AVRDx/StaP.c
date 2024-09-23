@@ -548,14 +548,26 @@ void STAP_Initialize(void)
 
   // Serial I/O outputs
 
-#if STAP_MCU_PINS > 28
+#if STAP_USE_USART0_TX
+  PORTA.DIRSET = 1<<0;
+#endif
+  
+#if STAP_USE_USART1_TX
+  PORTC.DIRSET = 1<<0;
+#endif
+  
+#if STAP_USE_USART2_TX
+  PORTF.DIRSET = 1<<0;
+#endif
+  
+#if STAP_USE_USART3_TX
   PORTB.DIRSET = 1<<0;
+#endif
+  
+#if STAP_USE_USART4_TX
   PORTE.DIRSET = 1<<0;
 #endif
   
-  PORTC.DIRSET = 1<<0;
-  PORTF.DIRSET = 1<<0;
-
   // Initialize LED control
 
   STAP_LED0_PORT.DIRSET = STAP_LED0_MASK;
@@ -681,19 +693,44 @@ void STAP_Initialize(void)
       portYIELD_FROM_ISR();						\
   }
 
+#if STAP_USE_USART0_RX
 AVRDxUSART_Receive_ISR(0, AVRDx_Txcv_UART0);
-AVRDxUSART_Transmit_ISR(0, AVRDx_Txcv_UART0);
-AVRDxUSART_Receive_ISR(1, AVRDx_Txcv_UART1);
-AVRDxUSART_Transmit_ISR(1, AVRDx_Txcv_UART1);
-AVRDxUSART_Receive_ISR(2, AVRDx_Txcv_UART2);
-AVRDxUSART_Transmit_ISR(2, AVRDx_Txcv_UART2);
-#if STAP_NUM_UARTS > 3
-AVRDxUSART_Receive_ISR(3, AVRDx_Txcv_UART3);
-AVRDxUSART_Transmit_ISR(3, AVRDx_Txcv_UART3);
-#if STAP_NUM_UARTS > 4
-AVRDxUSART_Receive_ISR(4, AVRDx_Txcv_UART4);
-AVRDxUSART_Transmit_ISR(4, AVRDx_Txcv_UART4);
 #endif
+
+#if STAP_USE_USART1_RX
+AVRDxUSART_Receive_ISR(1, AVRDx_Txcv_UART1);
+#endif
+
+#if STAP_USE_USART2_RX
+AVRDxUSART_Receive_ISR(2, AVRDx_Txcv_UART2);
+#endif
+
+#if STAP_USE_USART3_RX
+AVRDxUSART_Receive_ISR(3, AVRDx_Txcv_UART3);
+#endif
+
+#if STAP_USE_USART4_RX
+AVRDxUSART_Receive_ISR(4, AVRDx_Txcv_UART4);
+#endif
+
+#if STAP_USE_USART0_TX
+AVRDxUSART_Transmit_ISR(0, AVRDx_Txcv_UART0);
+#endif
+
+#if STAP_USE_USART1_TX
+AVRDxUSART_Transmit_ISR(1, AVRDx_Txcv_UART1);
+#endif
+
+#if STAP_USE_USART2_TX
+AVRDxUSART_Transmit_ISR(2, AVRDx_Txcv_UART2);
+#endif
+
+#if STAP_USE_USART3_TX
+AVRDxUSART_Transmit_ISR(3, AVRDx_Txcv_UART3);
+#endif
+
+#if STAP_USE_USART4_TX
+AVRDxUSART_Transmit_ISR(4, AVRDx_Txcv_UART4);
 #endif
 
 ISR(BADISR_vect)
