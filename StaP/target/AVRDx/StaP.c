@@ -60,9 +60,13 @@ struct Transceiver {
 volatile static struct Transceiver txcvTable[StaP_NumOfTxcvs] = {
   [AVRDx_Txcv_UART0] = { &USART0, 0, 0, false },
   [AVRDx_Txcv_UART1] = { &USART1, 0, 0, false },
-  [AVRDx_Txcv_UART2] = { &USART2, 0, 0, false },
-  [AVRDx_Txcv_UART3] = { &USART3, 0, 0, false },
-  [AVRDx_Txcv_UART4] = { &USART4, 0, 0, false }
+  [AVRDx_Txcv_UART2] = { &USART2, 0, 0, false }
+#if STAP_USE_USART3_RX || STAP_USE_USART3_TX 
+  ,[AVRDx_Txcv_UART3] = { &USART3, 0, 0, false }
+#endif
+#if STAP_USE_USART4_RX || STAP_USE_USART4_TX 
+  ,[AVRDx_Txcv_UART4] = { &USART4, 0, 0, false }
+#endif
 };
 
 #define STAP_LINK_HAS_HW(link) \
