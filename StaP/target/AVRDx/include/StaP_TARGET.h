@@ -90,6 +90,8 @@ void AVRDxSTAP_LinkTalk(uint8_t);
 void AVRDxSTAP_LinkListen(uint8_t, VP_TIME_MILLIS_T);
 void AVRDxSTAP_LinkDrain(uint8_t, VP_TIME_MILLIS_T);
 void AVRDxSTAP_LinkSetRate(uint8_t port, unsigned long rate);
+void AVRDxSTAP_LinkSuspend(uint8_t);
+void AVRDxSTAP_LinkResume(uint8_t);
 
 #define STAP_pwmOutput(num, pulse) AVRDxSTAP_pwmOutput(num, pulse)
 void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[]);
