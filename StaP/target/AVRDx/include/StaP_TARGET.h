@@ -38,7 +38,7 @@ typedef TickType_t STAP_NativeTime_T;
 #define STAP_DelayUntil(start, d)   AVRDx_DelayUntil(start, d)
 
 void AVRDx_DelayMillis(VP_TIME_MILLIS_T);
-void AVRDx_DelayUntil(STAP_NativeTime_T, VP_TIME_MILLIS_T);
+void AVRDx_DelayUntil(STAP_NativeTime_T*, VP_TIME_MILLIS_T);
 
 //
 // Signals
