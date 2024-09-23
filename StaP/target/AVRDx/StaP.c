@@ -154,9 +154,9 @@ void AVRDx_DelayMillis(VP_TIME_MILLIS_T d)
   vTaskDelay(pdMS_TO_TICKS(d));
 }
 
-void AVRDx_DelayUntil(STAP_NativeTime_T s, VP_TIME_MILLIS_T d)
+void AVRDx_DelayUntil(STAP_NativeTime_T *start, VP_TIME_MILLIS_T d)
 {
-  vTaskDelayUntil(s, pdMS_TO_TICKS(d));
+  vTaskDelayUntil(start, pdMS_TO_TICKS(d));
 }
 
 bool AVRDxSTAP_NVStoreWrite(void *addr, const void *buffer, size_t size)
