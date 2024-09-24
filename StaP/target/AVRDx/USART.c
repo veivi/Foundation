@@ -95,5 +95,24 @@ void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
   STAP_PERMIT_SAFE(c);
 }
 
+void USART_TransmitWorker(volatile USART_t *hw, VPBuffer_t *buffer)
+{
+  if(VPBUFFER_GAUGE(buffer) > 0)
+    hw->TXDATAL = vpbuffer_extractChar(buffer);
+
+  if(VPBUFFER_GAUGE(buffer) == 0)
+    hw->CTRLA &= ~USART_DREIE_bm;
+}
+
+void USART_ReceiveWorker(volatile USART_t *hw, VPBuffer_t *buffer)
+{
+  uint8_t flags = hw->RXDATAH;
+  
+  if(flags & USART_RXCIF_bm)
+    vpbuffer_insertChar(buffer, hw->RXDATAL);
+  
+  if(flags & USART_BUFOVF_bm)
+    STAP_Error(STAP_ERR_RX_OVERRUN_H);
+}
 
 

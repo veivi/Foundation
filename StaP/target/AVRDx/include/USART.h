@@ -22,13 +22,16 @@ void USART_Transmit(volatile USART_t *hw, const uint8_t *data, uint8_t size);
 void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer);   
 bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout);
 
-#define USART_TransmitWorker(hw, buffer) \
+void USART_TransmitWorker(volatile USART_t *hw, VPBuffer_t *buffer);
+void USART_ReceiveWorker(volatile USART_t *hw, VPBuffer_t *buffer);
+
+#define USART_TransmitWorkerInline(hw, buffer) \
   { if(VPBUFFER_GAUGE(buffer))				\
     hw->TXDATAL = vpbuffer_extractChar(&buffer);	\
   if(!VPBUFFER_GAUGE(buffer))				\
     hw->CTRLA &= ~USART_DREIE_bm; }
 
-#define USART_ReceiveWorker(hw, buffer) \
+#define USART_ReceiveWorkerInline(hw, buffer) \
   { uint8_t flags = hw->RXDATAH;	\
     if(flags & USART_RXCIF_bm) \
       vpbuffer_insertChar(&buffer, hw->RXDATAL); \
