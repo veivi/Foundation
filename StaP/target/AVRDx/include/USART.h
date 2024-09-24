@@ -26,15 +26,15 @@ void USART_TransmitWorker(volatile USART_t *hw, VPBuffer_t *buffer);
 void USART_ReceiveWorker(volatile USART_t *hw, VPBuffer_t *buffer);
 
 #define USART_TransmitWorkerInline(hw, buffer) \
-  { if(VPBUFFER_GAUGE(buffer))				\
-    hw->TXDATAL = vpbuffer_extractChar(&buffer);	\
-  if(!VPBUFFER_GAUGE(buffer))				\
+  { if(VPBUFFER_GAUGE(*buffer))				\
+    hw->TXDATAL = vpbuffer_extractChar(buffer);	\
+  if(!VPBUFFER_GAUGE(*buffer))				\
     hw->CTRLA &= ~USART_DREIE_bm; }
 
 #define USART_ReceiveWorkerInline(hw, buffer) \
   { uint8_t flags = hw->RXDATAH;	\
     if(flags & USART_RXCIF_bm) \
-      vpbuffer_insertChar(&buffer, hw->RXDATAL); \
+      vpbuffer_insertChar(buffer, hw->RXDATAL); \
     if(flags & USART_BUFOVF_bm) STAP_Error(STAP_ERR_RX_OVERRUN_H); }
 
 
