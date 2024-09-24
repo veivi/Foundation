@@ -7,7 +7,7 @@
 #define SERIAL_BUFSIZE  (1<<6)
 #define MAX_DG_SIZE     (1<<8)
 #define TX_TIMEOUT      200     // Milliseconds
-#define AL_LATENCY      5000    // Microseconds
+#define AL_LATENCY      50000    // Microseconds
 #define AUX_LATENCY     5000
 #define GNSS_LATENCY    50000U
 #define GNSS_BITRATE    9600
