@@ -7,7 +7,7 @@
 #include "StaP.h"
 
 // #define ONLY_TASK_NAME   "Blink"
-// #define BLOB             2   // This defines the blobetiness level
+// #define BLOB_LEVEL             2   // This defines the blobetiness level
 
 #ifdef USE_NATIVE_SCHEDULER
 
@@ -429,7 +429,7 @@ static void serialTaskWrapper( void *pvParameters )
   }
 }
 
-#ifdef BLOB
+#ifdef BLOB_LEVEL
 
 void blobTask(void *params)
 {
@@ -438,9 +438,9 @@ void blobTask(void *params)
   for(;;) {
     // USART_Transmit(&USART2, "Paska", 5);
     // STAP_LinkPut(ALP_Link_HostTX, "Paska ", 6, 1000);
-#if BLOB > 0
+#if BLOB_LEVEL > 0
     if(params)
-      consolePrintf" Blobeti %d", vpTimeMillis());
+      consolePrintf(" Blobeti %d", vpTimeMillis());
     else
       consolePrintf(" BlobBlob %d ", vpTimeMillis());
 #endif
@@ -486,17 +486,17 @@ void StaP_SchedulerStart( void )
   
   memset((void*) signalOwner, 0, sizeof(signalOwner));
 	 
-#ifdef BLOB
+#ifdef BLOB_LEVEL
   if(xTaskCreate(blobTask, "Blib1", configMINIMAL_STACK_SIZE << 2,
 		 (void*) 0, tskIDLE_PRIORITY + 1, &handle) != pdPASS)
     STAP_Panic(STAP_ERR_TASK_CREATE);
-#if BLOB > 1
+#if BLOB_LEVEL > 1
   if(xTaskCreate(blobTask, "Blob2", configMINIMAL_STACK_SIZE << 2,
 		 (void*) 1, tskIDLE_PRIORITY + 1, &handle) != pdPASS)
     STAP_Panic(STAP_ERR_TASK_CREATE+1);
 #endif
 
-#if BLOB > 2
+#if BLOB_LEVEL > 2
   if(xTaskCreate(flushTask, "Blob3", configMINIMAL_STACK_SIZE << 2,
 		 (void*) 0, tskIDLE_PRIORITY + 2, &handle) != pdPASS)
     STAP_Panic(STAP_ERR_TASK_CREATE+2);
