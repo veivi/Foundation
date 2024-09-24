@@ -616,9 +616,6 @@ void STAP_Initialize(void)
         txcvTable[StaP_LinkTable[i].txcv].txLink = i;
 
 	if(StaP_LinkTable[i].signal) {
-#ifndef STAP_MutexCreate
-#error Must have MUTEX support for signaling serial transmission!
-#endif
 	  if(!(mutex[i] = STAP_MutexCreate))
 	    STAP_Panic(STAP_ERR_MUTEX_CREATE);
 	}
@@ -697,36 +694,36 @@ void STAP_Initialize(void)
 AVRDxUSART_Receive_ISR(0, AVRDx_Txcv_UART0);
 #endif
 
-#if STAP_USE_USART1_RX
-AVRDxUSART_Receive_ISR(1, AVRDx_Txcv_UART1);
-#endif
-
-#if STAP_USE_USART2_RX
-AVRDxUSART_Receive_ISR(2, AVRDx_Txcv_UART2);
-#endif
-
-#if STAP_USE_USART3_RX
-AVRDxUSART_Receive_ISR(3, AVRDx_Txcv_UART3);
-#endif
-
-#if STAP_USE_USART4_RX
-AVRDxUSART_Receive_ISR(4, AVRDx_Txcv_UART4);
-#endif
-
 #if STAP_USE_USART0_TX
 AVRDxUSART_Transmit_ISR(0, AVRDx_Txcv_UART0);
+#endif
+
+#if STAP_USE_USART1_RX
+AVRDxUSART_Receive_ISR(1, AVRDx_Txcv_UART1);
 #endif
 
 #if STAP_USE_USART1_TX
 AVRDxUSART_Transmit_ISR(1, AVRDx_Txcv_UART1);
 #endif
 
+#if STAP_USE_USART2_RX
+AVRDxUSART_Receive_ISR(2, AVRDx_Txcv_UART2);
+#endif
+
 #if STAP_USE_USART2_TX
 AVRDxUSART_Transmit_ISR(2, AVRDx_Txcv_UART2);
 #endif
 
+#if STAP_USE_USART3_RX
+AVRDxUSART_Receive_ISR(3, AVRDx_Txcv_UART3);
+#endif
+
 #if STAP_USE_USART3_TX
 AVRDxUSART_Transmit_ISR(3, AVRDx_Txcv_UART3);
+#endif
+
+#if STAP_USE_USART4_RX
+AVRDxUSART_Receive_ISR(4, AVRDx_Txcv_UART4);
 #endif
 
 #if STAP_USE_USART4_TX
