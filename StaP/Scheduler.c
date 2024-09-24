@@ -257,7 +257,7 @@ void StaP_SchedulerStart()
 #include "Console.h"
 #include "StaP.h"
 
-// #define BLOB             2   // This defines the blobetiness level
+#define BLOB             2   // This defines the blobetiness level
 
 TaskHandle_t signalOwner[StaP_NumOfSignals];
 
