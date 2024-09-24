@@ -1,7 +1,6 @@
 #include "Scheduler.h"
 #include "Buffer.h"
 #include "Console.h"
-#include "Objects.h"
 #include "USART.h"
 #include "SPI.h"
 #include "I2C.h"
