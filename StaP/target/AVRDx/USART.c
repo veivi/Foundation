@@ -97,10 +97,10 @@ void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
 
 void USART_TransmitWorker(volatile USART_t *hw, VPBuffer_t *buffer)
 {
-  if(VPBUFFER_GAUGE(buffer) > 0)
+  if(VPBUFFER_GAUGE(*buffer) > 0)
     hw->TXDATAL = vpbuffer_extractChar(buffer);
 
-  if(VPBUFFER_GAUGE(buffer) == 0)
+  if(VPBUFFER_GAUGE(*buffer) == 0)
     hw->CTRLA &= ~USART_DREIE_bm;
 }
 
