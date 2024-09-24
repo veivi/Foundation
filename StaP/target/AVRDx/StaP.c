@@ -659,7 +659,7 @@ void STAP_Initialize(void)
     if(txcvTable[trans].initialized) {  \
       if(txcvTable[trans].rxLink) { \
 	USART_ReceiveWorker(txcvTable[trans].hw, \
-			    StaP_LinkTable[txcvTable[trans].rxLink].buffer); \
+			    &StaP_LinkTable[txcvTable[trans].rxLink].buffer); \
 	if(VPBUFFER_GAUGE(StaP_LinkTable[txcvTable[trans].rxLink].buffer) > \
 	   StaP_LinkTable[txcvTable[trans].rxLink].buffer.watermark)	\
 	  yield = STAP_SignalFromISR(StaP_LinkTable[txcvTable[trans].rxLink].signal); \
@@ -676,7 +676,7 @@ void STAP_Initialize(void)
     UBaseType_t yield = false;	       \
     if(txcvTable[trans].initialized)	{ \
       if(txcvTable[trans].txLink) {					\
-	USART_TransmitWorker(txcvTable[trans].hw, StaP_LinkTable[txcvTable[trans].txLink].buffer); \
+	USART_TransmitWorker(txcvTable[trans].hw, &StaP_LinkTable[txcvTable[trans].txLink].buffer); \
 	if(VPBUFFER_GAUGE(StaP_LinkTable[txcvTable[trans].txLink].buffer) <= \
 	   StaP_LinkTable[txcvTable[trans].txLink].buffer.watermark \
 	   && StaP_LinkTable[txcvTable[trans].txLink].signal) {		\
