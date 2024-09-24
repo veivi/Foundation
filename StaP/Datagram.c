@@ -149,7 +149,8 @@ void datagramTxStartGeneric(DgLink_t *link, uint8_t node)
   if(link->txBegin)
     (link->txBegin)(link->context);
   
-  if(link->txBusy || VP_ELAPSED_MILLIS(link->datagramLastTxMillis) > 500U)
+  if(failSafeMode || link->txBusy
+     || VP_ELAPSED_MILLIS(link->datagramLastTxMillis) > 500U)
     outputBreak(link);
 
   link->crcStateTx = 0xFFFF;
@@ -195,8 +196,10 @@ void datagramTxEnd(DgLink_t *link)
   
   if(link->txEnd)
     (link->txEnd)(link->context);
+
+  if(!failSafeMode)
+    link->datagramLastTxMillis = vpTimeMillis();
   
-  link->datagramLastTxMillis = vpTimeMillis();  
   link->txBusy = false;
   
 #ifdef STAP_MutexCreate

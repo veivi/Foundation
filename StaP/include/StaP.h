@@ -27,9 +27,9 @@
 // System mode
 //
 
-#define STAP_FailSafe       (void) STAP_FORBID_SAFE; failSafeMode = true
-
 extern bool failSafeMode;  // Interrupts disabled
+
+#define STAP_FailSafe          { STAP_EnterSystem; failSafeMode = true; }
 
 uint16_t STAP_CPUIdlePermille(void);
 

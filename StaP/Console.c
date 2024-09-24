@@ -65,6 +65,14 @@ static void consoleFlushUnsafe()
 
 void consoleOut(const char *b, int8_t s)
 {
+  if(failSafeMode) {
+    datagramTxStart(consoleLink, HL_CONSOLE);    
+    datagramTxOut(consoleLink, (const uint8_t*) b, s);
+    datagramTxEnd(consoleLink);
+    
+    return;
+  }
+  
   mutexObtain();
   
   if(!consoleBuffer.mask)

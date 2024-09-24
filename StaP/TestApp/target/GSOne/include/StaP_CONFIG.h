@@ -1,7 +1,7 @@
 #ifndef STAP_CONFIG_H
 #define STAP_CONFIG_H
 
-#define STAP_USE_USART0_TX     1
+#define STAP_USE_USART0_RX     1
 #define STAP_USE_USART1_TX     1
 #define STAP_USE_USART1_RX     1
 #define STAP_USE_USART2_TX     1

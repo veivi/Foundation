@@ -21,13 +21,10 @@ extern bool hostConnected;
 //
 
 char hostTxBuffer[SERIAL_BUFSIZE>>1], hostRxBuffer[SERIAL_BUFSIZE];
-
-/*
 char auxTxBuffer[SERIAL_BUFSIZE>>2], auxRxBuffer[SERIAL_BUFSIZE>>2];
 char gnssTxBuffer[SERIAL_BUFSIZE>>2], gnssRxBuffer[SERIAL_BUFSIZE<<1];
 char radioTxBuffer[SERIAL_BUFSIZE>>1], radioRxBuffer[SERIAL_BUFSIZE];
 char blueRxBuffer[SERIAL_BUFSIZE];
-*/
 
 StaP_LinkRecord_T StaP_LinkTable[StaP_NumOfLinks] = {
   
@@ -35,18 +32,11 @@ StaP_LinkRecord_T StaP_LinkTable[StaP_NumOfLinks] = {
   // Host interface (debugging)
   //
 
-  //[GS_Link_HostRX] =
-  //{ AVRDx_Txcv_UART1, 115200, LINK_MODE_RXTX, VPBUFFER_CONS(hostRxBuffer), GS_SIG_HOSTRX, AL_LATENCY },
+  [GS_Link_HostRX] =
+  { AVRDx_Txcv_UART1, 115200, LINK_MODE_RXTX, VPBUFFER_CONS(hostRxBuffer), GS_SIG_HOSTRX, AL_LATENCY },
   [GS_Link_HostTX] =
   { AVRDx_Txcv_UART1, 115200, LINK_MODE_TX, VPBUFFER_CONS(hostTxBuffer), GS_SIG_HOSTTX },
   
-  // GNSS link
-  /*
-  [GS_Link_GNSSRX] =
-  { AVRDx_Txcv_UART2, GNSS_BITRATE, LINK_MODE_RXTX, VPBUFFER_CONS(gnssRxBuffer), GS_SIG_GNSSRX, GNSS_LATENCY },
-  [GS_Link_GNSSTX] =
-  { AVRDx_Txcv_UART2, GNSS_BITRATE, LINK_MODE_RXTX, VPBUFFER_CONS(gnssTxBuffer), GS_SIG_GNSSTX },
-
   // Radio link
 
   [GS_Link_RadioRX] =
@@ -54,10 +44,18 @@ StaP_LinkRecord_T StaP_LinkTable[StaP_NumOfLinks] = {
   [GS_Link_RadioTX] =
   { AVRDx_Txcv_UART4, RADIO_BITRATE, LINK_MODE_RXTX, VPBUFFER_CONS(radioTxBuffer), GS_SIG_RADIOTX },
 
+  // GNSS link
+  /*
+  [GS_Link_GNSSRX] =
+  { AVRDx_Txcv_UART2, GNSS_BITRATE, LINK_MODE_RXTX, VPBUFFER_CONS(gnssRxBuffer), GS_SIG_GNSSRX, GNSS_LATENCY },
+  [GS_Link_GNSSTX] =
+  { AVRDx_Txcv_UART2, GNSS_BITRATE, LINK_MODE_RXTX, VPBUFFER_CONS(gnssTxBuffer), GS_SIG_GNSSTX },
+
   // BT link, receive-only
 
   [GS_Link_BTRX] =
   { AVRDx_Txcv_UART0, RADIO_BITRATE, LINK_MODE_RX, VPBUFFER_CONS(blueRxBuffer), GS_SIG_BTRX, AL_LATENCY },
+  */
   
   //
   // Aux link
@@ -69,7 +67,6 @@ StaP_LinkRecord_T StaP_LinkTable[StaP_NumOfLinks] = {
   [GS_Link_AuxTX] =
   { AVRDx_Txcv_UART3, AUX_BITRATE, LINK_MODE_RXTX, VPBUFFER_CONS(auxTxBuffer), GS_SIG_AUXTX } 
 #endif
-  */
 };
 
 
@@ -110,7 +107,8 @@ void datagramHandlerHost(void *context, uint8_t node, const uint8_t *data, size_
 
 void datagramHandlerRadio(void *context, uint8_t node, const uint8_t *data, size_t size)
 {
-  //  radioLinkHandler(data, size);
+  static int num = 0;
+  consolePrintfLn("received dg %d (%d bytes)", num++, size);
 }
 
 void datagramHandlerBT(void *context, uint8_t node, const uint8_t *data, size_t size)
@@ -150,7 +148,7 @@ void mainLoopSetup()
 		   dgLinkOut, dgLinkTxBegin, dgLinkTxEnd);
 
   consoleLink = &hostLink;
-  /*
+
   datagramLinkInit(&telemLink, ALN_TELEMETRY,
 		   datagramRxStoreRadio, sizeof(datagramRxStoreRadio), 
 		   (void*) GS_Link_RadioTX, 
@@ -158,7 +156,7 @@ void mainLoopSetup()
 		   dgLinkOut, dgLinkTxBegin, dgLinkTxEnd);
 
   // BT link is receive-only
-	
+  /*
   datagramLinkInit(&btLink, 0,
 		   datagramRxStoreBT, sizeof(datagramRxStoreBT), 
 		   NULL, 

@@ -18,18 +18,23 @@ void USART_SetRate(volatile USART_t *hw, uint32_t rate)
 
 void USART_SetMode(volatile USART_t *hw, uint8_t mode)
 {
-  uint8_t ctrlA = 0, ctrlB = 0;
-
   ForbidContext_T c = STAP_FORBID_SAFE;
   
+  uint8_t ctrlA = hw->CTRLA, ctrlB = hw->CTRLB;
+
   if(mode & LINK_MODE_RX) {
     ctrlA |= USART_RXCIE_bm;
     ctrlB |= USART_RXEN_bm;
+  } else {
+    ctrlA &= ~USART_RXCIE_bm;
+    ctrlB &= ~USART_RXEN_bm;
   }
-    
+  
   if(mode & LINK_MODE_TX)
     ctrlB |= USART_TXEN_bm;
-
+  else
+    ctrlB &= ~USART_TXEN_bm;
+    
   hw->CTRLB = ctrlB;
   hw->CTRLA = ctrlA;
 
@@ -49,6 +54,7 @@ void USART_Transmit(volatile USART_t *hw, const uint8_t *data, uint8_t size)
 
 bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout)
 {
+  return false;
   VP_TIME_MILLIS_T started = vpTimeMillisApprox;
   
   if(!(hw->CTRLB & USART_TXEN_bm))

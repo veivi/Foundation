@@ -287,20 +287,19 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
   if(size > 0x1000)
     STAP_Panic(STAP_ERR_TX_TOO_BIG);
 
-  STAP_MutexObtain(mutex[port]);
-  
-#ifndef SERIAL_TX_SYNC
   if(failSafeMode) {
-#endif
     USART_Transmit(STAP_LINK_HW(port), buffer, size);
-  
-    if(sync && !USART_Drain(STAP_LINK_HW(port), timeout))
-      STAP_Error(STAP_ERR_TX_TIMEOUT);
-
-#ifndef SERIAL_TX_SYNC
+    USART_Drain(STAP_LINK_HW(port), VP_TIME_MILLIS_MAX);
     return 0;
   }
-      
+  
+  STAP_MutexObtain(mutex[port]);
+  
+#ifdef SERIAL_TX_SYNC
+  USART_Transmit(STAP_LINK_HW(port), buffer, size);
+  size = 0;
+#else
+  
   if(signalOwner[StaP_LinkTable[port].signal])
     STAP_Panicf(STAP_ERR_TASK_INVALID, "Vittu!");
   
@@ -342,22 +341,6 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
     }
   }
 
-    /*
-    if(space == 0) {
-      // We have timed out
-      break;
-    }
-    if(space > size)
-      space = size;
-
-    vpbuffer_insert(&StaP_LinkTable[port].buffer, buffer, space, false);
-    
-    USART_TransmitStart(STAP_LINK_HW(port), &StaP_LinkTable[port].buffer);
-
-    buffer += space;
-    size -= space;
-    }*/
-
   if(sync) {
     if(!bufferDrainPrim(port, 0, timeout)) {
       STAP_Error(STAP_ERR_TX_TIMEOUT);
@@ -367,14 +350,12 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
     if(!USART_Drain(STAP_LINK_HW(port), timeout))
       STAP_Error(STAP_ERR_TX_TIMEOUT);
   }
-  
+
   STAP_FORBID;
   signalOwner[StaP_LinkTable[port].signal] = NULL;  
   STAP_PERMIT;
-#else
-  size = 0;
 #endif
-
+  
   STAP_MutexRelease(mutex[port]);
     
   return size;
@@ -550,11 +531,11 @@ void STAP_Initialize(void)
 #if STAP_USE_USART0_TX
   PORTA.DIRSET = 1<<0;
 #endif
-  
+
 #if STAP_USE_USART1_TX
   PORTC.DIRSET = 1<<0;
 #endif
-  
+
 #if STAP_USE_USART2_TX
   PORTF.DIRSET = 1<<0;
 #endif
@@ -566,7 +547,7 @@ void STAP_Initialize(void)
 #if STAP_USE_USART4_TX
   PORTE.DIRSET = 1<<0;
 #endif
-  
+
   // Initialize LED control
 
   STAP_LED0_PORT.DIRSET = STAP_LED0_MASK;
