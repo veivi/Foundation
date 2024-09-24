@@ -699,6 +699,7 @@ AVRDxUSART_Transmit_ISR(0, AVRDx_Txcv_UART0);
 #endif
 
 #if STAP_USE_USART1_RX
+#error vittu
 AVRDxUSART_Receive_ISR(1, AVRDx_Txcv_UART1);
 #endif
 
