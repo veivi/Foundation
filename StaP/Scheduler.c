@@ -7,6 +7,7 @@
 #include "StaP.h"
 
 // #define ONLY_TASK_NAME   "Blink"
+// #define BLOB             2   // This defines the blobetiness level
 
 #ifdef USE_NATIVE_SCHEDULER
 
@@ -257,8 +258,6 @@ void StaP_SchedulerStart()
 #include "Console.h"
 #include "StaP.h"
 
-#define BLOB             2   // This defines the blobetiness level
-
 TaskHandle_t signalOwner[StaP_NumOfSignals];
 
 void STAP_Signal(StaP_Signal_T sig)
@@ -441,9 +440,9 @@ void blobTask(void *params)
     // STAP_LinkPut(ALP_Link_HostTX, "Paska ", 6, 1000);
 #if BLOB > 0
     if(params)
-      STAP_DEBUG(0, " Blobeti %d", vpTimeMillis());
+      consolePrintf" Blobeti %d", vpTimeMillis());
     else
-      STAP_DEBUG(0, " BlobBlob %d ", vpTimeMillis());
+      consolePrintf(" BlobBlob %d ", vpTimeMillis());
 #endif
 
     if(i++ & 1) {
