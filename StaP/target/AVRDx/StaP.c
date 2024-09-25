@@ -430,22 +430,6 @@ VP_TIME_SECS_T STAP_TimeSecs(void)
     return (VP_TIME_SECS_T) ((now>>4) / (F_CPU/2/1000000UL));
 }
 
-uint16_t STAP_CPUIdlePermille(void)
-{
-#ifdef HAVE_RUNTIME_STATS
-  static VP_TIME_MICROS_T prevTime, prevIdle;
-  VP_TIME_MICROS_T cycle = VP_ELAPSED_MICROS(prevTime),
-    idleTime = ulTaskGetIdleRunTimeCounter() - prevIdle;
-  
-  prevTime += cycle;;
-  prevIdle += idleTime;
-
-  return (uint16_t) (1000UL*idleTime / cycle);
-#else
-  return 0;
-#endif
-}
-
 void CPUINT_Initialize()
 {
     /* IVSEL and CVT are Configuration Change Protected */
