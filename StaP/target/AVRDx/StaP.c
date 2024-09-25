@@ -117,23 +117,23 @@ void STAP_Panic(uint8_t reason)
   }
 }
 
+#define BUFSIZE   (1<<5)
+
 void STAP_Panicf(uint8_t reason, const char *format, ...)
 {
   va_list argp;
+  char buffer[BUFSIZE+1];
   
   STAP_FailSafe;
 
-  while(1) {
-    /*
-    va_start(argp, format);
-  
-    consoleNotef("PANIC(%#x) ", reason);
-    consolevPrintf(format, argp);
-    consoleNL();
-    consoleFlush();
+  va_start(argp, format);
+  vStringFmt(buffer, BUFSIZE, format, argp);
+  va_end(argp);
 
-    va_end(argp);
-    */
+  while(1) {
+    consoleNotef("PANIC(%#x) ", reason);
+    consolePrint(buffer);
+    consoleNL();
     
     STAP_Indicate(reason);
   }
