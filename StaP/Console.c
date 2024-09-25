@@ -183,27 +183,6 @@ void consoleNoteLn_P(const char *s)
   consoleNL();
 }
 
-void consolePanic_P(const char *s)
-{
-  consoleNote_P(CS_STRING("// PANIC: "));
-  consolePrintLn_P(s);
-  consoleNoteLn_P(CS_STRING("// HALT/REBOOT"));
-  consoleFlush();
-  STAP_Panic(100);
-}
-
-/*
-void consoleAssert(bool value, const char *msg)
-{
-  if(consoleThrottled || value)
-    return;
-
-  consoleNote_P(CS_STRING("ASSERTION FAILURE : "));
-  consolePrintLn_P(msg);
-  consolePanic_P(CS_STRING(""));
-}
-*/
-
 void consolevNotef(const char *s, va_list argp)
 {
   consolePrint_P(CS_STRING("// "));
