@@ -1,7 +1,6 @@
 AL_FUNCTION           := ALN_${FN}
 
 CORE                  := $(abspath ../..)
-# DRIVER                := $(abspath ../../Driver)
 TARGET                := AVRDx
 
 FOUNDATION_REL         := ../../../..
@@ -73,9 +72,7 @@ SOURCE_FILES          += ${KERNEL_DIR}/portable/ThirdParty/Partner-Supported-Por
 #SOURCE_FILES          += ${FREERTOS_DIR}/Demo/Common/Minimal/TaskNotify.c
 #SOURCE_FILES          += ${FREERTOS_DIR}/Demo/Common/Minimal/TimerDemo.c
 
-
-
-CFLAGS                :=  -DAL_FUNCTION=${AL_FUNCTION} -mcpu=${MCU} -DF_CPU=${F_CPU}  -DSTAP_MCU_PINS=${MCU_PINS} ${INCLUDE_DIRS}
+CFLAGS                :=  -DTEST=${TEST} -mcpu=${MCU} -DF_CPU=${F_CPU}  -DSTAP_MCU_PINS=${MCU_PINS} ${INCLUDE_DIRS}
 LDFLAGS               :=  -mcpu=${MCU} -lc -lm
 
 CFLAGS                +=  -DprojCOVERAGE_TEST=0
