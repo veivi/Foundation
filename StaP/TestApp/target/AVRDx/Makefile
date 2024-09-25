@@ -1,7 +1,5 @@
-AL_FUNCTION           := ALN_${FN}
-
 CORE                  := $(abspath ../..)
-TARGET                := AVRDx
+ARCH                  := AVRDx
 
 FOUNDATION_REL         := ../../../..
 FOUNDATION             := $(abspath $(FOUNDATION_REL))
@@ -16,7 +14,7 @@ PORT                  := /dev/cu.usbserial-AB0JNQY7
 CC                    := xc8-cc
 BIN                   := Test
 
-BUILD_DIR             := /tmp/Build/TestGSOne
+BUILD_DIR             := /tmp/Build/Test_${ARCH}_${TARGET}
 BUILD_DIR_ABS         := $(abspath $(BUILD_DIR))
 
 FREERTOS_DIR_REL      := ../../../../../FreeRTOSv202212.01/FreeRTOS
@@ -24,21 +22,21 @@ FREERTOS_DIR          := $(abspath $(FREERTOS_DIR_REL))
 
 KERNEL_DIR            := ${FREERTOS_DIR}/Source
 
-INCLUDE_DIRS          := -I./include
+INCLUDE_DIRS          := -I${TARGET}/include
 INCLUDE_DIRS          += -I${CORE}/include
 INCLUDE_DIRS          += -I${FOUNDATION}/include
 INCLUDE_DIRS          += -I${PLATFORM}/include
-INCLUDE_DIRS          += -I${PLATFORM}/target/${TARGET}/include
+INCLUDE_DIRS          += -I${PLATFORM}/target/${ARCH}/include
 INCLUDE_DIRS          += -I${KERNEL_DIR}/include
 INCLUDE_DIRS          += -I${KERNEL_DIR}/portable/ThirdParty/Partner-Supported-Ports/GCC/AVR_AVRDx
 INCLUDE_DIRS          += -I${FREERTOS_DIR}/Demo/Common/include
 
 
 SOURCE_FILES          := $(wildcard ${CORE}/*.c)
-SOURCE_FILES          += $(wildcard *.c)
+SOURCE_FILES          += $(wildcard ${TARGET}/*.c)
 SOURCE_FILES          += $(wildcard ${FOUNDATION}/*.c)
 SOURCE_FILES          += $(wildcard ${PLATFORM}/*.c)
-SOURCE_FILES          += $(wildcard ${PLATFORM}/target/${TARGET}/*.c)
+SOURCE_FILES          += $(wildcard ${PLATFORM}/target/${ARCH}/*.c)
 SOURCE_FILES          += $(wildcard ${FREERTOS_DIR}/Source/*.c)
 # Memory manager (use malloc() / free() )
 SOURCE_FILES          += ${KERNEL_DIR}/portable/MemMang/heap_1.c
@@ -72,7 +70,7 @@ SOURCE_FILES          += ${KERNEL_DIR}/portable/ThirdParty/Partner-Supported-Por
 #SOURCE_FILES          += ${FREERTOS_DIR}/Demo/Common/Minimal/TaskNotify.c
 #SOURCE_FILES          += ${FREERTOS_DIR}/Demo/Common/Minimal/TimerDemo.c
 
-CFLAGS                :=  -DTEST=${TEST} -mcpu=${MCU} -DF_CPU=${F_CPU}  -DSTAP_MCU_PINS=${MCU_PINS} ${INCLUDE_DIRS}
+CFLAGS                :=  -DBOARD_${TARGET}=1 -DTEST=${TEST} -mcpu=${MCU} -DF_CPU=${F_CPU}  -DSTAP_MCU_PINS=${MCU_PINS} ${INCLUDE_DIRS}
 LDFLAGS               :=  -mcpu=${MCU} -lc -lm
 
 CFLAGS                +=  -DprojCOVERAGE_TEST=0

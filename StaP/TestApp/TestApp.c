@@ -12,6 +12,15 @@ extern DgLink_t hostLink, telemLink;
 
 #define COMM_BLOCKSIZE      (1<<5)
 
+#if defined(BOARD_GSOne)
+#define TestApp_Link_HostRX    GS_Link_HostRX
+#define TestApp_Link_AuxRX     GS_Link_RadioRX
+
+#elif defined(BOARD_ABNeo)
+#define TestApp_Link_HostRX    ALP_Link_HostRX
+#define TestApp_Link_AuxRX     ALP_Link_ALinkRX
+#endif
+
 void blinkTask(void)
 {
   static int i = 0;
@@ -65,7 +74,7 @@ VP_TIME_MICROS_T serialTaskHost(void)
 
   randomEntropyInput(STAP_ENTROPY_SRC);
   
-  uint8_t len = STAP_LinkGet(GS_Link_HostRX, buffer, sizeof(buffer));
+  uint8_t len = STAP_LinkGet(TestApp_Link_HostRX, buffer, sizeof(buffer));
   
   datagramRxInput(&hostLink, (const uint8_t*) buffer, len);
 
@@ -78,7 +87,7 @@ VP_TIME_MICROS_T serialTaskRadio(void)
 
   randomEntropyInput(STAP_ENTROPY_SRC);
   
-  uint8_t len = STAP_LinkGet(GS_Link_RadioRX, buffer, sizeof(buffer));
+  uint8_t len = STAP_LinkGet(TestApp_Link_AuxRX, buffer, sizeof(buffer));
   
   datagramRxInput(&telemLink, (const uint8_t*) buffer, len);
 
@@ -133,8 +142,8 @@ struct TaskDecl StaP_TaskList[] = {
 #endif
 
 #if TEST != 0 && TEST != 1
-  ,TASK_BY_SERIAL("HostRX", 2, serialTaskHost, GS_Link_HostRX, 3<<8)
-  ,TASK_BY_SERIAL("TelemRX", 2, serialTaskRadio, GS_Link_RadioRX, 3<<8)
+  ,TASK_BY_SERIAL("HostRX", 2, serialTaskHost, TestApp_Link_HostRX, 3<<8)
+  ,TASK_BY_SERIAL("TelemRX", 2, serialTaskRadio, TestApp_Link_AuxRX, 3<<8)
 #endif
 };
 
