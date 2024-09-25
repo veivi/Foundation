@@ -27,8 +27,9 @@ uint16_t STAP_CPUIdlePermille(void)
     initialized = true;
     result = 0;
   } else {
-    result = idleMicros / VP_MILLIS_ELAPSED(prev);
+    result = idleMicros / VP_ELAPSED_MILLIS(prev);
     prev = vpTimeMillis();
+    idleMicros = 0;
   }
   
   return result;  
