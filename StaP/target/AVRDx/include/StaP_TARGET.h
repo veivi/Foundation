@@ -103,18 +103,6 @@ void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[]);
 #define CS_STRNCPY strncpy // strncpy_P
 #define CS_STRING(s) s // (__extension__({static const char __c[] PROGMEM = (s); &__c[0]; }))
 
-typedef enum { PortA, PortB, PortC, PortD, PortE, PortF, PortG, PortH, PortK, PortL } portName_t;
-
-struct PortDescriptor {
-  volatile uint8_t *pin, *port, *ddr, *mask;
-  uint8_t pci;
-};
-
-struct PinDescriptor {
-  portName_t port;
-  uint8_t index;
-};
-
 typedef UBaseType_t ForbidContext_T; 
 
 #define STAP_FORBID_SAFE       taskENTER_CRITICAL_FROM_ISR()
