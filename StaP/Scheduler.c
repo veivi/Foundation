@@ -13,6 +13,26 @@
 
 TaskHandle_t signalOwner[StaP_NumOfSignals];
 extern int FreeRTOSUp;
+static VP_TIME_MICROS_T idleMicros;
+
+uint16_t STAP_CPUIdlePermille(void)
+{
+  static bool initialized = false;
+  static VP_TIME_MILLIS_T prev = 0;
+  uint16_t result = 0;
+
+  if(!initialized) {
+    prev = vpTimeMillis();
+    idleMicros = 0;
+    initialized = true;
+    result = 0;
+  } else {
+    result = idleMicros / VP_MILLIS_ELAPSED(prev);
+    prev = vpTimeMillis();
+  }
+  
+  return result;  
+}
 
 void STAP_Signal(StaP_Signal_T sig)
 {
@@ -290,6 +310,24 @@ void StaP_SchedulerReport(void)
   }
 
   prev += delta;
+}
+
+// Idle hook
+
+void vApplicationIdleHook( void )
+{
+  VP_TIME_MICROS_T prev = vpTimeMicros(), curr = 0;
+  
+  for(;;) {
+    curr = vpTimeMicros();
+    
+    if(curr > prev) {
+      // This way we don't get screwed by wrap-around
+      
+      idleMicros += curr - prev;
+      prev = curr;
+    }
+  }
 }
 
 /* vApplicationStackOverflowHook is called when a stack overflow occurs.
