@@ -23,6 +23,9 @@ static STAP_MutexRef_T mutex = NULL;
 static void mutexObtain(void)
 {
 #ifdef STAP_MutexCreate
+  if(failSafeMode)
+	  return;
+	
   STAP_FORBID;
     
   if(!mutex && !(mutex = STAP_MutexCreate))
@@ -37,6 +40,9 @@ static void mutexObtain(void)
 static void mutexRelease(void)
 {
 #ifdef STAP_MutexCreate
+  if(failSafeMode)
+	  return;
+	
   STAP_MutexRelease(mutex);
 #endif  
 }
@@ -104,13 +110,9 @@ void consoleOut(const char *b, int8_t s)
 
 void consoleFlush()
 {
-  if(!failSafeMode)
-	  mutexObtain();
-	
+  mutexObtain();	
   consoleFlushUnsafe();
-	
-  if(!failSafeMode)
-	  mutexRelease();
+	mutexRelease();
 }
 
 void consoleOutChar(char c)
