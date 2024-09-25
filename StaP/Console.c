@@ -104,9 +104,13 @@ void consoleOut(const char *b, int8_t s)
 
 void consoleFlush()
 {
-  mutexObtain();
+  if(!failSafeMode)
+	  mutexObtain();
+	
   consoleFlushUnsafe();
-  mutexRelease();
+	
+  if(!failSafeMode)
+	  mutexRelease();
 }
 
 void consoleOutChar(char c)
