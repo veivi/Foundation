@@ -88,21 +88,25 @@ VP_TIME_MICROS_T serialTaskRadio(void)
   return 0;
 }
 
+#if !defined(TEST) || TEST == 0
 VP_TIME_MICROS_T textTask(void)
 {
   static int i = 0;
 
-  //  STAP_FailSafe;
-
-  //  for(;;)
+#if TEST == 0
+  STAP_FailSafe;
+  
+  for(;;)
+#endif
     consolePrintfLn("Paskavittu %d.", i++);
 }
 
+#if !defined(TEST) || TEST == 1
 VP_TIME_MICROS_T transmitTestTask(void)
 {
   static uint64_t i = 0;
 
-  consolePrintfLn("tx test %d", i);
+  consolePrintfLn("Tx test %d", i);
   
   datagramTxStart(&telemLink, ALN_TELEMETRY);
   datagramTxOut(&telemLink, (const uint8_t*) &i, sizeof(i));
@@ -110,11 +114,16 @@ VP_TIME_MICROS_T transmitTestTask(void)
 
   i++;
 }
+#endif
 
 struct TaskDecl StaP_TaskList[] = {
   TASK_BY_FREQ("Blink", 0, blinkTask, 2, 1<<8),
+#if !defined(TEST) || TEST == 0
   TASK_BY_FREQ("Text", 0, textTask, 1, 1<<8),
+#endif
+#if !defined(TEST) || TEST == 1
   TASK_BY_FREQ("TxTest", 0, transmitTestTask, 100, 1<<8),
+#endif
   TASK_BY_SERIAL("HostRX", 2, serialTaskHost, GS_Link_HostRX, 3<<8),
   TASK_BY_SERIAL("TelemRX", 2, serialTaskRadio, GS_Link_RadioRX, 3<<8)
 };
