@@ -93,8 +93,8 @@ void AVRDxSTAP_LinkSetRate(uint8_t port, unsigned long rate);
 void AVRDxSTAP_LinkSuspend(uint8_t);
 void AVRDxSTAP_LinkResume(uint8_t);
 
-#define STAP_pwmOutput(num, pulse) AVRDxSTAP_pwmOutput(num, pulse)
-void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[]);
+#define STAP_PWMOutput(num, pulse) AVRDx_pwmOutput(num, pulse)
+void AVRDx_pwmOutput(uint8_t num, const uint16_t value[]);
 
 #define STAP_I2CTransfer(dev, up, num_up, down, size_down) I2C_0_Transfer(dev, up, num_up, down, size_down)
 

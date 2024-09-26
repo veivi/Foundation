@@ -487,7 +487,7 @@ static uint16_t constrain_period(uint16_t p) {
     else return p;
 }
 
-void AVRDxSTAP_pwmOutput(uint8_t num, const uint16_t value[])
+void AVRDx_pwmOutput(uint8_t num, const uint16_t value[])
 {
   int i = 0;
 
