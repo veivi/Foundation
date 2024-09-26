@@ -208,6 +208,7 @@ void I2C_0_EndSession(void)
     timedOut = false;
 }
 
+/*
 uint8_t I2C_0_Write(uint8_t device, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize)
 {
     StaP_TransferUnit_t buffer[] = { 
@@ -242,3 +243,5 @@ uint8_t I2C_0_ReadRegister(uint8_t device, uint8_t addr, uint8_t *data, size_t s
 {
    return I2C_0_Read(device, &addr, sizeof(addr), data, size);
 }
+
+*/
