@@ -151,7 +151,7 @@ int8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size
         /* start transmitting the client device */
         TWI0.MADDR = device<<1;
         if(i2c_0_WaitW() != I2C_ACKED)
-            status = 0x01;
+            status = 0xE0;
 
         for(i = 0; i < numSegments; i++) {
             size_t upSize = upSegment[i].size;
@@ -162,7 +162,7 @@ int8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size
                     TWI0.MDATA = *upData++;
             
                     if(i2c_0_WaitW() != I2C_ACKED) {
-                        status = 0x02;
+                        status = 0xE1;
                         break;
                     }
                 }
@@ -177,14 +177,14 @@ int8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size
         /* start transmitting the client address */
         TWI0.MADDR = (device<<1) | 0x01;
         if(i2c_0_WaitW() != I2C_ACKED)
-            status = 0x11;
+            status = 0xF1;
         else {
             while(downSize-- > 0) {
                 if(i2c_0_WaitR() == I2C_READY) {
                    *downData++ = TWI0.MDATA;
                     TWI0.MCTRLB = (downSize == 0)? TWI_ACKACT_bm | TWI_MCMD_STOP_gc : TWI_MCMD_RECVTRANS_gc;
                 } else {
-                    status = 0x12;
+                    status = 0xF1;
                     break;
                 }
             }
