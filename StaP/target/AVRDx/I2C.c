@@ -79,6 +79,17 @@ void I2C_0_Init(void)
 
 static bool timedOut = false;
 
+void I2C_0_EndSession(void)
+{
+    if(timedOut) {
+        // TWI0.MCTRLB = TWI_FLUSH_bm;
+        TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
+    } else
+        TWI0.MCTRLB = TWI_MCMD_STOP_gc;
+    
+    timedOut = false;
+}
+
 static uint8_t i2c_0_WaitW(void)
 {
     VP_TIME_MILLIS_T started = vpTimeMillis();
@@ -142,7 +153,7 @@ static uint8_t i2c_0_WaitR(void)
 
 /* Generic uni/bidirectional transfer */
 
-int8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize)
+uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize)
 {
     uint8_t status = 0x00;
     int i = 0;
@@ -197,51 +208,3 @@ int8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size
     return status;
 }
 
-void I2C_0_EndSession(void)
-{
-    if(timedOut) {
-        // TWI0.MCTRLB = TWI_FLUSH_bm;
-        TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
-    } else
-        TWI0.MCTRLB = TWI_MCMD_STOP_gc;
-    
-    timedOut = false;
-}
-
-/*
-uint8_t I2C_0_Write(uint8_t device, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize)
-{
-    StaP_TransferUnit_t buffer[] = { 
-        { addr, addrSize },
-        { value, valueSize } 
-    };
-
-    return I2C_0_Transfer(device, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t), NULL, 0);
-}
-
-uint8_t I2C_0_Read(uint8_t device, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
-{
-    StaP_TransferUnit_t buffer = { addr, addrSize };
-     
-    if(addrSize > 0)
-        return I2C_0_Transfer(device, &buffer, 1, value, valueSize);
-    else
-        return I2C_0_Transfer(device, NULL, 0, value, valueSize);
-}
-
-uint8_t I2C_0_WriteRegisterUI8(uint8_t device, uint8_t addr, uint8_t value)
-{
-   return I2C_0_Write(device, &addr, sizeof(addr), &value, sizeof(value));
-}
-
-uint8_t I2C_0_WriteRegisterUI16(uint8_t device, uint8_t addr, uint16_t value)
-{
-   return I2C_0_Write(device, &addr, sizeof(addr), (const uint8_t*) &value, sizeof(value));
-}
-
-uint8_t I2C_0_ReadRegister(uint8_t device, uint8_t addr, uint8_t *data, size_t size)
-{
-   return I2C_0_Read(device, &addr, sizeof(addr), data, size);
-}
-
-*/
