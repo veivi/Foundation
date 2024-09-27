@@ -21,6 +21,8 @@ extern DgLink_t hostLink, telemLink;
 #define TestApp_Link_AuxRX     ALP_Link_ALinkRX
 #endif
 
+int failCount = 0;
+
 void blinkTask(void)
 {
   static int i = 0;
@@ -131,10 +133,46 @@ VP_TIME_MICROS_T transmitTestTask(void)
 #endif
 
 #if !defined(TEST) || TEST == 4
+#define EEPROM_LINE       (1<<5)
+#define EEPROM_I2CADDR    0x50
+
 VP_TIME_MICROS_T serialEEPROMTestTask(void)
 {
+  uint16_t addr = 0;
+  uint8_t data[EEPROM_LINE];
+  StaP_TransferUnit_t addrBuffer = { &addr, sizeof(addr) };
+  uint8_t status = 0xFF;
+  int i = 0;
   
-  status = STAP_I2CTransfer(0x50, &buffer, 1, value, valueSize));
+  // Read a line from 0
+
+  addr = 0;
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, &addrBuffer, 1, data, sizeof(data)));
+
+  consoleNotefLn("EEPROM read status %#X", status);
+  
+  if(status) {
+    failCount++;
+    return 0;
+  }
+
+  // Write a line from 0
+
+  for(i = 0; i < sizeof(data); i++)
+    data[i] = 13 + (uint8_t) i & 0xFF;
+  
+  addr = 0;
+  
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, &addrBuffer, 1, data, sizeof(data)));
+
+  consoleNotefLn("EEPROM read status %#X", status);
+  
+  if(status) {
+    failCount++;
+    return 0;
+  }
+
+  
 }
 #endif
 
