@@ -121,26 +121,27 @@ uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, 
 uint8_t I2CDeviceRead(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
 {
   // StaP_TransferUnit_t buffer = { addr, addrSize };
-  uint8_t status = 0xFF;
+    
+    StaP_TransferUnit_t buffer[] = { 
+	    { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },    // addrSize can be zero, will just be ignored then
+        { .data.rx = value, .size = valueSize, .dir = transfer_dir_receive } };
 
-  criticalBegin();
+    uint8_t status = 0xFF;
+
+    criticalBegin();
 	
-  if(I2CDeviceMaybeOnline(device)) {
-	//    if(addrSize > 0) {
-	// status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, 1, value, valueSize));
-	  // else
-	  // status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, NULL, 0, value, valueSize));
+    if(I2CDeviceMaybeOnline(device)) {
+	// if(addrSize > 0) {
+	//   status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, 1, value, valueSize));
+	// else
+	//   status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, NULL, 0, value, valueSize));
 	  
-      StaP_TransferUnit_t buffer[] = { 
-          { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },    // addrSize can be zero, will just be ignored then
-          { .data.rx = value, .size = valueSize, .dir = transfer_dir_receive } };
-
-      status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
-  }
+        status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
+    }
 	
-  criticalEnd();
+    criticalEnd();
 	
-  return status;
+    return status;
 }
 
 uint8_t I2CDeviceReadByUInt8(I2CDevice_t *device, uint8_t subId, uint8_t addr, uint8_t *data, size_t size)
