@@ -255,6 +255,9 @@ uint8_t I2C_0_TransferGeneric(uint8_t device, const StaP_TransferUnit_t *segment
       size_t downSize = segment[i].size;
       uint8_t *downData = segment[i].data;
 
+      if(!downSize || !downData)
+        STAP_Panicf(STAP_ERR_I2C, "NULL data for reception");
+              }   
       if(!receiving) {
 /*
         if(transmitting) {
