@@ -97,6 +97,7 @@ void AVRDxSTAP_LinkResume(uint8_t);
 void AVRDx_pwmOutput(uint8_t num, const uint16_t value[]);
 
 #define STAP_I2CTransfer(dev, up, num_up, down, size_down) I2C_0_Transfer(dev, up, num_up, down, size_down)
+#define STAP_I2CTransferGeneric(dev, seg, num) I2C_0_TransferGeneric(dev, seg, num)
 
 #define CS_QUALIFIER  // PROGMEM
 #define CS_MEMCPY memcpy // memcpy_P

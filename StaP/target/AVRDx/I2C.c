@@ -166,7 +166,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, siz
 
         for(i = 0; i < numSegments; i++) {
             size_t upSize = upSegment[i].size;
-            const uint8_t *upData = upSegment[i].data;
+            const uint8_t *upData = upSegment[i].data.tx;
 
             if(!status && (upSize > 0) && (upData != NULL)) {
                 while(upSize-- > 0) {
@@ -221,11 +221,11 @@ uint8_t I2C_0_TransferGeneric(uint8_t device, const StaP_TransferUnit_t *segment
   int i = 0;
     
   for(i = 0; i < numSegments; i++) {
-    if(segment[i].dir = transfer_dir_tx) {
+    if(segment[i].dir == transfer_dir_transmit) {
       // Transmit
       
       size_t upSize = segment[i].size;
-      const uint8_t *upData = (const uint8_t*) segment[i].data;
+      const uint8_t *upData = (const uint8_t*) segment[i].data.tx;
 
       if(upSize > 0 && upData != NULL) {
         if(!transmitting) {
@@ -253,11 +253,11 @@ uint8_t I2C_0_TransferGeneric(uint8_t device, const StaP_TransferUnit_t *segment
       // Receive
       
       size_t downSize = segment[i].size;
-      uint8_t *downData = segment[i].data;
+      uint8_t *downData = segment[i].data.rx;
 
       if(!downSize || !downData)
         STAP_Panicf(STAP_ERR_I2C, "NULL data for reception");
-              }   
+
       if(!receiving) {
 /*
         if(transmitting) {

@@ -60,6 +60,7 @@ uint16_t STAP_CPUIdlePermille(void);
 #define STAP_ERR_RX_OVERRUN_H      20
 #define STAP_ERR_RX_OVERRUN_S      21
 #define STAP_ERR_TIME              22
+#define STAP_ERR_I2C               23
 #define STAP_ERR_APPLICATION       24
 #define STAP_ERR_TASK_CREATE       0x20
 #define STAP_ERR_STACK_OVF         0x40

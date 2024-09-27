@@ -111,7 +111,7 @@ uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, 
 	
   if(I2CDeviceMaybeOnline(device))
     // status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t), NULL, 0));
-    status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t));
+    status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
 
   criticalEnd();
 	
