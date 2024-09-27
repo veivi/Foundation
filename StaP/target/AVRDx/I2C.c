@@ -208,3 +208,86 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, siz
     return status;
 }
 
+//
+// Even more generic transfer! 
+//   LIMITATIONS:
+//     1) All transmits must occur before any receives
+//     2) NULL receives are not allowed (null transmits are)
+//
+
+uint8_t I2C_0_TransferGeneric(uint8_t device, const StaP_TransferUnit_t *segment, size_t numSegments)
+{
+  bool transmitting = false, receiving = false;
+  int i = 0;
+    
+  for(i = 0; i < numSegments; i++) {
+    if(segment[i].dir = transfer_dir_tx) {
+      // Transmit
+      
+      size_t upSize = segment[i].size;
+      const uint8_t *upData = (const uint8_t*) segment[i].data;
+
+      if(upSize > 0 && upData != NULL) {
+        if(!transmitting) {
+          /* start transmitting the client device */
+          TWI0.MADDR = device<<1;
+
+          if(i2c_0_WaitW() != I2C_ACKED) {
+            I2C_0_EndSession();    
+            return 0xE0;
+          }
+         
+          transmitting = true;
+        }
+       
+        while(upSize-- > 0) {
+          TWI0.MDATA = *upData++;
+            
+          if(i2c_0_WaitW() != I2C_ACKED) {
+            I2C_0_EndSession();    
+            return 0xE1;
+          }
+        }
+      }
+    } else {
+      // Receive
+      
+      size_t downSize = segment[i].size;
+      uint8_t *downData = segment[i].data;
+
+      if(!receiving) {
+/*
+        if(transmitting) {
+            I2C_0_EndSession();    
+            transmitting = false;
+        }
+*/
+        /* start transmitting the client address */
+        TWI0.MADDR = (device<<1) | 0x01;
+        if(i2c_0_WaitW() != I2C_ACKED) {
+            I2C_0_EndSession();    
+            return 0xF0;
+        }
+
+        transmitting = false;
+        receiving = true;
+      }
+          
+      while(downSize-- > 0) {
+        if(i2c_0_WaitR() == I2C_READY) {
+          *downData++ = TWI0.MDATA;
+          TWI0.MCTRLB = (downSize == 0 && i == numSegments-1) ? TWI_ACKACT_bm | TWI_MCMD_STOP_gc : TWI_MCMD_RECVTRANS_gc;
+        } else {
+          I2C_0_EndSession();    
+          return 0xF1;
+        }
+      }
+    }
+  }
+
+  if(transmitting)
+    I2C_0_EndSession();    
+        
+  return 0;
+}
+
