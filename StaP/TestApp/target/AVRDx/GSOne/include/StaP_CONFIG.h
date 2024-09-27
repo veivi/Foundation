@@ -11,6 +11,15 @@
 #define STAP_USE_USART4_TX     1
 #define STAP_USE_USART4_RX     1
 
+#define STAP_USE_BMP390     1
+#define STAP_USE_MMC5893    1
+#define STAP_USE_LIV3R      1
+#define STAP_USE_ICM40609   1
+#define STAP_USE_I2C_0      1
+#define STAP_USE_SPI_0      1
+#define STAP_USE_PWMOUTPUT  1
+#define STAP_USE_M24Mxx     1
+
 #define STAP_NUM_LEDS    2
 
 #define StaP_Activity(id)  activityBlink(id)

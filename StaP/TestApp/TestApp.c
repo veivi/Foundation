@@ -6,6 +6,7 @@
 #include "AlphaLink.h"
 #include "Console.h"
 #include "Scheduler.h"
+#include "I2CDevice.h"
 
 bool hostConnected;
 extern DgLink_t hostLink, telemLink;
@@ -108,7 +109,7 @@ VP_TIME_MICROS_T textTask(void)
 }
 #endif
 
-#if !defined(TEST) || TEST == 2
+#if TEST == ALL || TEST == 2
 VP_TIME_MICROS_T textTask(void)
 {
   static int i = 0;
@@ -117,7 +118,7 @@ VP_TIME_MICROS_T textTask(void)
 }
 #endif
 
-#if !defined(TEST) || TEST == 3
+#if TEST == ALL || TEST == 3
 VP_TIME_MICROS_T transmitTestTask(void)
 {
   static uint64_t i = 0;
@@ -132,7 +133,25 @@ VP_TIME_MICROS_T transmitTestTask(void)
 }
 #endif
 
-#if !defined(TEST) || TEST == 4
+#if TEST == ALL || TEST == 4
+
+I2CDevice_t target = I2CDEVICE_CONS("BMP390", 0x77);
+
+VP_TIME_MICROS_T i2cTestTask(void)
+{
+  uint8_t status = 0xFF;
+  uint8_t chipId = 0;
+  
+  if((status = I2CDeviceReadByUInt8(&target, 0, 0x0, &chipId, sizeof(chipId))))
+    consoleNotefLn("BMP390 read status %#X", status);
+  else
+    consoleNotefLn("BMP390 chipId = %#X", chipId);
+
+  return 0;
+}
+#endif
+
+#if TEST == ALL || TEST == 5
 
 #define EEPROM_LINE       (1<<5)
 #define EEPROM_I2CADDR    0x50
@@ -150,7 +169,7 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
       { .data.tx = (const uint8_t*) data, .size = sizeof(data), .dir = transfer_dir_transmit } };
   uint8_t status = 0xFF;
   int i = 0;
-  
+
   // Read a line from 0
 
   status = STAP_I2CTransferGeneric(EEPROM_I2CADDR, readTransfer, sizeof(readTransfer)/sizeof(StaP_TransferUnit_t));
@@ -208,15 +227,19 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
 struct TaskDecl StaP_TaskList[] = {
   TASK_BY_FREQ("Blink", 0, blinkTask, 2, 1<<8)
 
-#if !defined(TEST) || TEST == 1 || TEST == 2
+#if TEST == ALL || TEST == 1 || TEST == 2
   ,TASK_BY_FREQ("Text", 0, textTask, 1, 1<<8)
 #endif
 
-#if !defined(TEST) || TEST == 3
+#if TEST == ALL || TEST == 3
   ,TASK_BY_FREQ("TxTest", 0, transmitTestTask, 100, 1<<8)
 #endif
 
-#if !defined(TEST) || TEST == 4
+#if TEST == ALL || TEST == 4
+  ,TASK_BY_FREQ("I2C", 0, i2cTestTask, 1, 1<<8)
+#endif
+
+#if TEST == ALL || TEST == 5
   ,TASK_BY_FREQ("EEPROM", 0, serialEEPROMTestTask, 1, 1<<8)
 #endif
 
