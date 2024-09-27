@@ -140,16 +140,20 @@ VP_TIME_MICROS_T transmitTestTask(void)
 
 VP_TIME_MICROS_T serialEEPROMTestTask(void)
 {
-  uint16_t addr = 0;
+  static uint16_t addr = 0;
   uint8_t data[EEPROM_LINE];
-  StaP_TransferUnit_t readBuffer = { &addr, sizeof(addr) }, 
-    writeBuffer[] = { { &addr, sizeof(addr) }, { &data, sizeof(data) } };
+  StaP_TransferUnit_t readTransfer[] = {
+    { .data.tx = (const uint8_t*) &addr, .size = sizeof(addr), .dir = transfer_dir_transmit }, 
+      { .data.rx = data, .size = sizeof(data), .dir = transfer_dir_receive } },
+    writeTransfer[] = { 
+      { .data.tx = (const uint8_t*) &addr, .size = sizeof(addr), .dir = transfer_dir_transmit }, 
+      { .data.tx = (const uint8_t*) data, .size = sizeof(data), .dir = transfer_dir_transmit } };
   uint8_t status = 0xFF;
   int i = 0;
   
   // Read a line from 0
 
-  status = STAP_I2CTransfer(EEPROM_I2CADDR, &readBuffer, 1, data, sizeof(data)));
+  status = STAP_I2CTransferGeneric(EEPROM_I2CADDR, readTransfer, sizeof(readTransfer)/sizeof(StaP_TransferUnit_t));
 
   consoleNotefLn("EEPROM read status %#X", status);
   
@@ -163,7 +167,7 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
   for(i = 0; i < sizeof(data); i++)
     data[i] = EEPROM_TEST_VALUE(addr+i);
   
-  status = STAP_I2CTransfer(EEPROM_I2CADDR, &writeBuffer, 2, NULL, 0);
+  status = STAP_I2CTransferGeneric(EEPROM_I2CADDR, writeTransfer, sizeof(writeTransfer)/sizeof(StaP_TransferUnit_t));
   
   consoleNotefLn("EEPROM write status %#X", status);
   
@@ -172,11 +176,12 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
     return 0;
   }
 
-  // Read back and compare
+  // Wait for write to complete, read back and compare
 
+  STAP_DelayMillis(6);
   memset((void*) data, 0, sizeof(data));
   
-  status = STAP_I2CTransfer(EEPROM_I2CADDR, &readBuffer, 1, data, sizeof(data)));
+  status = STAP_I2CTransferGeneric(EEPROM_I2CADDR, readTransfer, sizeof(readTransfer)/sizeof(StaP_TransferUnit_t));
 
   consoleNotefLn("EEPROM read status %#X", status);
   
@@ -194,6 +199,8 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
   }
 
   consoleNotefLn("Test PASSED");
+
+  addr += EEPROM_LINE;
   return 0;
 }
 #endif
