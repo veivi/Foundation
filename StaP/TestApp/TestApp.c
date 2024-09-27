@@ -133,21 +133,23 @@ VP_TIME_MICROS_T transmitTestTask(void)
 #endif
 
 #if !defined(TEST) || TEST == 4
+
 #define EEPROM_LINE       (1<<5)
 #define EEPROM_I2CADDR    0x50
+#define EEPROM_TEST_VALUE(a)  (uint8_t) (13 + (a & 0xFF))
 
 VP_TIME_MICROS_T serialEEPROMTestTask(void)
 {
   uint16_t addr = 0;
   uint8_t data[EEPROM_LINE];
-  StaP_TransferUnit_t addrBuffer = { &addr, sizeof(addr) };
+  StaP_TransferUnit_t readBuffer = { &addr, sizeof(addr) }, 
+    writeBuffer[] = { { &addr, sizeof(addr) }, { &data, sizeof(data) } };
   uint8_t status = 0xFF;
   int i = 0;
   
   // Read a line from 0
 
-  addr = 0;
-  status = STAP_I2CTransfer(EEPROM_I2CADDR, &addrBuffer, 1, data, sizeof(data)));
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, &readBuffer, 1, data, sizeof(data)));
 
   consoleNotefLn("EEPROM read status %#X", status);
   
@@ -156,14 +158,25 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
     return 0;
   }
 
-  // Write a line from 0
+  // Write a line
 
   for(i = 0; i < sizeof(data); i++)
-    data[i] = 13 + (uint8_t) i & 0xFF;
+    data[i] = EEPROM_TEST_VALUE(addr+i);
   
-  addr = 0;
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, &writeBuffer, 2, NULL, 0);
   
-  status = STAP_I2CTransfer(EEPROM_I2CADDR, &addrBuffer, 1, data, sizeof(data)));
+  consoleNotefLn("EEPROM write status %#X", status);
+  
+  if(status) {
+    failCount++;
+    return 0;
+  }
+
+  // Read back and compare
+
+  memset((void*) data, 0, sizeof(data));
+  
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, &readBuffer, 1, data, sizeof(data)));
 
   consoleNotefLn("EEPROM read status %#X", status);
   
@@ -172,7 +185,16 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
     return 0;
   }
 
-  
+  for(i = 0; i < sizeof(data); i++) {
+    if(data[i] != EEPROM_TEST_VALUE(addr+i)) {
+      consoleNotefLn("EEPROM read data %#X, expected %#X", data[i], EEPROM_TEST_VALUE(addr+i));
+      failCount++;
+      return 0;
+    }  
+  }
+
+  consoleNotefLn("Test PASSED");
+  return 0;
 }
 #endif
 
