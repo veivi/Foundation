@@ -259,12 +259,11 @@ uint8_t I2C_0_TransferGeneric(uint8_t device, const StaP_TransferUnit_t *segment
         STAP_Panicf(STAP_ERR_I2C, "NULL data for reception");
 
       if(!receiving) {
-/*
         if(transmitting) {
             I2C_0_EndSession();    
             transmitting = false;
         }
-*/
+
         /* start transmitting the client address */
         TWI0.MADDR = (device<<1) | 0x01;
         if(i2c_0_WaitW() != I2C_ACKED) {
