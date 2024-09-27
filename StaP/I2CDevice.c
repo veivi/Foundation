@@ -103,14 +103,15 @@ uint8_t I2CDeviceTransmit(I2CDevice_t *device, uint8_t subId, const StaP_Transfe
 uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize)
 {
   StaP_TransferUnit_t buffer[] = { 
-    { addr, addrSize },
-    { value, valueSize } };
+    { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },
+    { .data.tx = value, .size = valueSize, .dir = transfer_dir_transmit } };
   uint8_t status = 0xFF;
 
   criticalBegin();
 	
   if(I2CDeviceMaybeOnline(device))
-    status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t), NULL, 0));
+    // status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t), NULL, 0));
+    status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t));
 
   criticalEnd();
 	
@@ -119,16 +120,25 @@ uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, 
 
 uint8_t I2CDeviceRead(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
 {
-  StaP_TransferUnit_t buffer = { addr, addrSize };
+  // StaP_TransferUnit_t buffer = { addr, addrSize };
   uint8_t status = 0xFF;
 
   criticalBegin();
 	
   if(I2CDeviceMaybeOnline(device)) {
-    if(addrSize > 0)
-      status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, 1, value, valueSize));
-    else
-      status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, NULL, 0, value, valueSize));
+    if(addrSize > 0) {
+  	StaP_TransferUnit_t buffer[] = { 
+    		{ .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },
+    		{ .data.rx = value, .size = valueSize, .dir = transfer_dir_receive } };
+
+	// status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, 1, value, valueSize));
+	status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
+    } else {
+  	StaP_TransferUnit_t buffer[] = { 
+    		{ .data.rx = value, .size = valueSize, .dir = transfer_dir_receive } };
+      // status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, NULL, 0, value, valueSize));
+      status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
+    }
   }
 	
   criticalEnd();
