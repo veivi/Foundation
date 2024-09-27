@@ -75,9 +75,15 @@ uint16_t STAP_CPUIdlePermille(void);
 // I2C/SPI interface
 //
 
+typedef enum { transfer_dir_transmit, transfer_dir_receive } StaP_TransferDir_t;
+
 typedef struct {
-    const uint8_t *data;
+    union {
+        const uint8_t *tx;
+        uint8_t *rx;
+    } data;
     size_t size;
+    StaP_TransferDir_t dir;
 } StaP_TransferUnit_t;
 
 //
