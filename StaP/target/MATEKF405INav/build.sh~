@@ -1,9 +1,0 @@
-#!/bin/bash
-
-/Users/veivi/Desktop/Foundation/StaP/target/MATEKF405INav/patch.sh
-
-cmake -DFREERTOS_CONFIG_FILE_DIRECTORY=/Users/veivi/Desktop/Foundation/StaP/target/MATEKF405INav/include -DFREERTOS_PORT=GCC_ARM_CM4F ../
-
-cmake --build . -t MATEKF405SE
-
-
