@@ -130,6 +130,14 @@ VP_TIME_MICROS_T transmitTestTask(void)
 }
 #endif
 
+#if !defined(TEST) || TEST == 4
+VP_TIME_MICROS_T serialEEPROMTestTask(void)
+{
+  
+  status = STAP_I2CTransfer(0x50, &buffer, 1, value, valueSize));
+}
+#endif
+
 struct TaskDecl StaP_TaskList[] = {
   TASK_BY_FREQ("Blink", 0, blinkTask, 2, 1<<8)
 
@@ -139,6 +147,10 @@ struct TaskDecl StaP_TaskList[] = {
 
 #if !defined(TEST) || TEST == 3
   ,TASK_BY_FREQ("TxTest", 0, transmitTestTask, 100, 1<<8)
+#endif
+
+#if !defined(TEST) || TEST == 4
+  ,TASK_BY_FREQ("EEPROM", 0, serialEEPROMTestTask, 1, 1<<8)
 #endif
 
 #if TEST != 0 && TEST != 1
