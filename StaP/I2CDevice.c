@@ -86,14 +86,14 @@ static void criticalEnd(void)
   STAP_MutexRelease(i2cMutex);
 }
 
-uint8_t I2CDeviceTransmit(I2CDevice_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers)
+uint8_t I2CDeviceTransfer(I2CDevice_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers)
 {
   uint8_t status = 0xFF;
 
   criticalBegin();
 	
   if(I2CDeviceMaybeOnline(device))
-    status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffers, numBuffers, NULL, 0));
+    status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffers, numBuffers));
 
   criticalEnd();
 	
@@ -110,8 +110,7 @@ uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, 
   criticalBegin();
 	
   if(I2CDeviceMaybeOnline(device))
-    // status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t), NULL, 0));
-    status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
+    status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
 
   criticalEnd();
 	
@@ -120,24 +119,16 @@ uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, 
 
 uint8_t I2CDeviceRead(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
 {
-  // StaP_TransferUnit_t buffer = { addr, addrSize };
-    
     StaP_TransferUnit_t buffer[] = { 
-	    { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },    // addrSize can be zero, will just be ignored then
-        { .data.rx = value, .size = valueSize, .dir = transfer_dir_receive } };
+      { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },
+      { .data.rx = value, .size = valueSize, .dir = transfer_dir_receive } };
 
     uint8_t status = 0xFF;
 
     criticalBegin();
 	
-    if(I2CDeviceMaybeOnline(device)) {
-	// if(addrSize > 0) {
-	//   status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, 1, value, valueSize));
-	// else
-	//   status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, NULL, 0, value, valueSize));
-	  
-        status = I2CDeviceInvoke(device, subId, STAP_I2CTransferGeneric(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
-    }
+    if(I2CDeviceMaybeOnline(device))
+      status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
 	
     criticalEnd();
 	

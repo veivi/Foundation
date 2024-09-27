@@ -153,7 +153,7 @@ static uint8_t i2c_0_WaitR(void)
 
 /* Generic uni/bidirectional transfer */
 
-uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize)
+static uint8_t I2C_0_TransferOld(uint8_t device, const StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize)
 {
     uint8_t status = 0x00;
     int i = 0;
@@ -215,7 +215,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, siz
 //     2) NULL receives are not allowed (null transmits are)
 //
 
-uint8_t I2C_0_TransferGeneric(uint8_t device, const StaP_TransferUnit_t *segment, size_t numSegments)
+uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_t numSegments)
 {
   bool transmitting = false, receiving = false;
   int i = 0;

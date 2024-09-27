@@ -172,7 +172,7 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
 
   // Read a line from 0
 
-  status = STAP_I2CTransferGeneric(EEPROM_I2CADDR, readTransfer, sizeof(readTransfer)/sizeof(StaP_TransferUnit_t));
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, readTransfer, sizeof(readTransfer)/sizeof(StaP_TransferUnit_t));
 
   consoleNotefLn("EEPROM read status %#X", status);
   
@@ -186,7 +186,7 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
   for(i = 0; i < sizeof(data); i++)
     data[i] = EEPROM_TEST_VALUE(addr+i);
   
-  status = STAP_I2CTransferGeneric(EEPROM_I2CADDR, writeTransfer, sizeof(writeTransfer)/sizeof(StaP_TransferUnit_t));
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, writeTransfer, sizeof(writeTransfer)/sizeof(StaP_TransferUnit_t));
   
   consoleNotefLn("EEPROM write status %#X", status);
   
@@ -200,7 +200,7 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
   STAP_DelayMillis(6);
   memset((void*) data, 0, sizeof(data));
   
-  status = STAP_I2CTransferGeneric(EEPROM_I2CADDR, readTransfer, sizeof(readTransfer)/sizeof(StaP_TransferUnit_t));
+  status = STAP_I2CTransfer(EEPROM_I2CADDR, readTransfer, sizeof(readTransfer)/sizeof(StaP_TransferUnit_t));
 
   consoleNotefLn("EEPROM read status %#X", status);
   

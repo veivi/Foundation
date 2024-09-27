@@ -33,7 +33,6 @@
 #include "StaP.h"
 
 void    I2C_0_Init(void);
-uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *upSegment, size_t numSegments, uint8_t *downData, size_t downSize);
-uint8_t I2C_0_TransferGeneric(uint8_t device, const StaP_TransferUnit_t *segment, size_t numSegments);
+uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_t numSegments);
 
 #endif	/* I2C_H_INCLUDED */
