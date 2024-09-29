@@ -123,13 +123,16 @@ void STAP_Panicf(uint8_t reason, const char *format, ...)
 {
   va_list argp;
   char buffer[BUFSIZE+1];
+  int len = 0;
   
   STAP_FailSafe;
 
   va_start(argp, format);
-  vStringFmt(buffer, BUFSIZE, format, argp);
+  len = vStringFmt(buffer, BUFSIZE, format, argp);
   va_end(argp);
 
+  buffer[len] = '\0';
+  
   while(1) {
     consoleNotef("PANIC(%#x) ", reason);
     consolePrint(buffer);
