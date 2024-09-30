@@ -249,6 +249,13 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
           }
         }
       }
+
+      if(transmitting && i == numSegments-1) {
+        // It's the last segment and we're done
+        I2C_0_EndSession();    
+        transmitting = false;        
+      }
+        
     } else {
       // Receive
       
@@ -259,11 +266,6 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
         STAP_Panicf(STAP_ERR_I2C, "NULL data for reception");
 
       if(!receiving) {
-        if(transmitting) {
-            I2C_0_EndSession();    
-            transmitting = false;
-        }
-
         /* start transmitting the client address */
         TWI0.MADDR = (device<<1) | 0x01;
         if(i2c_0_WaitW() != I2C_ACKED) {
@@ -271,7 +273,6 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
             return 0xF0;
         }
 
-        transmitting = false;
         receiving = true;
       }
           
