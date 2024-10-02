@@ -221,7 +221,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
   int i = 0;
     
   for(i = 0; i < numSegments; i++) {
-    if(segment[i].dir == transfer_dir_||transmit) {
+    if(segment[i].dir == transfer_dir_transmit) {
       // Transmit
       
       size_t upSize = segment[i].size;
