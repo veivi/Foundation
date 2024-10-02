@@ -318,12 +318,11 @@ void vApplicationIdleHook( void )
   for(;;) {
     curr = vpTimeMicros();
     
-    if(curr > prev) {
+    if(curr > prev) 
       // This way we don't get screwed by wrap-around
-      
       idleMicros += curr - prev;
-      prev = curr;
-    }
+    
+    prev = curr;
   }
 }
 
