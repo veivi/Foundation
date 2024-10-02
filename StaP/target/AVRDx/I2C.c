@@ -82,7 +82,7 @@ static bool timedOut = false;
 void I2C_0_EndSession(void)
 {
     if(timedOut) {
-        // TWI0.MCTRLB = TWI_FLUSH_bm;
+      // TWI0.MCTRLB = TWI_FLUSH_bm;
         TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
     } else
         TWI0.MCTRLB = TWI_MCMD_STOP_gc;
