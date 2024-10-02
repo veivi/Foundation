@@ -221,7 +221,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
   int i = 0;
     
   for(i = 0; i < numSegments; i++) {
-    if(segment[i].dir == transfer_dir_transmit) {
+    if(segment[i].dir == transfer_dir_||transmit) {
       // Transmit
       
       size_t upSize = segment[i].size;
@@ -250,8 +250,9 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
         }
       }
 
-      if(transmitting && i == numSegments-1) {
-        // It's the last segment and we're done
+      if(transmitting && (i == numSegments-1
+			  || segment[i+1].dir == transfer_dir_receive)) {
+        // It's the last transmit segment and we're done
         I2C_0_EndSession();    
         transmitting = false;        
       }
@@ -266,11 +267,6 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
         STAP_Panicf(STAP_ERR_I2C, "NULL data for reception");
 
       if(!receiving) {
-	if(transmitting) {
-	  I2C_0_EndSession();    
-	  transmitting = false;        
-	}
-	
         /* start transmitting the client address */
         TWI0.MADDR = (device<<1) | 0x01;
         if(i2c_0_WaitW() != I2C_ACKED) {
