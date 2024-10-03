@@ -40,15 +40,15 @@ extern const int StaP_NumOfTasks;
 #define HZ_TO_PERIOD(f) (f) > 0 ? ((VP_TIME_MILLIS_T) (1.0e3f/(f))) : VP_TIME_MILLIS_MAX
 
 #define TASK_BY_PERIOD(N, P, C, PER, ST)		\
-  { .type = StaP_Task_Period, .name = N, .code = C, .typeSpecific.period = PER, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Period, .name = N, .code = C, .typeSpecific.period = PER, .priority = P, .stackSize = ST }
 #define TASK_BY_SIGNAL(N, P, C, SIG, T, ST)	\
-  { .type = StaP_Task_Signal, .name = N, .code = C, .typeSpecific.signal.id = SIG, .typeSpecific.signal.timeOut = T, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Signal, .name = N, .code = C, .typeSpecific.signal.id = SIG, .typeSpecific.signal.timeOut = T, .priority = P, .stackSize = ST }
 #define TASK_BY_SIGNAL_NOTO(N, P, C, SIG, ST) \
   TASK_BY_SIGNAL(N, P, C, SIG, VP_TIME_MILLIS_MAX, ST)
 #define TASK_BY_SERIAL(N, P, C, LINK, ST)	\
-  { .type = StaP_Task_Serial, .name = N, .code = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
 #define TASK_BY_FREQ(name, pri, code, freq, stack) TASK_BY_PERIOD(name, pri, code, HZ_TO_PERIOD(freq), stack)
-#define END_OF_TASKS TASK_BY_PERIOD(NULL, 0, NULL, 0, 0)
+
 
 void StaP_SchedulerStart( void );
 void StaP_SchedulerReport(void);
