@@ -219,7 +219,7 @@ uint16_t inavStaP_I2CErrorCode(void)
 
 #define MAX_BUFFER 0x100
 
-uint8_t inavStaP_I2CWrite(uint8_t d, const uint8_t *a, uint8_t as, const STAP_I2CBuffer_t *b, int c)
+uint8_t inavStaP_I2CWrite(uint8_t d, const uint8_t *a, uint8_t as, const StaP_TransferUnit_t *b, int c)
 {
   uint8_t buffer[MAX_BUFFER];
   uint16_t total = 0;
@@ -228,7 +228,7 @@ uint8_t inavStaP_I2CWrite(uint8_t d, const uint8_t *a, uint8_t as, const STAP_I2
     if(total + b[i].size > MAX_BUFFER)
       break;
     
-    memcpy(&buffer[total], b[i].data, b[i].size);
+    memcpy(&buffer[total], b[i].data.tx, b[i].size);
     total += b[i].size;
   }
 

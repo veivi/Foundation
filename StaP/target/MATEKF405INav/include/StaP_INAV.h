@@ -145,7 +145,7 @@ int inavStaP_LinkPutChar(uint8_t, char, VP_TIME_MILLIS_T);
 int inavStaP_LinkPut(uint8_t, const char*, int, VP_TIME_MILLIS_T);
 void inavStaP_LinkDrain(uint8_t, VP_TIME_MILLIS_T);
 
-uint8_t inavStaP_I2CWrite(uint8_t, const uint8_t*, uint8_t, const STAP_I2CBuffer_t*, int);
+uint8_t inavStaP_I2CWrite(uint8_t, const uint8_t*, uint8_t, const StaP_TransferUnit_t*, int);
 uint8_t inavStaP_I2CRead(uint8_t, const uint8_t*, uint8_t, uint8_t*, uint8_t);
 uint8_t inavStaP_I2CWait(uint8_t);
 uint16_t inavStaP_I2CErrorCount(void);
@@ -161,26 +161,13 @@ uint8_t inavStaP_SwitchRead(uint8_t);
 // #define STAP_PERIOD_GYRO            gyro.targetLooptime
 // #define STAP_PERIOD_GYRO_STATIC     HZ_TO_PERIOD(400)
 
-#ifdef USE_NATIVE_SCHEDULER
-extern volatile uint8_t nestCount;
-
-typedef void *ForbidContext_T;
-
-void STAP_Forbid(void);
-void STAP_Permit(void);
-
-#define STAP_FORBID         STAP_Forbid() 
-#define STAP_PERMIT         STAP_Permit() 
-#define STAP_FORBID_SAFE    (STAP_Forbid(), NULL)
-#define STAP_PERMIT_SAFE(c) STAP_Permit()
-#else
 typedef UBaseType_t ForbidContext_T; 
 
 #define STAP_FORBID_SAFE       taskENTER_CRITICAL_FROM_ISR()
 #define STAP_PERMIT_SAFE(c)    taskEXIT_CRITICAL_FROM_ISR(c)
 #define STAP_FORBID            taskENTER_CRITICAL()
 #define STAP_PERMIT            taskEXIT_CRITICAL()
-#endif
+#define STAP_EnterSystem       _disable_interrupt_()
 
 typedef uint32_t StaP_CPUClkTime_T;
 StaP_CPUClkTime_T STAP_CPUClkTime(void);
