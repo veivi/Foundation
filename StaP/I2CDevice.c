@@ -11,34 +11,34 @@
 
 static STAP_MutexRef_T i2cMutex = NULL;
 
-void I2CDeviceReset(I2CDevice_t *device)
+void I2CTargetReset(I2CTarget_t *device)
 {
   device->offLine = false;
   device->failCount = 0;
 }
 
-void I2CDeviceSetId(I2CDevice_t *device, uint8_t id)
+void I2CTargetSetId(I2CTarget_t *device, uint8_t id)
 {
   device->id = id;
 }
 
-bool I2CDeviceIsOnline(I2CDevice_t *device)
+bool I2CTargetIsOnline(I2CTarget_t *device)
 {
   return !device->offLine;
 }
 
-bool I2CDeviceMaybeOnline(I2CDevice_t *device)
+bool I2CTargetMaybeOnline(I2CTarget_t *device)
 {
-  return I2CDeviceIsOnline(device)
+  return I2CTargetIsOnline(device)
     || VP_ELAPSED_MILLIS(device->offLineAt) > device->backoff;
 }
 
-bool I2CDeviceIsStable(I2CDevice_t *device)
+bool I2CTargetIsStable(I2CTarget_t *device)
 {
   return !device->offLine && device->failCount == 0;
 }
 
-static uint8_t I2CDeviceInvoke(I2CDevice_t *device, uint8_t subId, uint8_t status)
+static uint8_t I2CTargetInvoke(I2CTarget_t *device, uint8_t subId, uint8_t status)
 {
   if(status) {
     consoleNotefLn("I2C(%s:%d) ERROR %#X", device->name, subId, status);
@@ -86,21 +86,21 @@ static void criticalEnd(void)
   STAP_MutexRelease(i2cMutex);
 }
 
-uint8_t I2CDeviceTransfer(I2CDevice_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers)
+uint8_t I2CTargetTransfer(I2CTarget_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers)
 {
   uint8_t status = 0xFF;
 
   criticalBegin();
 	
-  if(I2CDeviceMaybeOnline(device))
-    status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffers, numBuffers));
+  if(I2CTargetMaybeOnline(device))
+    status = I2CTargetInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffers, numBuffers));
 
   criticalEnd();
 	
   return status;
 }
 
-uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize)
+uint8_t I2CTargetWrite(I2CTarget_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize)
 {
   StaP_TransferUnit_t buffer[] = { 
     { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },
@@ -109,15 +109,15 @@ uint8_t I2CDeviceWrite(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, 
 
   criticalBegin();
 	
-  if(I2CDeviceMaybeOnline(device))
-    status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
+  if(I2CTargetMaybeOnline(device))
+    status = I2CTargetInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
 
   criticalEnd();
 	
   return status;
 }
 
-uint8_t I2CDeviceRead(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
+uint8_t I2CTargetRead(I2CTarget_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
 {
     StaP_TransferUnit_t buffer[] = { 
       { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },
@@ -127,87 +127,87 @@ uint8_t I2CDeviceRead(I2CDevice_t *device, uint8_t subId, const uint8_t *addr, s
 
     criticalBegin();
 	
-    if(I2CDeviceMaybeOnline(device))
-      status = I2CDeviceInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
+    if(I2CTargetMaybeOnline(device))
+      status = I2CTargetInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
 	
     criticalEnd();
 	
     return status;
 }
 
-uint8_t I2CDeviceReadByUInt8(I2CDevice_t *device, uint8_t subId, uint8_t addr, uint8_t *data, size_t size)
+uint8_t I2CTargetReadByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, uint8_t *data, size_t size)
 {
-  return I2CDeviceRead(device, subId, &addr, sizeof(addr), data, size);
+  return I2CTargetRead(device, subId, &addr, sizeof(addr), data, size);
 }
 
-uint8_t I2CDeviceWriteByUInt8(I2CDevice_t *device, uint8_t subId, uint8_t addr, const uint8_t *data, size_t size)
+uint8_t I2CTargetWriteByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, const uint8_t *data, size_t size)
 {
-  return I2CDeviceWrite(device, subId, &addr, sizeof(addr), data, size);
+  return I2CTargetWrite(device, subId, &addr, sizeof(addr), data, size);
 }
 
-uint8_t I2CDeviceReadByUInt16(I2CDevice_t *device, uint8_t subId, uint16_t addr, uint8_t *data, size_t size)
+uint8_t I2CTargetReadByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t *data, size_t size)
 {
-  return I2CDeviceRead(device, subId, (const uint8_t*) &addr, sizeof(addr), data, size);
+  return I2CTargetRead(device, subId, (const uint8_t*) &addr, sizeof(addr), data, size);
 }
 
-uint8_t I2CDeviceWriteByUInt16(I2CDevice_t *device, uint8_t subId, uint16_t addr, const uint8_t *data, size_t size)
+uint8_t I2CTargetWriteByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, const uint8_t *data, size_t size)
 {
-  return I2CDeviceWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), data, size);
+  return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), data, size);
 }
 
 // Convenience functions for 8 and 16 bit addresses and immediate 8 or 16 bit data
 
-uint8_t I2CDeviceWriteUInt8ByUInt8(I2CDevice_t *device, uint8_t subId, uint8_t addr, uint8_t value)
+uint8_t I2CTargetWriteUInt8ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, uint8_t value)
 {
-   return I2CDeviceWrite(device, subId, &addr, sizeof(addr), &value, sizeof(value));
+   return I2CTargetWrite(device, subId, &addr, sizeof(addr), &value, sizeof(value));
 }
 
-uint8_t I2CDeviceWriteUInt16ByUInt8(I2CDevice_t *device, uint8_t subId, uint8_t addr, uint16_t value)
+uint8_t I2CTargetWriteUInt16ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, uint16_t value)
 {
-   return I2CDeviceWrite(device, subId, &addr, sizeof(addr), &value, sizeof(value));
+   return I2CTargetWrite(device, subId, &addr, sizeof(addr), &value, sizeof(value));
 }
 
-uint8_t I2CDeviceWriteUInt8ByUInt16(I2CDevice_t *device, uint8_t subId, uint16_t addr, uint8_t value)
+uint8_t I2CTargetWriteUInt8ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t value)
 {
-  return I2CDeviceWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), &value, sizeof(value));
+  return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), &value, sizeof(value));
 }
 
-uint8_t I2CDeviceWriteUInt16ByUInt16(I2CDevice_t *device, uint8_t subId, uint16_t addr, uint16_t value)
+uint8_t I2CTargetWriteUInt16ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint16_t value)
 {
-  return I2CDeviceWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), &value, sizeof(value));
+  return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), &value, sizeof(value));
 }
 
-uint8_t I2CDeviceReadUInt8ByUInt8(I2CDevice_t *device, uint8_t subId, uint8_t addr, uint8_t *retCode)
+uint8_t I2CTargetReadUInt8ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, uint8_t *retCode)
 {
   uint8_t buffer = 0;
-  uint8_t status = I2CDeviceRead(device, subId, &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
+  uint8_t status = I2CTargetRead(device, subId, &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
   if(retCode)
     *retCode = status;
   return buffer;
 }
 
-uint16_t I2CDeviceReadUInt16ByUInt8(I2CDevice_t *device, uint8_t subId, uint8_t addr, uint8_t *retCode)
+uint16_t I2CTargetReadUInt16ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, uint8_t *retCode)
 {
   uint16_t buffer = 0;
-  uint8_t status = I2CDeviceRead(device, subId, &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
+  uint8_t status = I2CTargetRead(device, subId, &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
   if(retCode)
     *retCode = status;
   return buffer;
 }
 
-uint8_t I2CDeviceReadUInt8ByUInt16(I2CDevice_t *device, uint8_t subId, uint16_t addr, uint8_t *retCode)
+uint8_t I2CTargetReadUInt8ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t *retCode)
 {
   uint8_t buffer = 0;
-  uint8_t status = I2CDeviceRead(device, subId, (const uint8_t*) &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
+  uint8_t status = I2CTargetRead(device, subId, (const uint8_t*) &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
   if(retCode)
     *retCode = status;
   return buffer;
 }
 
-uint16_t I2CDeviceReadUInt16ByUInt16(I2CDevice_t *device, uint8_t subId, uint16_t addr, uint8_t *retCode)
+uint16_t I2CTargetReadUInt16ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t *retCode)
 {
   uint16_t buffer = 0;
-  uint8_t status = I2CDeviceRead(device, subId, (const uint8_t*) &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
+  uint8_t status = I2CTargetRead(device, subId, (const uint8_t*) &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
   if(retCode)
     *retCode = status;
   return buffer;
