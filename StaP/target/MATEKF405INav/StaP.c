@@ -581,32 +581,6 @@ size_t STAP_MemoryFree(void)
 #endif
 }
 
-uint16_t STAP_CPUIdlePermille(void)
-{
-#ifdef USE_NATIVE_SCHEDULER
-  uint16_t value = 0;
-  static VP_TIME_MICROS_T prevTime;
-  VP_TIME_MICROS_T cycle = VP_ELAPSED_MICROS(prevTime);
-  
-  prevTime += cycle;
-
-  value = (uint16_t) (1000UL*idleMicros / cycle);
-
-  idleMicros = 0;
-
-  return value;
-#else
-  static VP_TIME_MICROS_T prevTime, prevIdle;
-  VP_TIME_MICROS_T cycle = VP_ELAPSED_MICROS(prevTime),
-    idleTime = ulTaskGetIdleRunTimeCounter() - prevIdle;
-  
-  prevTime += cycle;;
-  prevIdle += idleTime;
-
-  return (uint16_t) (1000UL*idleTime / cycle);
-#endif
-}
-
 void inavStaP_pwmOutput(int num, const uint16_t value[])
 {
   int i = 0;
