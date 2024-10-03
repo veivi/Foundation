@@ -90,9 +90,8 @@ bool STAP_SignalLatentFromISR(StaP_Signal_T sig, VP_TIME_MICROS_T);
 #define STAP_LinkTxBegin(port) inavStaP_LinkTxBegin(port)
 #define STAP_LinkTxEnd(port) inavStaP_LinkTxEnd(port)
 
-#define STAP_I2CWrite(dev, a, as, b, bn) inavStaP_I2CWrite(dev, a, as, b, bn)
-#define STAP_I2CRead(dev, a, as, d, ds) inavStaP_I2CRead(dev, a, as, d, ds)
-#define STAP_I2CWait(dev) inavStaP_I2CWait(dev)
+#define STAP_I2CTransfer(dev, seg, num) 0xFF // inavStaP_I2CTransfer(dev, seg, num)
+
 #define STAP_I2CErrorCount inavStaP_I2CErrorCount()
 #define STAP_I2CErrorCode  inavStaP_I2CErrorCode()
 #define STAP_pwmOutput(num, pulse) inavStaP_pwmOutput(num, pulse)

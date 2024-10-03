@@ -14,11 +14,11 @@ main_sources(COMMON_SRC
     AlphaPilot/TARGET/StaP.c
     AlphaPilot/TARGET/Setup.c
     AlphaPilot/Scheduler.c
-    AlphaPilot/BaseI2C.c 
-    AlphaPilot/MS4525.c 
-    AlphaPilot/M24XX.c 
+    AlphaPilot/Driver/MS4525.c 
+    AlphaPilot/Driver/M24Mxx.c 
+    AlphaPilot/Driver/AS5048B.c 
+    AlphaPilot/I2CDevice.c 
     AlphaPilot/SSD1306.c 
-    AlphaPilot/AS5048B.c 
     AlphaPilot/Objects.c 
     AlphaPilot/VPMath.c 
     AlphaPilot/NVState.c 

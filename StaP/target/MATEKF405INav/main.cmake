@@ -2,6 +2,7 @@ set(MAIN_INCLUDE_DIRS
     "${MAIN_LIB_DIR}"
     "${MAIN_SRC_DIR}"
     "${MAIN_SRC_DIR}/AlphaPilot"
+    "${MAIN_SRC_DIR}/ALphaPilot/Driver"
     "${MAIN_SRC_DIR}/AlphaPilot/TARGET"
     "${MAIN_SRC_DIR}/FreeRTOS"
     "${MAIN_SRC_DIR}/FreeRTOS/portable/GCC/ARM_CM4F"
