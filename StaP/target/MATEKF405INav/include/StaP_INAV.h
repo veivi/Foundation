@@ -90,7 +90,7 @@ bool STAP_SignalLatentFromISR(StaP_Signal_T sig, VP_TIME_MICROS_T);
 #define STAP_LinkTxBegin(port) inavStaP_LinkTxBegin(port)
 #define STAP_LinkTxEnd(port) inavStaP_LinkTxEnd(port)
 
-#define STAP_I2CTransfer(dev, seg, num) 0xFF // inavStaP_I2CTransfer(dev, seg, num)
+#define STAP_I2CTransfer(dev, seg, num) inavStaP_I2CTransfer(STAP_I2C_BUS, dev, seg, num)
 
 #define STAP_I2CErrorCount inavStaP_I2CErrorCount()
 #define STAP_I2CErrorCode  inavStaP_I2CErrorCode()
@@ -144,9 +144,7 @@ int inavStaP_LinkPutChar(uint8_t, char, VP_TIME_MILLIS_T);
 int inavStaP_LinkPut(uint8_t, const char*, int, VP_TIME_MILLIS_T);
 void inavStaP_LinkDrain(uint8_t, VP_TIME_MILLIS_T);
 
-uint8_t inavStaP_I2CWrite(uint8_t, const uint8_t*, uint8_t, const StaP_TransferUnit_t*, int);
-uint8_t inavStaP_I2CRead(uint8_t, const uint8_t*, uint8_t, uint8_t*, uint8_t);
-uint8_t inavStaP_I2CWait(uint8_t);
+uint8_t inavStaP_I2CTransfer(I2CDevice device, uint8_t addr, const StaP_TransferUnit_t *seg, int num);
 uint16_t inavStaP_I2CErrorCount(void);
 uint16_t inavStaP_I2CErrorCode(void);
 void inavStaP_pwmOutput(int, const uint16_t []);

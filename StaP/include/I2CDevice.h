@@ -22,6 +22,10 @@ bool I2CTargetIsOnline(I2CTarget_t*);
 bool I2CTargetIsStable(I2CTarget_t*);
 bool I2CTargetMaybeOnline(I2CTarget_t *);
 
+// Generic bidirectional transmit from multiple buffers
+
+uint8_t I2CTargetTransfer(I2CTarget_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers);
+
 // Generic unidirectional transmit from multiple buffers
 
 uint8_t I2CTargetTransmit(I2CTarget_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers);
