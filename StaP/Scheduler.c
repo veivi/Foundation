@@ -357,5 +357,5 @@ hook, uncomment it, and set configUSE_MALLOC_FAILED_HOOK to 1 in
 
 void vApplicationMallocFailedHook( void )
 {
-  STAP_Panic(STAP_ERR_MALLOC_FAIL);
+  STAP_Panicf(STAP_ERR_MALLOC_FAIL, "malloc() out of mem");
 }
