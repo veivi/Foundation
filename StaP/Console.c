@@ -8,7 +8,8 @@
 #include "Buffer.h"
 #include "StringFmt.h"
 
-#define CONSOLE_BUFFER     (1<<6)
+#define CONSOLE_BUFFER     (1<<5)
+#define PRINT_FMT_BUFFER   (1<<6)
 
 DgLink_t *consoleLink;
 bool consoleThrottled, consoleDebug;

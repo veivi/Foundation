@@ -7,8 +7,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define PRINT_FMT_BUFFER   (1<<7)
-#define PRINT_FMT_FIELD    (1<<6)
+#define PRINT_FMT_FIELD    (1<<5)
 
 int stringFmt(char *b, int size, const char *f, ...);
 int vStringFmt(char *b, int size, const char *f, va_list args);
