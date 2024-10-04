@@ -15,10 +15,12 @@ main_sources(COMMON_SRC
     AlphaPilot/TARGET/Setup.c
     AlphaPilot/Scheduler.c
     AlphaPilot/Driver/MS4525.c 
+    AlphaPilot/Driver/SSD1306.c 
+    AlphaPilot/Driver/FontData.c 
     AlphaPilot/Driver/M24Mxx.c 
     AlphaPilot/Driver/AS5048B.c 
+    AlphaPilot/Driver/Spatial.c 
     AlphaPilot/I2CDevice.c 
-    AlphaPilot/SSD1306.c 
     AlphaPilot/Objects.c 
     AlphaPilot/VPMath.c 
     AlphaPilot/NVState.c 
@@ -40,7 +42,6 @@ main_sources(COMMON_SRC
     AlphaPilot/TOCTest.c 
     AlphaPilot/Command.c 
     AlphaPilot/Function.c 
-    AlphaPilot/FontData.c 
     AlphaPilot/PRNG.c
     AlphaPilot/StringFmt.c
     AlphaPilot/AlphaPilot.c

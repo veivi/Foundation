@@ -559,23 +559,30 @@ bool i2cWriteBuffer(I2CDevice device, uint8_t addr, uint8_t reg, uint8_t len, co
 uint8_t inavStaP_I2CTransfer(I2CDevice device, uint8_t addr, const StaP_TransferUnit_t *seg, int num)
 {
   uint8_t txBuffer[MAX_I2C_TRANSMIT], txSize = 0;
+  bool success = false;
   int i = 0;
 
   while(i < num && seg[i].dir == transfer_dir_transmit) {
     if(txSize+seg[i].size < MAX_I2C_TRANSMIT) {
       memcpy((void*) &txBuffer[txSize], seg[i].data.tx, seg[i].size);
       txSize += seg[i].size;
-    }
+    } else
+      return false;
 	
     i++;
   }
   
   if(i < num)
     // We encountered a receive segment so it's a read
-    return !i2cReadGeneric(device, addr, txSize, txBuffer, seg[i].size, seg[i].data.rx); 
+    success = i2cReadGeneric(device, addr, txSize, txBuffer, seg[i].size, seg[i].data.rx); 
   else
     // It's a write
-    return !i2cWriteGeneric(device, addr, txSize, txBuffer, 0, NULL);
+    success = i2cWriteGeneric(device, addr, txSize, txBuffer, 0, NULL);
+
+  if(success)
+    return 0;
+  else
+    return i2cGetErrorCode();
 }
  
 bool i2cWrite(I2CDevice device, uint8_t addr_, uint8_t reg, uint8_t data, bool allowRawAccess)
