@@ -164,7 +164,7 @@ typedef UBaseType_t ForbidContext_T;
 #define STAP_PERMIT_SAFE(c)    taskEXIT_CRITICAL_FROM_ISR(c)
 #define STAP_FORBID            taskENTER_CRITICAL()
 #define STAP_PERMIT            taskEXIT_CRITICAL()
-#define STAP_EnterSystem       // _disable_interrupt_()
+#define STAP_EnterSystem       taskENTER_CRITICAL()
 
 typedef uint32_t StaP_CPUClkTime_T;
 StaP_CPUClkTime_T STAP_CPUClkTime(void);
