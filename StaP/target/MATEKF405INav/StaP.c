@@ -34,12 +34,7 @@ uint8_t consoleDebugLevel = STAP_DEBUG_LEVEL;
 uint8_t consoleDebugLevel = 0;
 #endif
 
-#ifdef STAP_MutexCreate
 static STAP_MutexRef_T mutex[StaP_NumOfLinks];
-static STAP_MutexRef_T mutexI2C;
-#else
-#error Mutex implementation missing!
-#endif
 
 volatile uint8_t nestCount = 0;
 
@@ -196,17 +191,6 @@ void STAP_Reboot(bool bootloader)
   STAP_Panic(STAP_ERR_FELLTHROUGH+1);
 }
 
-uint8_t inavStaP_I2CWait(uint8_t d)
-{
-  STAP_MutexObtain(mutexI2C);
-
-  bool status = i2cWait(STAP_I2C_BUS, d);
-
-  STAP_MutexRelease(mutexI2C);
-  
-  return status ? 0 : i2cGetErrorCode();
-}
-
 uint16_t inavStaP_I2CErrorCount(void)
 {
   return i2cGetErrorCounterReset();
@@ -217,39 +201,37 @@ uint16_t inavStaP_I2CErrorCode(void)
   return i2cGetErrorCodeReset();
 }
 
-#define MAX_BUFFER 0x100
+#define MAX_I2C_TRANSMIT    (1<<7)
 
-uint8_t inavStaP_I2CWrite(uint8_t d, const uint8_t *a, uint8_t as, const StaP_TransferUnit_t *b, int c)
+uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int num)
 {
-  uint8_t buffer[MAX_BUFFER];
-  uint16_t total = 0;
+  uint8_t txBuffer[MAX_I2C_TRANSMIT], txSize = 0;
+  bool success = false;
+  int i = 0;
 
-  for(int i = 0; i < c; i++) {
-    if(total + b[i].size > MAX_BUFFER)
-      break;
-    
-    memcpy(&buffer[total], b[i].data.tx, b[i].size);
-    total += b[i].size;
+  while(i < num && seg[i].dir == transfer_dir_transmit) {
+    if(txSize+seg[i].size < MAX_I2C_TRANSMIT) {
+      memcpy((void*) &txBuffer[txSize], seg[i].data.tx, seg[i].size);
+      txSize += seg[i].size;
+    } else
+      return 0xFE;
+	
+    i++;
   }
+  
+  if(i < num) {
+    // We encountered a receive segment so it's a read
 
-  STAP_MutexObtain(mutexI2C);
-  
-  bool status = i2cWriteGeneric(STAP_I2C_BUS, d, as, a, total, buffer);
-  
-  STAP_MutexRelease(mutexI2C);
-  
-  return status ? 0 : i2cGetErrorCode();
-}
+    success = i2cReadGeneric(STAP_I2C_BUS, addr, 0, NULL, //txSize, txBuffer,
+			       seg[i].size, seg[i].data.rx); 
 
-uint8_t inavStaP_I2CRead(uint8_t d, const uint8_t *a, uint8_t as, uint8_t *b, uint8_t bs)
-{
-  STAP_MutexObtain(mutexI2C);
+  } else {
+    // It's a write
+    
+    success = i2cWriteGeneric(STAP_I2C_BUS, addr, 0, NULL, txSize, txBuffer);
+  }
   
-  bool status = i2cReadGeneric(STAP_I2C_BUS, d, as, a, bs, b);
-  
-  STAP_MutexRelease(mutexI2C);
-  
-  return status ? 0 : i2cGetErrorCode();
+  return success ? 0 : i2cGetErrorCode();
 }
 
 #include "sensors/acceleration.h"
@@ -795,11 +777,6 @@ void STAP_Initialize(void)
 
   //  STAP_Indicate(5);
 
-  // Initialize I2C
-  
-  if(!(mutexI2C = STAP_MutexCreate))
-    STAP_Panic(STAP_ERR_MUTEX_CREATE);
-	
   //
   // Initialize serial ports
   //

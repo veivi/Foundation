@@ -90,25 +90,19 @@ bool STAP_SignalLatentFromISR(StaP_Signal_T sig, VP_TIME_MICROS_T);
 #define STAP_LinkTxBegin(port) inavStaP_LinkTxBegin(port)
 #define STAP_LinkTxEnd(port) inavStaP_LinkTxEnd(port)
 
-#define STAP_I2CTransfer(dev, seg, num) inavStaP_I2CTransfer(STAP_I2C_BUS, dev, seg, num)
-
+#define STAP_I2CTransfer(dev, seg, num) inavStaP_I2CTransfer(dev, seg, num)
 #define STAP_I2CErrorCount inavStaP_I2CErrorCount()
 #define STAP_I2CErrorCode  inavStaP_I2CErrorCode()
+
 #define STAP_pwmOutput(num, pulse) inavStaP_pwmOutput(num, pulse)
 
 #define STAP_GyroCalibrate inavStaP_GyroCalibrate()
 #define STAP_GyroIsGood inavStaP_GyroIsGood()
 #define STAP_GyroUpdate inavStaP_GyroUpdate()
-#define STAP_BaroUpdate inavStaP_BaroUpdate()
-#define STAP_BaroRead inavStaP_BaroRead()
  
 #define STAP_NVStoreRead     M24XXRead
 #define STAP_NVStoreWrite    M24XXWrite
 #define STAP_SensorCalib     inavStaP_CalibrateAccel()
-// #define STAP_FuelFlowSensor  inavStaP_SwitchRead(0)
-// #define STAP_CanopySwitch    inavStaP_SwitchRead(1)
-
-#define STAP_Arm         inavStaP_Arm()
 
 //
 // Mutex
@@ -144,15 +138,13 @@ int inavStaP_LinkPutChar(uint8_t, char, VP_TIME_MILLIS_T);
 int inavStaP_LinkPut(uint8_t, const char*, int, VP_TIME_MILLIS_T);
 void inavStaP_LinkDrain(uint8_t, VP_TIME_MILLIS_T);
 
-uint8_t inavStaP_I2CTransfer(I2CDevice device, uint8_t addr, const StaP_TransferUnit_t *seg, int num);
+uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int num);
 uint16_t inavStaP_I2CErrorCount(void);
 uint16_t inavStaP_I2CErrorCode(void);
 void inavStaP_pwmOutput(int, const uint16_t []);
 void inavStaP_GyroUpdate(void);
 bool inavStaP_GyroIsGood(void);
 void inavStaP_GyroCalibrate(void);
-void inavStaP_BaroUpdate(void);
-float inavStaP_BaroRead(void);
 uint8_t inavStaP_SwitchRead(uint8_t);
 
 // #define STAP_PERIOD_GYRO            gyro.targetLooptime

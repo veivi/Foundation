@@ -548,59 +548,31 @@ uint16_t i2cGetErrorCodeReset(void)
 
 bool i2cWriteBuffer(I2CDevice device, uint8_t addr, uint8_t reg, uint8_t len, const uint8_t * data, bool allowRawAccess)
 {
+#if 0
   if(reg == 0xFF && allowRawAccess)
     return i2cWriteGeneric(device, addr, 0, NULL, len, data);
   else
     return i2cWriteGeneric(device, addr, sizeof(reg), &reg, len, data);
+#endif
 }
 
-#define MAX_I2C_TRANSMIT    (1<<7)
-
-uint8_t inavStaP_I2CTransfer(I2CDevice device, uint8_t addr, const StaP_TransferUnit_t *seg, int num)
-{
-  uint8_t txBuffer[MAX_I2C_TRANSMIT], txSize = 0;
-  bool success = false;
-  int i = 0;
-
-  while(i < num && seg[i].dir == transfer_dir_transmit) {
-    if(txSize+seg[i].size < MAX_I2C_TRANSMIT) {
-      memcpy((void*) &txBuffer[txSize], seg[i].data.tx, seg[i].size);
-      txSize += seg[i].size;
-    } else
-      return false;
-	
-    i++;
-  }
-  
-  if(i < num)
-    // We encountered a receive segment so it's a read
-    success = i2cReadGeneric(device, addr, txSize, txBuffer, seg[i].size, seg[i].data.rx); 
-  else
-    // It's a write
-    success = i2cWriteGeneric(device, addr, txSize, txBuffer, 0, NULL);
-
-  if(success)
-    return 0;
-  else
-    return i2cGetErrorCode();
-}
- 
 bool i2cWrite(I2CDevice device, uint8_t addr_, uint8_t reg, uint8_t data, bool allowRawAccess)
 {
-   const StaP_TransferUnit_t trans[] = {
-    { .data.tx = &reg, .size = sizeof(reg), .dir = transfer_dir_transmit },
-    { .data.tx = &data, .size = sizeof(data), .dir = transfer_dir_transmit } };
-
-  return inavStaP_I2CTransfer(device, addr_, trans, sizeof(trans)/sizeof(StaP_TransferUnit_t)) == 0;
- 
+#if 0
+  if(reg == 0xFF && allowRawAccess)
+    return i2cWriteGeneric(device, addr_, 0, NULL, sizeof(data), &data);
+  else
+    return i2cWriteGeneric(device, addr_, sizeof(reg), &reg, sizeof(data), &data);
+#endif
 }
   
 bool i2cRead(I2CDevice device, uint8_t addr_, uint8_t reg, uint8_t len, uint8_t* buf, bool allowRawAccess)
 {
-  const StaP_TransferUnit_t trans[] = {
-    { .data.tx = &reg, .size = sizeof(reg), .dir = transfer_dir_transmit },
-    { .data.rx = buf, .size = len, .dir = transfer_dir_receive } };
-
-  return inavStaP_I2CTransfer(device, addr_, trans, sizeof(trans)/sizeof(StaP_TransferUnit_t)) == 0;
+#if 0
+  if(reg == 0xFF && allowRawAccess)
+    return i2cReadGeneric(device, addr_, 0, NULL, len, buf);
+  else
+    return i2cReadGeneric(device, addr_, sizeof(reg), &reg, len, buf);
+#endif
 }
 #endif
