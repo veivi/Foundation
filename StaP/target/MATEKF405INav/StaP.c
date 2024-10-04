@@ -794,45 +794,6 @@ void STAP_Initialize(void)
       serialLinkInit(i, StaP_LinkTable[i].rate, StaP_LinkTable[i].mode);
     }
   }
-
-  /*  
-  stap_serialPort[STAP_LINK_HOSTRX] = stap_serialPort[STAP_LINK_HOSTTX]
-    = usbVcpOpen();
-  
-  stap_serialPort[STAP_LINK_ALINKTX]
-    = serialLinkInit(STAP_LINK_ALINKRX, STAP_UART_ALINK, 200000, MODE_RXTX, 0);
-  
-  stap_serialPort[STAP_LINK_TELEMTX]
-    = serialLinkInit(STAP_LINK_TELEMRX, STAP_UART_TELEM, 57600, MODE_RXTX, 0);
-  
-#ifdef STAP_UART_SRXLOUTA
-  serialLinkInit(STAP_LINK_SRXLOUTA, STAP_UART_SRXLOUTA, 115200, MODE_TX, 0);
-#endif
-
-#ifdef STAP_UART_SRXLOUTB
-  serialLinkInit(STAP_LINK_SRXLOUTB, STAP_UART_SRXLOUTB, 115200, MODE_TX, 0);
-#endif
-
-#ifdef STAP_FEATURE_SERIALRX 
-#ifdef STAP_UART_SRXLBUSA
-  stap_serialPort[STAP_LINK_SRXLINA_TX]
-    = serialLinkInit(STAP_LINK_SRXLINA, STAP_UART_SRXLBUSA,
-		     115200, MODE_RX, SERIAL_BIDIR );
-#elif defined(STAP_UART_SRXLINA)
-  serialLinkInit(STAP_LINK_SRXLINA, STAP_UART_SRXLINA,
-		 115200, MODE_RX, SERIAL_UNIDIR );
-#endif
-
-#ifdef STAP_UART_SRXLBUSB
-  stap_serialPort[STAP_LINK_SRXLINB_TX]
-    = serialLinkInit(STAP_LINK_SRXLINB, STAP_UART_SRXLBUSB,
-		     115200, MODE_RX, SERIAL_BIDIR );
-#elif defined(STAP_UART_SRXLINB)
-  serialLinkInit(STAP_LINK_SRXLINB, STAP_UART_SRXLINB,
-		 115200, MODE_RX, SERIAL_UNIDIR );
-#endif
-#endif
-  */
 }
 
 #define NUM_SWITCHES   3
