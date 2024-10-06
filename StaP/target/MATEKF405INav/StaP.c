@@ -203,6 +203,8 @@ uint16_t inavStaP_I2CErrorCode(void)
 
 #define MAX_I2C_TRANSMIT    (1<<7)
 
+// This is a serious kludge but does it for now
+
 uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int num)
 {
   uint8_t txBuffer[MAX_I2C_TRANSMIT], txSize = 0;
@@ -214,6 +216,7 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
       memcpy((void*) &txBuffer[txSize], seg[i].data.tx, seg[i].size);
       txSize += seg[i].size;
     } else
+      // Too much to transmit for this implementation
       return 0xFE;
 	
     i++;
@@ -222,6 +225,10 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
   if(i < num) {
     // We encountered a receive segment so it's a read
 
+    if(i < num-1)
+      // More than one transfers remain, we don't support this
+      return 0xFD;
+	  
     success = i2cReadGeneric(STAP_I2C_BUS, addr, txSize, txBuffer,
 			       seg[i].size, seg[i].data.rx); 
 
@@ -525,24 +532,6 @@ void inavStaP_LinkListen(uint8_t port, VP_TIME_MILLIS_T timeout)
     inavStaP_LinkSetMode(port, StaP_LinkTable[port].mode);
   }
 }
-
-/*
-void inavStaP_LinkTalk(uint8_t port)
-{
-  if(!trans[linkMap[port]].valid || !trans[linkMap[port]].ref)
-    return;
-  
-  serialBeginWrite(trans[linkMap[port]].ref);
-}
-
-void inavStaP_LinkListen(uint8_t port)
-{
-  if(!trans[linkMap[port]].valid || !trans[linkMap[port]].ref)
-    return;
-  
-  serialEndWrite(trans[linkMap[port]].ref);
-}
-*/
 
 VP_TIME_MICROS_T STAP_TimeMicros(void)
 {
