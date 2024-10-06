@@ -222,7 +222,7 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
   if(i < num) {
     // We encountered a receive segment so it's a read
 
-    success = i2cReadGeneric(STAP_I2C_BUS, addr, 0, NULL, //txSize, txBuffer,
+    success = i2cReadGeneric(STAP_I2C_BUS, addr, txSize, txBuffer,
 			       seg[i].size, seg[i].data.rx); 
 
   } else {
