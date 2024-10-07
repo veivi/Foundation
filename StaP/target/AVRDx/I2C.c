@@ -87,9 +87,9 @@ void I2C_0_EndSession(void)
     } else
       TWI0.MCTRLB = TWI_MCMD_STOP_gc;
 
-    while(TWI0.MCTRLB & TWI_MCMD_STOP_gc);
-    
     timedOut = false;
+
+    STAP_DelayMillis(1);
 }
 
 static uint8_t i2c_0_WaitW(void)
