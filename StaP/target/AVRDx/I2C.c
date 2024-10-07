@@ -55,7 +55,9 @@ void I2C_0_Init(void)
 {
     /* Select I2C pins PA2/PA3 */
     PORTMUX.TWIROUTEA = 0x00;
-    
+
+    PORTA.DIRSET = 3<<2;
+
     // PORTA.DIRCLR = 3<<2;
     
     // PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
