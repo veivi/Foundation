@@ -219,6 +219,16 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
 {
   bool transmitting = false, receiving = false;
   int i = 0;
+
+  while(i < numSegments && segment[i].dir == transfer_dir_transmit)
+    i++;
+
+  if(i < numSegments)
+    I2C_0_TransferOld(device, segment, i, segment[i].data.rx, segment[i].size);
+  else
+    I2C_0_TransferOld(device, segment, numSegments, NULL, 0);
+
+  return;
     
   for(i = 0; i < numSegments; i++) {
     if(segment[i].dir == transfer_dir_transmit) {
