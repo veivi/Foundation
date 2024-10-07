@@ -26,10 +26,6 @@ bool I2CTargetMaybeOnline(I2CTarget_t *);
 
 uint8_t I2CTargetTransfer(I2CTarget_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers);
 
-// Generic unidirectional transmit from multiple buffers
-
-uint8_t I2CTargetTransmit(I2CTarget_t *device, uint8_t subId, const StaP_TransferUnit_t *buffers, size_t numBuffers);
-
 // Generic read and write with arbitrary address and data sizes
 
 uint8_t I2CTargetRead(I2CTarget_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize);
