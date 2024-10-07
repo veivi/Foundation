@@ -82,10 +82,12 @@ static bool timedOut = false;
 void I2C_0_EndSession(void)
 {
     if(timedOut) {
-      // TWI0.MCTRLB = TWI_FLUSH_bm;
-        TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
+      TWI0.MCTRLB = TWI_FLUSH_bm;
+      TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
     } else
-        TWI0.MCTRLB = TWI_MCMD_STOP_gc;
+      TWI0.MCTRLB = TWI_MCMD_STOP_gc;
+
+    while(TWI0.MCTRLB & TWI_MCMD_STOP_gc);
     
     timedOut = false;
 }
@@ -220,6 +222,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
   bool transmitting = false, receiving = false;
   int i = 0;
 
+#if 0
   while(i < numSegments && segment[i].dir == transfer_dir_transmit)
     i++;
 
@@ -229,7 +232,8 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
     I2C_0_TransferOld(device, segment, numSegments, NULL, 0);
 
   return;
-    
+#endif
+  
   for(i = 0; i < numSegments; i++) {
     if(segment[i].dir == transfer_dir_transmit) {
       // Transmit
