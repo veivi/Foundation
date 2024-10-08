@@ -1,7 +1,6 @@
 #include "SharedObject.h"
-#include "StaP.h"
 
-void sharedAccessBegin(struct SharedHeader *obj)
+void sharedAccessBegin(struct SharedObject *obj)
 {
   STAP_FORBID;
     
@@ -13,7 +12,7 @@ void sharedAccessBegin(struct SharedHeader *obj)
   STAP_MutexObtain(obj->mutex);
 }
 
-void sharedAccessEnd(struct SharedHeader *obj)
+void sharedAccessEnd(struct SharedObject *obj)
 {
   STAP_MutexRelease(obj->mutex);
 }
