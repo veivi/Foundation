@@ -7,7 +7,7 @@ struct SharedObject {
   StaP_MutexRef_T mutex;
 };
 
-#define SHARED_ACCESS_BEGIN(o)        sharedAccessBegin((struct SharedObject*) &(o))
-#define SHARED_ACCESS_END(o)          sharedAccessEnd((struct SharedObject*) &(o))
+#define SHARED_ACCESS_BEGIN(o)        sharedAccessBegin(&((o).header))
+#define SHARED_ACCESS_END(o)          sharedAccessEnd(&((o).header))
 
 #endif
