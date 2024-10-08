@@ -4,7 +4,7 @@
 #include "StaP.h"
 
 struct SharedObject {
-  StaP_MutexRef_T mutex;
+  STAP_MutexRef_T mutex;
 };
 
 #define SHARED_ACCESS_BEGIN(o)        sharedAccessBegin(&((o).header))
