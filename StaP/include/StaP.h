@@ -55,13 +55,15 @@ uint16_t STAP_CPUIdlePermille(void);
 #define STAP_ERR_NO_LINK           15
 #define STAP_ERR_TASK_TYPE         16
 #define STAP_ERR_TASK_CODE         17
-#define STAP_ERR_TX_TIMEOUT        18
+#define STAP_ERR_TX_TIMEOUT0       18
 #define STAP_ERR_DATAGRAM          19
 #define STAP_ERR_RX_OVERRUN_H      20
 #define STAP_ERR_RX_OVERRUN_S      21
 #define STAP_ERR_TIME              22
 #define STAP_ERR_I2C               23
-#define STAP_ERR_APPLICATION       24
+#define STAP_ERR_TX_TIMEOUT1       24
+#define STAP_ERR_TX_TIMEOUT2       25
+#define STAP_ERR_APPLICATION       28
 #define STAP_ERR_TASK_CREATE       0x20
 #define STAP_ERR_STACK_OVF         0x40
 #define STAP_ERR_STACK_OVF_IDLE    0x5F

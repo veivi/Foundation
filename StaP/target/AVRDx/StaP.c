@@ -12,7 +12,7 @@
 
 // #define SERIAL_TX_SYNC     1
 #define MAX_SERVO          5
-#define SERIAL_DRAIN_DELAY    1
+// #define SERIAL_DRAIN_DELAY    1
 // #define STAP_ACTION_NO_UART return
 #define STAP_ACTION_NO_UART  STAP_Panic(STAP_ERR_NO_UART)
 
@@ -356,7 +356,7 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
 
       if(!bufferDrainPrim(port, watermark, timeout)) {
 	// Timed out
-	STAP_Errorf(STAP_ERR_TX_TIMEOUT, "Link %d loop", port);
+	STAP_Errorf(STAP_ERR_TX_TIMEOUT0, "Link %d loop", port);
 	break;
       }
     }
@@ -364,12 +364,12 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
 
   if(sync) {
     if(!bufferDrainPrim(port, 0, timeout)) {
-      STAP_Errorf(STAP_ERR_TX_TIMEOUT+1, "Link %d sync1", port);
+      STAP_Errorf(STAP_ERR_TX_TIMEOUT1, "Link %d sync1", port);
       vpbuffer_flush(&StaP_LinkTable[port].buffer);
     }
     
     if(!USART_Drain(STAP_LINK_HW(port), timeout))
-      STAP_Error(STAP_ERR_TX_TIMEOUT+2);
+      STAP_Error(STAP_ERR_TX_TIMEOUT2);
   }
 
   STAP_FORBID;
