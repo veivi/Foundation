@@ -318,11 +318,14 @@ void vApplicationIdleHook( void )
   for(;;) {
     curr = vpTimeMicros();
     
-    if(curr > prev) 
+    if(curr > prev) {
       // This way we don't get screwed by wrap-around
+      STAP_FORBID;
       idleMicros += curr - prev;
+      STAP_PERMIT;
     
-    prev = curr;
+      prev = curr;
+    }
   }
 }
 
