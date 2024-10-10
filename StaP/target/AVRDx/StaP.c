@@ -108,6 +108,25 @@ void STAP_Indicate(uint8_t code)
   STAP_PERMIT_SAFE(c);
 }
 
+#define BUFSIZE   (1<<5)
+
+void AVRDx_Errorf(StaP_ErrorStatus_T e, const char *format, ...)
+{
+  va_list argp;
+  char buffer[BUFSIZE+1];
+  int len = 0;
+  
+  STAP_Error(e);
+  
+  va_start(argp, format);
+  len = vStringFmt(buffer, BUFSIZE, format, argp);
+  va_end(argp);
+
+  consoleNotef("ERROR(%#x) ", e);
+  consolePrint(buffer);
+  consoleNL();  
+}
+
 void STAP_Panic(uint8_t reason)
 {
   STAP_FailSafe;
@@ -116,8 +135,6 @@ void STAP_Panic(uint8_t reason)
     STAP_Indicate(reason);
   }
 }
-
-#define BUFSIZE   (1<<5)
 
 void STAP_Panicf(uint8_t reason, const char *format, ...)
 {
@@ -338,7 +355,7 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
 
       if(!bufferDrainPrim(port, watermark, timeout)) {
 	// Timed out
-	STAP_Error(STAP_ERR_TX_TIMEOUT);
+	STAP_Errorf(STAP_ERR_TX_TIMEOUT, "Link %d loop", port);
 	break;
       }
     }
@@ -346,7 +363,7 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
 
   if(sync) {
     if(!bufferDrainPrim(port, 0, timeout)) {
-      STAP_Error(STAP_ERR_TX_TIMEOUT);
+      STAP_Errorf(STAP_ERR_TX_TIMEOUT, "Link %d sync1", port);
       vpbuffer_flush(&StaP_LinkTable[port].buffer);
     }
     
