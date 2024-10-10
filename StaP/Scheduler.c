@@ -9,7 +9,7 @@
 
 TaskHandle_t signalOwner[StaP_NumOfSignals];
 extern int FreeRTOSUp;
-static VP_TIME_MICROS_T idleMicros;
+volatile static VP_TIME_MICROS_T idleMicros;
 
 uint16_t STAP_CPUIdlePermille(void)
 {
