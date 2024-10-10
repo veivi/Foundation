@@ -63,16 +63,16 @@ bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout)
   // Wait until HW buffer is empty
   
   while(!(hw->STATUS & USART_DREIF_bm)) {
-    if(0 && VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout)
+    if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout)
       return false;
   }
     
   // Wait until last frame is transmitted
-
+  /*
   while(!(hw->STATUS & USART_TXCIF_bm)) {
     if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout)
       return false;
-  }
+      }*/
 
   return true;
 }
