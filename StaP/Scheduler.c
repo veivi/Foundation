@@ -27,7 +27,7 @@ uint16_t STAP_CPUIdlePermille(void)
     prev = vpTimeMillis();
     idleMicros = 0;
   }
-  
+
   return result;  
 }
 
@@ -313,14 +313,20 @@ void StaP_SchedulerReport(void)
 
 void vApplicationIdleHook( void )
 {
-  VP_TIME_MICROS_T start = vpTimeMicros(), prevIdle = idleMicros, newIdle = 0;
-  
+  VP_TIME_MICROS_T prev = 0;
+
   for(;;) {
-    newIdle = prevIdle + VP_ELAPSED_MICROS(start);
+    VP_TIME_MILLIS_T elapsed = VP_ELAPSED_MILLIS(prev);
+  
     STAP_FORBID;
-    idleMicros = newIdle;
+
+    if(elapsed < 20)
+      idleMicros += elapsed;
+
     STAP_PERMIT;
-   }
+    
+    prev += elapsed;
+  }   
 }
 
 /* vApplicationStackOverflowHook is called when a stack overflow occurs.
