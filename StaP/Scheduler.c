@@ -313,10 +313,10 @@ void StaP_SchedulerReport(void)
 
 void vApplicationIdleHook( void )
 {
-  VP_TIME_MICROS_T prev = 0;
+  VP_TIME_MICROS_T prev = 0, elapsed = 0;
 
   for(;;) {
-    VP_TIME_MILLIS_T elapsed = VP_ELAPSED_MILLIS(prev);
+    elapsed = VP_ELAPSED_MILLIS(prev);
   
     STAP_FORBID;
 
