@@ -222,7 +222,7 @@ static bool bufferDrainPrim(uint8_t port, uint8_t watermark, VP_TIME_MILLIS_T ti
   StaP_LinkTable[port].buffer.watermark = watermark;
 
   while(vpbuffer_gauge(&StaP_LinkTable[port].buffer) > watermark) {
-    if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout) {
+    if(0 && VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout) {
       status = false;
       break;
     }
