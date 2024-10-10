@@ -320,7 +320,7 @@ void vApplicationIdleHook( void )
   
     STAP_FORBID;
 
-    if(elapsed < 20)
+    if(elapsed < 100)
       idleMicros += elapsed;
 
     STAP_PERMIT;
