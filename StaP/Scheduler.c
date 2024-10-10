@@ -313,20 +313,14 @@ void StaP_SchedulerReport(void)
 
 void vApplicationIdleHook( void )
 {
-  VP_TIME_MICROS_T prev = vpTimeMicros(), curr = 0;
+  VP_TIME_MICROS_T start = vpTimeMicros(), prevIdle = idleMicros, newIdle = 0;
   
   for(;;) {
-    curr = vpTimeMicros();
-    
-    if(curr > prev) {
-      // This way we don't get screwed by wrap-around
-      STAP_FORBID;
-      idleMicros += curr - prev;
-      STAP_PERMIT;
-    
-      prev = curr;
-    }
-  }
+    newIdle = prevIdle + VP_ELAPSED_MICROS(start);
+    STAP_FORBID;
+    idleMicros = newIdle;
+    STAP_PERMIT;
+   }
 }
 
 /* vApplicationStackOverflowHook is called when a stack overflow occurs.
