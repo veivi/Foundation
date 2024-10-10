@@ -10,7 +10,7 @@
 #include <avr/interrupt.h>
 #include "avr/cpufunc.h"
 
-// #define SERIAL_TX_SYNC     1
+#define SERIAL_TX_SYNC     1
 #define MAX_SERVO          5
 // #define SERIAL_DRAIN_DELAY    1
 // #define STAP_ACTION_NO_UART return
