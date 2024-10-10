@@ -216,7 +216,7 @@ void AVRDxSTAP_LinkListen(uint8_t port, VP_TIME_MILLIS_T timeout)
 
 static bool bufferDrainPrim(uint8_t port, uint8_t watermark, VP_TIME_MILLIS_T timeout)
 {
-  VP_TIME_MILLIS_T started = vpTimeMillisApprox;
+  VP_TIME_MILLIS_T started = vpTimeMillis();
   bool status = true;
 
   StaP_LinkTable[port].buffer.watermark = watermark;
