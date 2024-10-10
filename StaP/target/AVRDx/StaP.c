@@ -170,7 +170,8 @@ void STAP_Reboot(bool loader)
 
 void AVRDx_DelayMillis(VP_TIME_MILLIS_T d)
 {
-  vTaskDelay(pdMS_TO_TICKS(d));
+  if(d > 0)
+    vTaskDelay(pdMS_TO_TICKS(d));
 }
 
 void AVRDx_DelayUntil(STAP_NativeTime_T *start, VP_TIME_MILLIS_T d)
