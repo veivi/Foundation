@@ -54,8 +54,7 @@ void USART_Transmit(volatile USART_t *hw, const uint8_t *data, uint8_t size)
 
 bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout)
 {
-  return false;
-  VP_TIME_MILLIS_T started = vpTimeMillis();
+  VP_TIME_MILLIS_T started = vpTimeMillisApprox;
   
   if(!(hw->CTRLB & USART_TXEN_bm))
     return false;
@@ -68,11 +67,11 @@ bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout)
   }
     
   // Wait until last frame is transmitted
-  /*
+  
   while(!(hw->STATUS & USART_TXCIF_bm)) {
     if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout)
       return false;
-      }*/
+  }
 
   return true;
 }
