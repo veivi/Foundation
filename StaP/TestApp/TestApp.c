@@ -224,6 +224,16 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
 }
 #endif
 
+#if TEST == ALL || TEST == 6
+
+VP_TIME_MICROS_T idleTestTask(void)
+{
+  consoleNotefLn("idle = %.1f%%", (float) STAP_CPUIdlePermille()/10.0f);
+  return 0;
+}
+
+#endif
+
 struct TaskDecl StaP_TaskList[] = {
   TASK_BY_FREQ("Blink", 0, blinkTask, 2, 1<<8)
 
@@ -243,10 +253,15 @@ struct TaskDecl StaP_TaskList[] = {
   ,TASK_BY_FREQ("EEPROM", 0, serialEEPROMTestTask, 1, 1<<8)
 #endif
 
-#if TEST != 0 && TEST != 1
+#if TEST == ALL && TEST != 1
   ,TASK_BY_SERIAL("HostRX", 2, serialTaskHost, TestApp_Link_HostRX, 3<<8)
   ,TASK_BY_SERIAL("TelemRX", 2, serialTaskRadio, TestApp_Link_AuxRX, 3<<8)
 #endif
+
+#if TEST == ALL || TEST == 6
+  ,TASK_BY_FREQ("Idle", 0, idleTestTask, 10, 1<<8)
+#endif
+
 };
 
 const int StaP_NumOfTasks
