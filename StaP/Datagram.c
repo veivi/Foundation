@@ -185,6 +185,7 @@ void datagramTxStartNode(DgLink_t *link, uint8_t node, uint8_t header)
 
 bool datagramTxStartNB(DgLink_t *link, uint8_t header)
 {
+  return false;
   bool success = datagramTxStartGeneric(link, link->node, false);
   
   if(success)
@@ -195,6 +196,7 @@ bool datagramTxStartNB(DgLink_t *link, uint8_t header)
 
 bool datagramTxStartNodeNB(DgLink_t *link, uint8_t node, uint8_t header)
 {
+  return false;
   bool success = datagramTxStartGeneric(link, node, false);
 
   if(success)
