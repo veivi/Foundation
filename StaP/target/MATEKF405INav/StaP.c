@@ -69,6 +69,12 @@ struct Transceiver trans[StaP_NumOfTxcvs] = {
 	       ALP_Link_ALinkMon,
 */
 
+void STAP_MutexObtain(STAP_MutexRef_T m)
+{ 
+  if(xSemaphoreTake(m, portMAX_DELAY) != pdPASS)
+    STAP_Panic(STAP_ERR_MUTEX);
+} 
+
 StaP_ErrorStatus_T STAP_Status(bool clear)
 {
   StaP_ErrorStatus_T value = StaP_ErrorState;

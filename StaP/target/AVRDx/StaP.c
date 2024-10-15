@@ -31,7 +31,7 @@ uint8_t consoleDebugLevel = 0;
 static STAP_MutexRef_T mutex[StaP_NumOfLinks];
 #endif
 
-void AVRDx_MutexObtain(STAP_MutexRef_T m)
+void STAP_MutexObtain(STAP_MutexRef_T m)
 { 
   if(xSemaphoreTake(m, portMAX_DELAY) != pdPASS)
     STAP_Panic(STAP_ERR_MUTEX);

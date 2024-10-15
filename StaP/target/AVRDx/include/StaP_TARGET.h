@@ -64,11 +64,10 @@ bool STAP_SignalFromISR(StaP_Signal_T sig);
 
 typedef SemaphoreHandle_t    STAP_MutexRef_T;
 #define STAP_MutexCreate     xSemaphoreCreateMutex()
-#define STAP_MutexObtain(m)  AVRDx_MutexObtain(m)
 #define STAP_MutexAttempt(m) (xSemaphoreTake(m, 0) == pdPASS)
 #define STAP_MutexRelease(m) xSemaphoreGive(m)
 
-void AVRDx_MutexObtain(STAP_MutexRef_T m);
+void STAP_MutexObtain(STAP_MutexRef_T m);
 
 #define STAP_LinkIsUsable(port) AVRDxSTAP_LinkIsUsable(port)
 #define STAP_LinkStatus(port) AVRDxSTAP_LinkStatus(port)

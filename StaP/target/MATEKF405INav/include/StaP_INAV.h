@@ -108,17 +108,12 @@ bool STAP_SignalLatentFromISR(StaP_Signal_T sig, VP_TIME_MICROS_T);
 // Mutex
 //
 
-#ifdef USE_NATIVE_SCHEDULER
-typedef uint8_t STAP_MutexRef_T;
-#define STAP_MutexCreate     1
-#define STAP_MutexObtain(m)  
-#define STAP_MutexRelease(m) 
-#else
 typedef SemaphoreHandle_t    STAP_MutexRef_T;
 #define STAP_MutexCreate     xSemaphoreCreateMutex()
-#define STAP_MutexObtain(m)  if(xSemaphoreTake(m, portMAX_DELAY) != pdPASS) STAP_Panic(STAP_ERR_MUTEX)
+#define STAP_MutexAttempt(m) (xSemaphoreTake(m, 0) == pdPASS)
 #define STAP_MutexRelease(m) xSemaphoreGive(m)
-#endif
+
+void STAP_MutexObtain(STAP_MutexRef_T m);
 
 void inavStaP_Arm(void);
 void inavStaP_CalibrateAccel(void);
