@@ -125,7 +125,7 @@ void datagramTxOut(DgLink_t *link, const uint8_t *data, size_t l)
     (link->txOut)(link->context, runStart, runLength);
 }
 
-bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
+static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
 {
   if(!link->initialized)
     return false;
