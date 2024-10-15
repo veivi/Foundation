@@ -128,7 +128,7 @@ void datagramTxOut(DgLink_t *link, const uint8_t *data, size_t l)
 static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
 {
   if(!link->initialized)
-    return false;
+    return true;
   
 #ifdef STAP_MutexCreate
   if(!failSafeMode) {
