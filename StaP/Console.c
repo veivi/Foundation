@@ -21,7 +21,7 @@ static int column;
 static STAP_MutexRef_T mutex = NULL;
 #endif
 
-static void mutexObtain(void)
+static bool mutexAttempt(void)
 {
 #ifdef STAP_MutexCreate
   if(failSafeMode)
@@ -33,8 +33,12 @@ static void mutexObtain(void)
     STAP_Panic(STAP_ERR_MUTEX_CREATE);
 
   STAP_PERMIT;
-    
-  STAP_MutexObtain(mutex);
+
+  if(!consoleDebug) {
+    STAP_MutexObtain(mutex);
+    return true;
+  } else
+    return STAP_MutexAttempt(mutex);
 #endif  
 }
 
@@ -80,8 +84,9 @@ void consoleOut(const char *b, int8_t s)
     
     return;
   }
-  
-  mutexObtain();
+
+  if(!mutexAttempt())
+    return;
   
   if(!consoleBuffer.mask)
     vpbuffer_init(&consoleBuffer, CONSOLE_BUFFER, consoleBufferStore);
@@ -112,9 +117,10 @@ void consoleOut(const char *b, int8_t s)
 
 void consoleFlush()
 {
-  mutexObtain();	
-  consoleFlushUnsafe();
-	mutexRelease();
+  if(mutexAttempt()) {
+    consoleFlushUnsafe();
+    mutexRelease();
+  }
 }
 
 void consoleOutChar(char c)
