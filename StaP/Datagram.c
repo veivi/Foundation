@@ -173,19 +173,22 @@ static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
 
 void datagramTxStart(DgLink_t *link, uint8_t header)
 {
-  datagramTxStartGeneric(link, link->node, true);
+  if(!datagramTxStartGeneric(link, link->node, true))
+    STAP_Panicf(STAP_ERR_MUTEX, "Blocking start failed");
+  
   datagramTxOutByte(link, header);
 }
 
 void datagramTxStartNode(DgLink_t *link, uint8_t node, uint8_t header)
 {
-  datagramTxStartGeneric(link, node, true);
+  if(!datagramTxStartGeneric(link, node, true))
+    STAP_Panicf(STAP_ERR_MUTEX, "Blocking start failed");
+  
   datagramTxOutByte(link, header);
 }
 
 bool datagramTxStartNB(DgLink_t *link, uint8_t header)
 {
-  return false;
   bool success = datagramTxStartGeneric(link, link->node, false);
   
   if(success)
@@ -196,7 +199,6 @@ bool datagramTxStartNB(DgLink_t *link, uint8_t header)
 
 bool datagramTxStartNodeNB(DgLink_t *link, uint8_t node, uint8_t header)
 {
-  return false;
   bool success = datagramTxStartGeneric(link, node, false);
 
   if(success)
