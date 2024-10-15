@@ -125,14 +125,18 @@ void datagramTxOut(DgLink_t *link, const uint8_t *data, size_t l)
     (link->txOut)(link->context, runStart, runLength);
 }
 
-void datagramTxStartGeneric(DgLink_t *link, uint8_t node)
+bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
 {
   if(!link->initialized)
-    return;
+    return false;
   
 #ifdef STAP_MutexCreate
-  if(!failSafeMode)
-    STAP_MutexObtain(link->mutex);
+  if(!failSafeMode) {
+    if(canblock)
+      STAP_MutexObtain(link->mutex);
+    else if(!STAP_MutexAttemptObtain(link->mutex))
+      return false;
+  }
 #endif
 
   VP_TIME_MILLIS_T interDelay = VP_ELAPSED_MILLIS(link->datagramLastTxMillis);
@@ -163,18 +167,40 @@ void datagramTxStartGeneric(DgLink_t *link, uint8_t node)
   
   datagramTxOut(link, buffer, sizeof(buffer));
   link->txBusy = true;
+
+  return true;
 }
 
 void datagramTxStart(DgLink_t *link, uint8_t header)
 {
-  datagramTxStartGeneric(link, link->node);
+  datagramTxStartGeneric(link, link->node, true);
   datagramTxOutByte(link, header);
 }
 
 void datagramTxStartNode(DgLink_t *link, uint8_t node, uint8_t header)
 {
-  datagramTxStartGeneric(link, node);
+  datagramTxStartGeneric(link, node, true);
   datagramTxOutByte(link, header);
+}
+
+bool datagramTxStartNB(DgLink_t *link, uint8_t header)
+{
+  bool success = datagramTxStartGeneric(link, link->node, false);
+  
+  if(success)
+    datagramTxOutByte(link, header);
+
+  return success;
+}
+
+bool datagramTxStartNodeNB(DgLink_t *link, uint8_t node, uint8_t header)
+{
+  bool success = datagramTxStartGeneric(link, node, false);
+
+  if(success)
+    datagramTxOutByte(link, header);
+
+  return success;
 }
 
 void datagramTxEnd(DgLink_t *link)

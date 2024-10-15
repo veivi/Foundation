@@ -60,10 +60,11 @@ static void consoleFlushUnsafe()
   s = vpbuffer_extract(&consoleBuffer, buffer, s);
 
   if(s > 0) {
-    if(consoleDebug)
-      datagramTxStart(consoleLink, AL_DEBUG);
-    else
+    if(!consoleDebug)
       datagramTxStart(consoleLink, HL_CONSOLE);
+    else if(!datagramTxStartNB(consoleLink, AL_DEBUG))
+      // Would have blocked, fail
+      return;
     
     datagramTxOut(consoleLink, (const uint8_t*) buffer, s);
     datagramTxEnd(consoleLink);

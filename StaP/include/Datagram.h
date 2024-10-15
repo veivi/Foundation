@@ -52,9 +52,11 @@ void datagramLinkInit(DgLink_t *link, uint8_t node,
 		      void (*txEnd)(void*));
 
 bool datagramLinkAlive(DgLink_t*);
-void datagramTxStartGeneric(DgLink_t*, uint8_t node);
+// void datagramTxStartGeneric(DgLink_t*, uint8_t node);
 void datagramTxStart(DgLink_t *link, uint8_t header);
 void datagramTxStartNode(DgLink_t*, uint8_t node, uint8_t header);
+bool datagramTxStartNB(DgLink_t *link, uint8_t header);
+bool datagramTxStartNodeNB(DgLink_t *link, uint8_t node, uint8_t header);
 void datagramTxOutByte(DgLink_t*, const uint8_t c);
 void datagramTxOut(DgLink_t*, const uint8_t *data, size_t l);
 void datagramTxEnd(DgLink_t*);
