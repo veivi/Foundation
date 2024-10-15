@@ -64,7 +64,7 @@ bool STAP_SignalFromISR(StaP_Signal_T sig);
 
 typedef SemaphoreHandle_t    STAP_MutexRef_T;
 #define STAP_MutexCreate     xSemaphoreCreateMutex()
-#define STAP_MutexObtain(m)  if(xSemaphoreTake(m, portMAX_DELAY) != pdPASS) STAP_Panic(STAP_ERR_MUTEX)
+#define STAP_MutexObtain(m)  { if(xSemaphoreTake(m, portMAX_DELAY) != pdPASS) STAP_Panic(STAP_ERR_MUTEX) }
 #define STAP_MutexAttempt(m) (xSemaphoreTake(m, 0) == pdPASS)
 #define STAP_MutexRelease(m) xSemaphoreGive(m)
 
