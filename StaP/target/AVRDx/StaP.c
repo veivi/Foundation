@@ -31,6 +31,12 @@ uint8_t consoleDebugLevel = 0;
 static STAP_MutexRef_T mutex[StaP_NumOfLinks];
 #endif
 
+void AVRDx_MutexObtain(STAP_MutexRef_T m)
+{ 
+  if(xSemaphoreTake(m, portMAX_DELAY) != pdPASS)
+    STAP_Panic(STAP_ERR_MUTEX);
+} 
+
 StaP_ErrorStatus_T STAP_Status(bool clear)
 {
   StaP_ErrorStatus_T value = StaP_ErrorState;
