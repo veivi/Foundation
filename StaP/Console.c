@@ -272,7 +272,7 @@ void consoleDebugf(uint8_t level, const char *f, ...)
     va_list argp;
 
     va_start(argp, f);
-    len = vStringFmt(buffer[3], PRINT_FMT_BUFFER, f, argp);
+    len = vStringFmt(&buffer[3], PRINT_FMT_BUFFER, f, argp);
     va_end(argp);
 
     buffer[len+3] = '\n';
