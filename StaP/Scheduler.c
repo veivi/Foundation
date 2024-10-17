@@ -37,6 +37,7 @@ void STAP_Signal(StaP_Signal_T sig)
 {
   if(signalOwner[sig])
     xTaskNotifyIndexed(signalOwner[sig], 1, STAP_SignalSet(sig), eSetBits);
+
 }
 
 bool STAP_SignalFromISR(StaP_Signal_T sig)
@@ -44,7 +45,8 @@ bool STAP_SignalFromISR(StaP_Signal_T sig)
     UBaseType_t yield = false;
   
   if(signalOwner[sig])
-    xTaskNotifyIndexedFromISR(signalOwner[sig], 1, STAP_SignalSet(sig), eSetBits, &yield);
+    xTaskNotifyIndexedFromISR(signalOwner[sig], 1,
+			      STAP_SignalSet(sig), eSetBits, &yield);
 
   return yield;
 }
@@ -54,7 +56,7 @@ StaP_SignalSet_T STAP_SignalWaitTimeout(StaP_SignalSet_T mask,
 {
   StaP_SignalSet_T status = 0;
 
-  status = ulTaskNotifyValueClearIndexed(xTaskGetCurrentTaskHandle(), 1, mask);
+  //  status = ulTaskNotifyValueClearIndexed(xTaskGetCurrentTaskHandle(), 1, mask);
 
   while(!(mask & status)) {
     if(xTaskNotifyWaitIndexed(1, 0, mask, &status,

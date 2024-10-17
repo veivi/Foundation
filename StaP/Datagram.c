@@ -132,9 +132,9 @@ static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
   
 #ifdef STAP_MutexCreate
   if(!failSafeMode) {
-    if(canblock)
+    if(canblock) {
       STAP_MutexObtain(link->mutex);
-    else if(!STAP_MutexAttempt(link->mutex))
+    } else if(!STAP_MutexAttempt(link->mutex))
       return false;
   }
 #endif

@@ -39,7 +39,7 @@ static void mutexObtain(void)
 static void mutexRelease(void)
 {
   if(failSafeMode)
-	  return;
+    return;
 	
   STAP_MutexRelease(mutex);
 }
@@ -56,9 +56,7 @@ static void consoleFlushUnsafe(void)
   s = vpbuffer_extract(&consoleBuffer, buffer, s);
 
   if(s > 0) {
-    uint8_t header = consoleDebug ? AL_DEBUG : HL_CONSOLE;
-
-    datagramTxStart(consoleLink, header);
+    datagramTxStart(consoleLink, consoleDebug ? AL_DEBUG : HL_CONSOLE);
     datagramTxOut(consoleLink, (const uint8_t*) buffer, s);
     datagramTxEnd(consoleLink);
   }
@@ -244,26 +242,24 @@ void consoleDebugf(uint8_t level, const char *f, ...)
   static int failCount = 0;
   
   if(level <= consoleDebugLevel) {
-    char buffer[PRINT_FMT_BUFFER+5] = "## ";
+    char buffer[PRINT_FMT_BUFFER+2];
     uint8_t header = consoleDebug ? AL_DEBUG : HL_CONSOLE;
     int len = 0;
     va_list argp;
 
     va_start(argp, f);
-    len = vStringFmt(&buffer[3], PRINT_FMT_BUFFER, f, argp);
+    len = vStringFmt(buffer, PRINT_FMT_BUFFER, f, argp);
     va_end(argp);
 
-    buffer[len+3] = '\n';
+    buffer[len] = '\n';
     
     if(datagramTxStartNB(consoleLink, header)) {
-      if(failCount > 0) {
-	datagramTxOutByte(consoleLink, '~');
-	datagramTxOutByte(consoleLink, '0' + failCount % 10);
-	datagramTxOutByte(consoleLink, ' ');
-	failCount = 0;
-      }
+      datagramTxOut(consoleLink, "## ", 3);
       
-      datagramTxOut(consoleLink, (const uint8_t*) buffer, len+4);
+      while(failCount-- > 0)
+	datagramTxOut(consoleLink, "~ ", 2);
+      
+      datagramTxOut(consoleLink, (const uint8_t*) buffer, len+1);
       datagramTxEnd(consoleLink);
     } else
       failCount++;

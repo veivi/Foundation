@@ -153,7 +153,7 @@ VP_TIME_MICROS_T i2cTestTask(void)
 
 #if TEST == ALL || TEST == 5
 
-#define EEPROM_LINE       (1<<5)
+#define EEPROM_LINE       (1<<6)
 #define EEPROM_I2CADDR    0x50
 #define EEPROM_TEST_VALUE(a)  (uint8_t) (13 + (a & 0xFF))
 
@@ -217,7 +217,7 @@ VP_TIME_MICROS_T serialEEPROMTestTask(void)
     }  
   }
 
-  consoleNotefLn("Test PASSED");
+  consoleNotefLn("Test PASSED (%#x) total fails = %d", addr, failCount);
 
   addr += EEPROM_LINE;
   return 0;
@@ -234,8 +234,20 @@ VP_TIME_MICROS_T idleTestTask(void)
 
 #endif
 
+VP_TIME_MICROS_T flushTask(void)
+{
+  consoleFlush();
+}
+
+VP_TIME_MICROS_T debugTask(void)
+{
+  static int i = 0;
+  consoleDebugf(0, "DEBUG %d", i++);
+}
+
 struct TaskDecl StaP_TaskList[] = {
-  TASK_BY_FREQ("Blink", 0, blinkTask, 2, 1<<8)
+  TASK_BY_FREQ("Blink", 0, blinkTask, 2, 1<<8),
+  TASK_BY_FREQ("Flush", 0, flushTask, 5, 1<<8)
 
 #if TEST == ALL || TEST == 1 || TEST == 2
   ,TASK_BY_FREQ("Text", 0, textTask, 1, 1<<8)
@@ -250,7 +262,8 @@ struct TaskDecl StaP_TaskList[] = {
 #endif
 
 #if TEST == ALL || TEST == 5
-  ,TASK_BY_FREQ("EEPROM", 0, serialEEPROMTestTask, 1, 1<<8)
+  ,TASK_BY_FREQ("EEPROM", 0, serialEEPROMTestTask, 1000, 1<<8)
+  ,TASK_BY_FREQ("Debug", 0, debugTask, 147, 1<<8)
 #endif
 
 #if TEST == ALL && TEST != 1
