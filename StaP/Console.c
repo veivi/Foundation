@@ -52,7 +52,7 @@ static void mutexRelease(void)
 #endif  
 }
 
-static void consoleFlushUnsafe(void)
+static void consoleFlushUnsafe(bool canblock)
 {
   char buffer[CONSOLE_BUFFER];
   int8_t s = consoleThrottled ? 16 : sizeof(buffer);
@@ -64,9 +64,11 @@ static void consoleFlushUnsafe(void)
   s = vpbuffer_extract(&consoleBuffer, buffer, s);
 
   if(s > 0) {
-    if(!consoleDebug)
-      datagramTxStart(consoleLink, HL_CONSOLE);
-    else if(!datagramTxStartNB(consoleLink, AL_DEBUG))
+    uint8_t header = consoleDebug ? AL_DEBUG : HL_CONSOLE;
+
+    if(canblock)
+      datagramTxStart(consoleLink, header);
+    else if(!datagramTxStartNB(consoleLink, header))
       // Would have blocked, fail
       return;
     
@@ -103,7 +105,7 @@ void consoleOutGeneric(const char *b, int8_t s, bool canblock)
     // No room, block and transmit everything in pieces
 
     do {
-      consoleFlushUnsafe();
+      consoleFlushUnsafe(canblock);
 
       int8_t w = vpbuffer_insert(&consoleBuffer, b, s, false);
       b += w;
@@ -128,7 +130,7 @@ void consoleOutNB(const char *b, int8_t s)
 void consoleFlush()
 {
   if(mutexAttempt(true)) {
-    consoleFlushUnsafe();
+    consoleFlushUnsafe(true);
     mutexRelease();
   }
 }
