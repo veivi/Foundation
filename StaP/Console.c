@@ -21,10 +21,10 @@ static int column;
 static STAP_MutexRef_T mutex = NULL;
 #endif
 
-static bool mutexAttempt(bool canblock)
+static void mutexObtain(void)
 {
   if(failSafeMode)
-    return true;
+    return;
 	
   STAP_FORBID;
     
@@ -33,16 +33,7 @@ static bool mutexAttempt(bool canblock)
 
   STAP_PERMIT;
 
-  if(canblock) {
-    STAP_MutexObtain(mutex);
-    return true;
-  } else
-    return STAP_MutexAttempt(mutex);
-}
-
-static void mutexObtain(void)
-{
-  mutexAttempt(true);
+  STAP_MutexObtain(mutex);
 }
 
 static void mutexRelease(void)
@@ -53,7 +44,7 @@ static void mutexRelease(void)
   STAP_MutexRelease(mutex);
 }
 
-static void consoleFlushUnsafe(bool canblock)
+static void consoleFlushUnsafe(void)
 {
   char buffer[CONSOLE_BUFFER];
   int8_t s = consoleThrottled ? 16 : sizeof(buffer);
@@ -67,18 +58,13 @@ static void consoleFlushUnsafe(bool canblock)
   if(s > 0) {
     uint8_t header = consoleDebug ? AL_DEBUG : HL_CONSOLE;
 
-    if(canblock)
-      datagramTxStart(consoleLink, header);
-    else if(!datagramTxStartNB(consoleLink, header))
-      // Would have blocked, fail
-      return;
-    
+    datagramTxStart(consoleLink, header);
     datagramTxOut(consoleLink, (const uint8_t*) buffer, s);
     datagramTxEnd(consoleLink);
   }
 }
 
-void consoleOutGeneric(const char *b, int8_t s)
+void consoleOut(const char *b, int8_t s)
 {
   if(failSafeMode) {
     datagramTxStart(consoleLink, HL_CONSOLE);    
@@ -88,7 +74,7 @@ void consoleOutGeneric(const char *b, int8_t s)
     return;
   }
 
-  mutexObtain(true);
+  mutexObtain();
   
   if(!consoleBuffer.mask)
     vpbuffer_init(&consoleBuffer, CONSOLE_BUFFER, consoleBufferStore);
@@ -105,7 +91,7 @@ void consoleOutGeneric(const char *b, int8_t s)
     // No room, block and transmit everything in pieces
 
     do {
-      consoleFlushUnsafe(canblock);
+      consoleFlushUnsafe();
 
       int8_t w = vpbuffer_insert(&consoleBuffer, b, s, false);
       b += w;
@@ -119,8 +105,8 @@ void consoleOutGeneric(const char *b, int8_t s)
 
 void consoleFlush()
 {
-  mutexObtain(true);
-  consoleFlushUnsafe(true);
+  mutexObtain();
+  consoleFlushUnsafe();
   mutexRelease();
 }
 
@@ -255,6 +241,8 @@ extern uint8_t consoleDebugLevel;
 
 void consoleDebugf(uint8_t level, const char *f, ...)
 {
+  static int failCount = 0;
+  
   if(level <= consoleDebugLevel) {
     char buffer[PRINT_FMT_BUFFER+5] = "## ";
     uint8_t header = consoleDebug ? AL_DEBUG : HL_CONSOLE;
@@ -268,9 +256,17 @@ void consoleDebugf(uint8_t level, const char *f, ...)
     buffer[len+3] = '\n';
     
     if(datagramTxStartNB(consoleLink, header)) {
+      if(failCount > 0) {
+	datagramTxOutByte(consoleLink, '~');
+	datagramTxOutByte(consoleLink, '0' + failCount % 10);
+	datagramTxOutByte(consoleLink, ' ');
+	failCount = 0;
+      }
+      
       datagramTxOut(consoleLink, (const uint8_t*) buffer, len+4);
       datagramTxEnd(consoleLink);
-    }
+    } else
+      failCount++;
   }
 }
 
