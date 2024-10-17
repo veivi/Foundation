@@ -21,11 +21,11 @@ static int column;
 static STAP_MutexRef_T mutex = NULL;
 #endif
 
-static bool mutexAttempt(void)
+static bool mutexAttempt(bool canblock)
 {
 #ifdef STAP_MutexCreate
   if(failSafeMode)
-	  return;
+    return true;
 	
   STAP_FORBID;
     
@@ -34,7 +34,7 @@ static bool mutexAttempt(void)
 
   STAP_PERMIT;
 
-  if(!consoleDebug) {
+  if(canblock) {
     STAP_MutexObtain(mutex);
     return true;
   } else
@@ -52,7 +52,7 @@ static void mutexRelease(void)
 #endif  
 }
 
-static void consoleFlushUnsafe()
+static void consoleFlushUnsafe(void)
 {
   char buffer[CONSOLE_BUFFER];
   int8_t s = consoleThrottled ? 16 : sizeof(buffer);
@@ -75,7 +75,7 @@ static void consoleFlushUnsafe()
   }
 }
 
-void consoleOut(const char *b, int8_t s)
+void consoleOutGeneric(const char *b, int8_t s, bool canblock)
 {
   if(failSafeMode) {
     datagramTxStart(consoleLink, HL_CONSOLE);    
@@ -85,7 +85,7 @@ void consoleOut(const char *b, int8_t s)
     return;
   }
 
-  if(!mutexAttempt())
+  if(!mutexAttempt(canblock))
     return;
   
   if(!consoleBuffer.mask)
@@ -115,9 +115,19 @@ void consoleOut(const char *b, int8_t s)
   mutexRelease();
 }
 
+void consoleOut(const char *b, int8_t s)
+{
+  consoleOutGeneric(b, s, true);
+}
+
+void consoleOutNB(const char *b, int8_t s)
+{
+  consoleOutGeneric(b, s, false);
+}
+
 void consoleFlush()
 {
-  if(mutexAttempt()) {
+  if(mutexAttempt(true)) {
     consoleFlushUnsafe();
     mutexRelease();
   }
@@ -252,17 +262,20 @@ void consolevPrintf(const char *f, va_list args)
 
 extern uint8_t consoleDebugLevel;
 
-void consoleDebugf(uint8_t level, const char *s, ...)
+void consoleDebugf(uint8_t level, const char *f, ...)
 {
   if(level <= consoleDebugLevel) {
+    char buffer[PRINT_FMT_BUFFER+1];
+    int len = 0;
     va_list argp;
 
-    va_start(argp, s);
-    consolePrint_P(CS_STRING("## "));
-    consolevPrintf(s, argp);
+    va_start(argp, f);
+    len = vStringFmt(buffer, PRINT_FMT_BUFFER, f, argp);
     va_end(argp);
 
-    consoleNL();
+    consoleOutNB("## ", 3);
+    consoleOutNB(buffer, len);
+    consoleOutNB("\n", 1);
   }
 }
 
