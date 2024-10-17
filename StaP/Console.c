@@ -267,17 +267,18 @@ extern uint8_t consoleDebugLevel;
 void consoleDebugf(uint8_t level, const char *f, ...)
 {
   if(level <= consoleDebugLevel) {
-    char buffer[PRINT_FMT_BUFFER+1];
+    char buffer[PRINT_FMT_BUFFER+5] = "## ";
     int len = 0;
     va_list argp;
 
     va_start(argp, f);
-    len = vStringFmt(buffer, PRINT_FMT_BUFFER, f, argp);
+    len = vStringFmt(buffer[3], PRINT_FMT_BUFFER, f, argp);
     va_end(argp);
 
-    consoleOutNB("## ", 3);
+    buffer[len+3] = '\n';
+    buffer[len+4] = '\0';
+    
     consoleOutNB(buffer, len);
-    consoleOutNB("\n", 1);
   }
 }
 
