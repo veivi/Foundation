@@ -122,11 +122,6 @@ void consoleOut(const char *b, int8_t s)
   consoleOutGeneric(b, s, true);
 }
 
-void consoleOutNB(const char *b, int8_t s)
-{
-  consoleOutGeneric(b, s, false);
-}
-
 void consoleFlush()
 {
   if(mutexAttempt(true)) {
@@ -268,6 +263,7 @@ void consoleDebugf(uint8_t level, const char *f, ...)
 {
   if(level <= consoleDebugLevel) {
     char buffer[PRINT_FMT_BUFFER+5] = "## ";
+    uint8_t header = consoleDebug ? AL_DEBUG : HL_CONSOLE;
     int len = 0;
     va_list argp;
 
@@ -276,9 +272,11 @@ void consoleDebugf(uint8_t level, const char *f, ...)
     va_end(argp);
 
     buffer[len+3] = '\n';
-    buffer[len+4] = '\0';
     
-    consoleOutNB(buffer, len);
+    if(datagramTxStartNB(consoleLink, header)) {
+      datagramTxOut(consoleLink, (const uint8_t*) buffer, len+4);
+      datagramTxEnd(consoleLink);
+    }
   }
 }
 
