@@ -23,7 +23,6 @@ static STAP_MutexRef_T mutex = NULL;
 
 static bool mutexAttempt(bool canblock)
 {
-#ifdef STAP_MutexCreate
   if(failSafeMode)
     return true;
 	
@@ -39,17 +38,19 @@ static bool mutexAttempt(bool canblock)
     return true;
   } else
     return STAP_MutexAttempt(mutex);
-#endif  
+}
+
+static void mutexObtain(void)
+{
+  mutexAttempt(true);
 }
 
 static void mutexRelease(void)
 {
-#ifdef STAP_MutexCreate
   if(failSafeMode)
 	  return;
 	
   STAP_MutexRelease(mutex);
-#endif  
 }
 
 static void consoleFlushUnsafe(bool canblock)
@@ -77,7 +78,7 @@ static void consoleFlushUnsafe(bool canblock)
   }
 }
 
-void consoleOutGeneric(const char *b, int8_t s, bool canblock)
+void consoleOutGeneric(const char *b, int8_t s)
 {
   if(failSafeMode) {
     datagramTxStart(consoleLink, HL_CONSOLE);    
@@ -87,8 +88,7 @@ void consoleOutGeneric(const char *b, int8_t s, bool canblock)
     return;
   }
 
-  if(!mutexAttempt(canblock))
-    return;
+  mutexObtain(true);
   
   if(!consoleBuffer.mask)
     vpbuffer_init(&consoleBuffer, CONSOLE_BUFFER, consoleBufferStore);
@@ -117,17 +117,11 @@ void consoleOutGeneric(const char *b, int8_t s, bool canblock)
   mutexRelease();
 }
 
-void consoleOut(const char *b, int8_t s)
-{
-  consoleOutGeneric(b, s, true);
-}
-
 void consoleFlush()
 {
-  if(mutexAttempt(true)) {
-    consoleFlushUnsafe(true);
-    mutexRelease();
-  }
+  mutexObtain(true);
+  consoleFlushUnsafe(true);
+  mutexRelease();
 }
 
 void consoleOutChar(char c)
