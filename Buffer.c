@@ -2,6 +2,8 @@
 #include "StaP.h"
 #include <string.h>
 
+#define CRITICAL_SECTIONS    0    // We don't believe in critical sectoins.
+
 void vpbuffer_init(VPBuffer_t *i, VPBufferSize_t size, char *storage)
 {
   i->inPtr = i->outPtr = 0;
@@ -34,8 +36,10 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
 
   if(s > i->mask)
     s = i->mask;
-  
+
+#if CRITICAL_SECTIONS
   ForbidContext_T c = STAP_FORBID_SAFE;
+#endif
   
   VPBufferIndex_t space = vpbuffer_space(i);
 
@@ -49,7 +53,9 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
       
       i->overrun = true;
     
+#if CRITICAL_SECTIONS
       STAP_PERMIT_SAFE(c);
+#endif
       
       return s;
     } else
@@ -69,8 +75,10 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
   
   i->inPtr = VPBUFFER_INDEX((*i), i->inPtr, s);
 
+#if CRITICAL_SECTIONS
   STAP_PERMIT_SAFE(c);
-  
+#endif
+
   return s;
 }
 
@@ -86,7 +94,9 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   if(!i->storage || s < 1)
     return 0;
   
+#if CRITICAL_SECTIONS
   ForbidContext_T c = STAP_FORBID_SAFE;
+#endif
   
   VPBufferIndex_t g = vpbuffer_gauge(i);
   
@@ -104,7 +114,9 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   
   i->outPtr = VPBUFFER_INDEX((*i), i->outPtr, s);
 
+#if CRITICAL_SECTIONS
   STAP_PERMIT_SAFE(c);
+#endif
   
   return s;
 }
@@ -114,7 +126,9 @@ void vpbuffer_insertChar(VPBuffer_t *i, char b)
   if(!i->storage)
     return;
   
+#if CRITICAL_SECTIONS
   ForbidContext_T c = STAP_FORBID_SAFE;
+#endif
   
   VPBufferIndex_t ptrNew = VPBUFFER_INDEX((*i), i->inPtr, 1);
 
@@ -125,43 +139,28 @@ void vpbuffer_insertChar(VPBuffer_t *i, char b)
   else
     i->overrun = true;
 
+#if CRITICAL_SECTIONS
   STAP_PERMIT_SAFE(c);
+#endif
 }
 
 char vpbuffer_extractChar(VPBuffer_t *i)
 {
   char b = 0xFE;
   
+#if CRITICAL_SECTIONS
   ForbidContext_T c = STAP_FORBID_SAFE;
+#endif
   
   if(i->storage && i->outPtr != i->inPtr) {
     b = i->storage[i->outPtr];
     i->outPtr = VPBUFFER_INDEX((*i), i->outPtr, 1);      
   }
 
+#if CRITICAL_SECTIONS
   STAP_PERMIT_SAFE(c);
+#endif
   
   return b;
 }
 
-/*
-
-VPBufferIndex_t vpbuffer_space(VPBuffer_t *i)
-{
-  VPBufferIndex_t value = 0;
-  STAP_FORBID;
-  value = VPBUFFER_SPACE(*i);
-  STAP_PERMIT;
-  return value;  
-}
-    
-VPBufferIndex_t vpbuffer_gauge(VPBuffer_t *i)
-{
-  VPBufferIndex_t value = 0;
-  STAP_FORBID;
-  value = VPBUFFER_GAUGE(*i);
-  STAP_PERMIT;
-  return value;  
-}
-
-*/

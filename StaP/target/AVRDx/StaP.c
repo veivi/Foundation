@@ -46,7 +46,7 @@ StaP_ErrorStatus_T STAP_Status(bool clear)
     
     for(i = 0; i < 31; i++) {
       if(value & (1UL<<i))
-	STAP_DEBUG(0, "StaP error %d", i);
+	STAP_DEBUG(1, "StaP error %d", i);
     }
   }
   
