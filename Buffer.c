@@ -32,11 +32,13 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
   if(!i->storage || s < 1)
     return 0;
 
-  VPBufferIndex_t space = vpbuffer_space(i);
-
   if(s > i->mask)
     s = i->mask;
   
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  
+  VPBufferIndex_t space = vpbuffer_space(i);
+
   if(s > space) {
     if(overwrite) {
       // Adjust the inPtr for overwriting
@@ -65,6 +67,8 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
   
   i->inPtr = VPBUFFER_INDEX((*i), i->inPtr, s);
 
+  STAP_PERMIT_SAFE(c);
+  
   return s;
 }
 
@@ -80,11 +84,13 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   if(!i->storage || s < 1)
     return 0;
   
-  VPBufferIndex_t g = vpbuffer_gauge(i);
-  
   if(s > g)
     s = g;
 
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  
+  VPBufferIndex_t g = vpbuffer_gauge(i);
+  
   if(VPBUFFER_INDEX((*i), i->outPtr, s) < i->outPtr) {
     VPBufferSize_t cut = i->mask + 1 - i->outPtr;
     memcpy(b, &i->storage[i->outPtr], cut);
@@ -97,33 +103,44 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   
   i->outPtr = VPBUFFER_INDEX((*i), i->outPtr, s);
 
+  STAP_PERMIT_SAFE(c);
+  
   return s;
 }
 
 void vpbuffer_insertChar(VPBuffer_t *i, char c)
 {
-  VPBufferIndex_t ptrNew = VPBUFFER_INDEX((*i), i->inPtr, 1);
-
   if(!i->storage)
     return;
   
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  
+  VPBufferIndex_t ptrNew = VPBUFFER_INDEX((*i), i->inPtr, 1);
+
   i->storage[i->inPtr] = c;
   
   if(ptrNew != i->outPtr)
     i->inPtr = ptrNew;
   else
     i->overrun = true;
+
+  STAP_PERMIT_SAFE(c);
 }
 
 char vpbuffer_extractChar(VPBuffer_t *i)
 {
+  char b = 0xFE;
+  
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  
   if(i->storage && i->outPtr != i->inPtr) {
-    char c = i->storage[i->outPtr];
+    b = i->storage[i->outPtr];
     i->outPtr = VPBUFFER_INDEX((*i), i->outPtr, 1);      
-    return c;
   }
 
-  return 0xFF;
+  STAP_PERMIT_SAFE(c);
+  
+  return b;
 }
 
 /*
