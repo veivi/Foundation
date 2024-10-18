@@ -15,12 +15,7 @@ typedef enum { StaP_Txcv_Invalid, AVRDx_Txcv_UART0, AVRDx_Txcv_UART1, AVRDx_Txcv
 
 #define STAP_STACK_SIZE_UNIT      1
 
-typedef uint32_t StaP_ErrorStatus_T;
-extern StaP_ErrorStatus_T StaP_ErrorState;
-
 #define STAP_Errorf AVRDx_Errorf
-#define STAP_Error(e) StaP_ErrorState |= (e) < 32 ? (1UL<<(e)) : (1UL<<31)
-StaP_ErrorStatus_T STAP_Status(bool clear);
 
 void AVRDx_Errorf(StaP_ErrorStatus_T, const char *format, ...);
 
