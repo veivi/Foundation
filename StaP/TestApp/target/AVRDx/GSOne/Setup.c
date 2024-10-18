@@ -4,7 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define SERIAL_BUFSIZE  (1<<6)
+#define SERIAL_BUFSIZE  (1<<4)
 #define MAX_DG_SIZE     (1<<8)
 #define TX_TIMEOUT      200     // Milliseconds
 #define AL_LATENCY      50000    // Microseconds

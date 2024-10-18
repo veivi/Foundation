@@ -128,9 +128,7 @@ void AVRDx_Errorf(StaP_ErrorStatus_T e, const char *format, ...)
   len = vStringFmt(buffer, BUFSIZE, format, argp);
   va_end(argp);
 
-  consoleNotef("ERROR(%#x) ", e);
-  consolePrint(buffer);
-  consoleNL();  
+  consoleDebugf(0, "ERROR(%#x) ", e);
 }
 
 void STAP_Panic(uint8_t reason)
@@ -236,10 +234,8 @@ static bool bufferDrainPrim(uint8_t port, VP_TIME_MILLIS_T timeout)
     STAP_DelayMillis(SERIAL_DRAIN_DELAY);
 #else
     if(StaP_LinkTable[port].signal) {
-      STAP_LED0_ON;
       STAP_SignalWaitTimeout(STAP_SignalSet(StaP_LinkTable[port].signal),
 			     timeout);
-      STAP_LED0_OFF;
     } else
       STAP_Panic(STAP_ERR_NO_SIGNAL);
 #endif
@@ -348,13 +344,13 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
       buffer += progress;
       size -= progress;
     }
-    
+  
     if(size > 0) {
       // We need to wait until more space becomes available
 	
       if(!bufferDrainPrim(port, timeout)) {
 	// Timed out
-	STAP_Errorf(STAP_ERR_TX_TIMEOUT0, "Link %d loop", port);
+	STAP_Error(STAP_ERR_TX_TIMEOUT0);
 	break;
       }
     }
@@ -364,7 +360,7 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
     StaP_LinkTable[port].buffer.watermark = 0;
     
     if(!bufferDrainPrim(port, timeout)) {
-      STAP_Errorf(STAP_ERR_TX_TIMEOUT1, "Link %d sync1", port);
+      STAP_Error(STAP_ERR_TX_TIMEOUT1);
       vpbuffer_flush(&StaP_LinkTable[port].buffer);
     }
     
@@ -376,7 +372,7 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
   signalOwner[StaP_LinkTable[port].signal] = NULL;  
   STAP_PERMIT;
 #endif
-  
+
   STAP_MutexRelease(mutex[port]);
     
   return size;
