@@ -49,6 +49,8 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
       
       i->overrun = true;
     
+      STAP_PERMIT_SAFE(c);
+      
       return s;
     } else
       // Truncate
