@@ -86,13 +86,13 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   if(!i->storage || s < 1)
     return 0;
   
-  if(s > g)
-    s = g;
-
   ForbidContext_T c = STAP_FORBID_SAFE;
   
   VPBufferIndex_t g = vpbuffer_gauge(i);
   
+  if(s > g)
+    s = g;
+
   if(VPBUFFER_INDEX((*i), i->outPtr, s) < i->outPtr) {
     VPBufferSize_t cut = i->mask + 1 - i->outPtr;
     memcpy(b, &i->storage[i->outPtr], cut);
@@ -100,7 +100,6 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
       memcpy(&b[cut], i->storage, s - cut);
   } else {
     memcpy(b, &i->storage[i->outPtr], s);
-
   }
   
   i->outPtr = VPBUFFER_INDEX((*i), i->outPtr, s);
