@@ -116,9 +116,10 @@ VP_TIME_MICROS_T textTask(void)
 #if TEST == ALL || TEST == 2
 VP_TIME_MICROS_T textTask(void)
 {
-  static int i = 0;
+  int i = 0;
 
-  consolePrintfLn("Serial TX from a task %d. ", i++);
+  for(;;)
+    consolePrintfLn("Serial TX from a task %d. ", i++);
 }
 #endif
 
@@ -254,8 +255,8 @@ struct TaskDecl StaP_TaskList[] = {
   TASK_BY_FREQ("Flush", 0, flushTask, 5, 1<<8)
 
 #if TEST == ALL || TEST == 1 || TEST == 2
-  ,TASK_BY_FREQ("Text", 0, textTask, 300, 1<<8)
-  ,TASK_BY_FREQ("Debug", 0, debugTask, 247, 1<<8)
+  ,TASK_BY_FREQ("Text", 0, textTask, 1, 1<<8)
+  ,TASK_BY_FREQ("Debug", 1, debugTask, 247, 1<<8)
 #endif
 
 #if TEST == ALL || TEST == 3
