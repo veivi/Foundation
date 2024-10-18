@@ -221,14 +221,12 @@ void AVRDxSTAP_LinkListen(uint8_t port, VP_TIME_MILLIS_T timeout)
   }
 }
 
-static bool bufferDrainPrim(uint8_t port, uint8_t watermark, VP_TIME_MILLIS_T timeout)
+static bool bufferDrainPrim(uint8_t port, VP_TIME_MILLIS_T timeout)
 {
   VP_TIME_MILLIS_T started = vpTimeMillis();
   bool status = true;
 
-  StaP_LinkTable[port].buffer.watermark = watermark;
-
-  while(vpbuffer_gauge(&StaP_LinkTable[port].buffer) > watermark) {
+  while(vpbuffer_gauge(&StaP_LinkTable[port].buffer) > StaP_LinkTable[port].buffer.watermark) {
     if(VP_MILLIS_FINITE(timeout) && VP_ELAPSED_MILLIS(started) > timeout) {
       status = false;
       break;
@@ -336,6 +334,10 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
   STAP_PERMIT;
 
   while(size > 0) {
+    // Use fixed watermark for transmission
+
+    StaP_LinkTable[port].buffer.watermark = StaP_LinkTable[port].buffer.mask>>4;
+	  
     VPBufferIndex_t progress =
       vpbuffer_insert(&StaP_LinkTable[port].buffer, buffer, size, false);
 
@@ -348,14 +350,7 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
     if(size > 0) {
       // We need to wait until more space becomes available
 	
-      VPBufferSize_t watermark
-	= StaP_LinkTable[port].buffer.mask - size;
-
-      if(watermark < StaP_LinkTable[port].buffer.mask>>4)
-	// Never wait for a completely empty buffer so we maximize BW
-	watermark = StaP_LinkTable[port].buffer.mask>>4;
-
-      if(!bufferDrainPrim(port, watermark, timeout)) {
+      if(!bufferDrainPrim(port, timeout)) {
 	// Timed out
 	STAP_Errorf(STAP_ERR_TX_TIMEOUT0, "Link %d loop", port);
 	break;
@@ -364,7 +359,9 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
   }
 
   if(sync) {
-    if(!bufferDrainPrim(port, 0, timeout)) {
+    StaP_LinkTable[port].buffer.watermark = 0;
+    
+    if(!bufferDrainPrim(port, timeout)) {
       STAP_Errorf(STAP_ERR_TX_TIMEOUT1, "Link %d sync1", port);
       vpbuffer_flush(&StaP_LinkTable[port].buffer);
     }
