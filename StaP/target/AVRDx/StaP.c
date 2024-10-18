@@ -236,8 +236,10 @@ static bool bufferDrainPrim(uint8_t port, VP_TIME_MILLIS_T timeout)
     STAP_DelayMillis(SERIAL_DRAIN_DELAY);
 #else
     if(StaP_LinkTable[port].signal) {
+      STAP_LED1_ON;
       STAP_SignalWaitTimeout(STAP_SignalSet(StaP_LinkTable[port].signal),
 			     timeout);
+      STAP_LED1_OFF;
     } else
       STAP_Panic(STAP_ERR_NO_SIGNAL);
 #endif
