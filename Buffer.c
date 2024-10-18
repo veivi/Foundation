@@ -109,7 +109,7 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   return s;
 }
 
-void vpbuffer_insertChar(VPBuffer_t *i, char c)
+void vpbuffer_insertChar(VPBuffer_t *i, char b)
 {
   if(!i->storage)
     return;
@@ -118,7 +118,7 @@ void vpbuffer_insertChar(VPBuffer_t *i, char c)
   
   VPBufferIndex_t ptrNew = VPBUFFER_INDEX((*i), i->inPtr, 1);
 
-  i->storage[i->inPtr] = c;
+  i->storage[i->inPtr] = b;
   
   if(ptrNew != i->outPtr)
     i->inPtr = ptrNew;
