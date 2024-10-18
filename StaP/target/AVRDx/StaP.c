@@ -335,8 +335,6 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
   signalOwner[StaP_LinkTable[port].signal] = xTaskGetCurrentTaskHandle();
   STAP_PERMIT;
 
-  VPBufferIndex_t space = 0;
-
   while(size > 0) {
     VPBufferIndex_t progress =
       vpbuffer_insert(&StaP_LinkTable[port].buffer, buffer, size, false);
@@ -345,13 +343,9 @@ int AVRDxSTAP_LinkPutSync(uint8_t port, const char *buffer, int size, VP_TIME_MI
       USART_TransmitStart(STAP_LINK_HW(port), &StaP_LinkTable[port].buffer);
       buffer += progress;
       size -= progress;
-
-      //      if(port == ALP_Link_ALinkTX)
-      //      	consolePrintf("%d ", size);
     }
     
     if(size > 0) {
-      //    while((space = vpbuffer_space(&StaP_LinkTable[port].buffer)) == 0) {
       // We need to wait until more space becomes available
 	
       VPBufferSize_t watermark
@@ -527,6 +521,7 @@ void AVRDx_pwmOutput(uint8_t num, const uint16_t value[])
   }
   
   TCA0.SINGLE.CNT = ~0;
+  PORTD.DIRSET = (1<<MAX_SERVO)-1;
 }
 #endif
 
@@ -632,8 +627,6 @@ void STAP_Initialize(void)
 
 #if STAP_USE_PWMOUTPUT
   PORTMUX.TCAROUTEA = 0x3;
-
-  PORTD.DIRSET = (1<<5)-1;
 
   TCA0.SINGLE.CTRLA = (4<<1) | 1;  // EN + prescale 16
   TCA0.SINGLE.CTRLB = (7<<4) | 3;
