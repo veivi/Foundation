@@ -26,8 +26,12 @@ int failCount = 0;
 
 void blinkTask(void)
 {
+  StaP_ErrorStatus_T status = STAP_Status(true);
   static int i = 0;
 
+  if(status)
+    consoleNotefLn("STAP err %#x", status);
+  
   if(i & 1)
     STAP_LED1_ON;
   else
