@@ -32,6 +32,8 @@
 #define AL_SET              4
 #define AL_GET              5
 #define AL_DEBUG            6
+#define AL_GROUND_TIMEDATE  7
+#define AL_GROUND_POSITION  8
 
 struct ALQueryHeader {
   uint16_t channel;
