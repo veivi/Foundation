@@ -22,7 +22,7 @@
 #define ALN_SERVO            (10<<1)
 #define ALN_GYRO             (11<<1)
 #define ALN_TELEMETRY        (12<<1)
-#define ALN_BROADCAST        ((1<<6)-1)
+#define ALN_BROADCAST        (DG_MAX_NODES-1)
 
 // AlphaLink actions
 

@@ -337,7 +337,7 @@ void datagramRxInput(DgLink_t *link, const uint8_t *buffer, size_t size)
 	// Ignore the rest
       } else if(link->rxBusy) {
 #ifdef DG_IS_SLAVE
-          if(link->rxNode == link->node || link->rxNode == ALN_BROADCAST ) {
+          if(link->rxNode == link->node || link->rxNode == ALN_BROADCAST) {
 #endif
 	if(link->flagCnt) {
 	  //printf("FLAGS %d ", c);
@@ -368,7 +368,7 @@ void datagramRxInput(DgLink_t *link, const uint8_t *buffer, size_t size)
 	//printf("BRK ");
 	
 #ifdef DG_IS_SLAVE
-        if(link->node == link->rxNode)
+      if(link->rxNode == link->node || link->rxNode == ALN_BROADCAST)
 #endif
           handleBreak(link);
       link->rxBusy = link->overflow = false;
