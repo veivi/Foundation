@@ -86,7 +86,7 @@ static void stringPad(char *b, int len, char c)
     *b++ = c;
 }
 
-static int stringAppendPaddedLeft(char *b, int size, int w, const char *field, int fieldLen)
+static int stringAppendPaddedLeft(char *b, int size, int w, const char *field, int fieldLen, char pad)
 {
   int padLen = w - fieldLen;
 
@@ -94,11 +94,11 @@ static int stringAppendPaddedLeft(char *b, int size, int w, const char *field, i
     padLen = 0;
 
   if(padLen > size) {
-    stringPad(b, size, ' ');
+    stringPad(b, size, pad);
     return size;
   }
 
-  stringPad(b, padLen, ' ');    
+  stringPad(b, padLen, pad);    
     
   if(padLen + fieldLen > size) {
     strncpy(&b[padLen], field, size - padLen);
@@ -127,12 +127,12 @@ static int stringAppendPaddedRight(char *b, int size, int w, const char *field, 
   return fieldLen + padLen;
 }
 
-static int stringAppendPadded(char *b, int size, int w, const char *field, int fieldLen, bool leftJust)
+static int stringAppendPadded(char *b, int size, int w, const char *field, int fieldLen, char pad, bool leftJust)
 {
   if(leftJust)
     return stringAppendPaddedRight(b, size, w, field, fieldLen);
   else
-    return stringAppendPaddedLeft(b, size, w, field, fieldLen);
+    return stringAppendPaddedLeft(b, size, w, field, fieldLen, pad);
 }
 
 const char *decodeSpec(const char *p, int *value)
@@ -155,6 +155,7 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
   
   while(len < size && *f != '\0') {
     int w = 0, p = -1;
+    char padChar = ' ';
     bool leftJust = false, print0x = false;
     const char *sp = NULL;
     
@@ -171,6 +172,12 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
     if(*f == '-') {
       // Left justified
       leftJust = true;
+      f++;
+    }
+    
+    if(*f == '0') {
+      // Pad with zeroes
+      padChar = '0';
       f++;
     }
     
@@ -199,24 +206,24 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
       fieldLen = va_arg(args, int);
 
       if(len < fieldLen)
-	len += stringAppendPadded(&b[len], size - len, fieldLen - len, "", 0, false);
+	len += stringAppendPadded(&b[len], size - len, fieldLen - len, "", 0, padChar, false);
       break;
       
     case 'c':
       field[0] =  (char) va_arg(args, int);
-      len += stringAppendPadded(&b[len], size - len, w, field, 1, leftJust);
+      len += stringAppendPadded(&b[len], size - len, w, field, 1, padChar, leftJust);
       break;
 
     case 's':
       sp = (const char*) va_arg(args, const char*);
-      len += stringAppendPadded(&b[len], size - len, w, sp, strlen(sp), leftJust);
+      len += stringAppendPadded(&b[len], size - len, w, sp, strlen(sp), padChar, leftJust);
       break;
 	
     case 'd':
       if(p < 0)
 	p = 0;
       fieldLen = bufferPrintL(field, PRINT_FMT_FIELD, (long) va_arg(args, int), 10, p);
-      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, leftJust);
+      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       break;
 
     case 'x':
@@ -230,14 +237,14 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
       } else
 	fieldLen = bufferPrintUL(field, PRINT_FMT_FIELD, (unsigned long) va_arg(args, int), 16, p);
 	
-      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, leftJust);
+      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       break;
 
     case 'u':
       if(p < 0)
 	p = 0;
       fieldLen = bufferPrintUL(field, PRINT_FMT_FIELD, (unsigned long) va_arg(args, unsigned int), 10, p);
-      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, leftJust);
+      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       break;
 
     case 'p':
@@ -246,7 +253,7 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
 	if(p < 0)
 	  p = 0;
 	fieldLen = bufferPrintUL(field, PRINT_FMT_FIELD, (unsigned long) va_arg(args, long), 16, p);
-	len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, leftJust);
+	len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       }
       break;
 
@@ -254,7 +261,7 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
       if(p < 0)
 	p = 5;
       fieldLen = bufferPrintFP(field, size - len, (float) va_arg(args, double), 1, p);
-      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, leftJust);
+      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       break;
 
     default:
