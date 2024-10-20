@@ -9,7 +9,7 @@
 #include "StringFmt.h"
 
 #define CONSOLE_BUFFER     (1<<5)
-#define PRINT_FMT_BUFFER   (1<<6)
+#define PRINT_FMT_BUFFER   100
 
 DgLink_t *consoleLink;
 bool consoleThrottled, consoleDebug;
