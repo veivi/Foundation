@@ -273,7 +273,7 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
 
   if(len < size)
     // Only add terminator if space remains
-    b[len++] = '\0';
+    b[len] = '\0';
   
   return len;
 }
