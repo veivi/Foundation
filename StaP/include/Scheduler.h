@@ -16,7 +16,10 @@ struct TaskDecl {
   const char *name;
   uint8_t priority;
   uint16_t stackSize;
-  VP_TIME_MICROS_T (*code)(void);
+  union {
+    VP_TIME_MICROS_T (*task)(void);
+    void (*handler)(const uint8_t *data, size_t size);
+  } code;
   void *handle;
   VP_TIME_MICROS_T runTime;
   VP_TIME_MILLIS_T lastInvoked;
@@ -46,16 +49,16 @@ extern const int StaP_NumOfTasks;
 #define HZ_TO_PERIOD(f) (f) > 0 ? ((VP_TIME_MILLIS_T) (1.0e3f/(f))) : VP_TIME_MILLIS_MAX
 
 #define TASK_BY_PERIOD(N, P, C, PER, ST)		\
-  (struct TaskDecl) { .type = StaP_Task_Period, .name = N, .code = C, .typeSpecific.period = PER, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Period, .name = N, .code.task = C, .typeSpecific.period = PER, .priority = P, .stackSize = ST }
 #define TASK_BY_SIGNAL(N, P, C, SIG, T, ST)	\
-  (struct TaskDecl) { .type = StaP_Task_Signal, .name = N, .code = C, .typeSpecific.signal.id = SIG, .typeSpecific.signal.timeOut = T, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Signal, .name = N, .code.task = C, .typeSpecific.signal.id = SIG, .typeSpecific.signal.timeOut = T, .priority = P, .stackSize = ST }
 #define TASK_BY_SIGNAL_NOTO(N, P, C, SIG, ST) \
   TASK_BY_SIGNAL(N, P, C, SIG, VP_TIME_MILLIS_MAX, ST)
 #define TASK_BY_SERIAL(N, P, C, LINK, ST)	\
-  (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code.task = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
 #define TASK_BY_FREQ(name, pri, code, freq, stack) TASK_BY_PERIOD(name, pri, code, HZ_TO_PERIOD(freq), stack)
 #define TASK_BY_DATAGRAM(N, P, C, ID, LINK, ST)	\
-  (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code = (VP_TIME_MICROS_T (*)(void)) C, .typeSpecific.datagram.ID = ID,.typeSpecific.datagram.link = LINK, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code.handler = C, .typeSpecific.datagram.ID = ID,.typeSpecific.datagram.link = LINK, .priority = P, .stackSize = ST }
 
 
 void StaP_SchedulerStart( void );
