@@ -62,5 +62,6 @@ void datagramTxOut(DgLink_t*, const uint8_t *data, size_t l);
 void datagramTxEnd(DgLink_t*);
 void datagramRxInput(DgLink_t*, const uint8_t *data, size_t s);
 void datagramRxStatus(DgLink_t *link, uint8_t node, uint16_t *totalBuf, uint16_t *lostBuf);
+void datagramRxInputWithHandler(DgLink_t *link, void (*handler)(void*, uint8_t node, const uint8_t *data, size_t size), const uint8_t *buffer, size_t size);
 
 #endif
