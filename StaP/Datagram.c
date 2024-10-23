@@ -35,7 +35,7 @@ void datagramLinkInit(DgLink_t *link, uint8_t node,
   link->txBegin = txBegin;
   link->txEnd = txEnd;
 
-  if(rxStore && rxSize > 0x20 && rxHandler && txOut) {
+  if(rxStore && rxSize > 0x20 && txOut) {
     // Minimum configuration is met
     
 #ifdef STAP_MutexCreate
@@ -285,8 +285,9 @@ static void handleBreak(DgLink_t *link, void (*handler)(void*, uint8_t node, con
 #endif      
       link->datagramLastRxMillis = vpTimeMillisApprox;
       link->alive = true;
-      (*handler)(link->context, link->rxNode,
-			&link->rxStore[1], payload-1);
+
+      if(handler)
+	(*handler)(link->context, link->rxNode, &link->rxStore[1], payload-1);
     } else {
 #if DG_DEBUG > 3
     int i = 0;
