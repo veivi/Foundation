@@ -58,7 +58,7 @@ extern const int StaP_NumOfTasks;
   (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code.task = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
 #define TASK_BY_FREQ(name, pri, code, freq, stack) TASK_BY_PERIOD(name, pri, code, HZ_TO_PERIOD(freq), stack)
 #define TASK_BY_DATAGRAM(N, P, C, ID, LINK, ST)	\
-  (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code.handler = C, .typeSpecific.datagram.ID = ID,.typeSpecific.datagram.link = LINK, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code.handler = C, .typeSpecific.datagram.id = ID,.typeSpecific.datagram.link = LINK, .priority = P, .stackSize = ST }
 
 
 void StaP_SchedulerStart( void );
