@@ -2,6 +2,7 @@
 #define STAP_SCHEDULER_H
 
 #include "VPTime.h"
+#include "Datagram.h"
 #include "StaP.h"
 
 //
