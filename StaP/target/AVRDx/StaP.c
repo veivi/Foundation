@@ -629,7 +629,7 @@ void STAP_Initialize(void)
 #endif
 
   // ADC
-¤if STAP_USE_ADC
+#if STAP_USE_ADC
   ADC0_init();
 #endif
 }
