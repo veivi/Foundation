@@ -247,7 +247,7 @@ static void storeByte(DgLink_t *link, const uint8_t c)
   }
 }
   
-static void handleBreak(DgLink_t *link)
+static void handleBreak(DgLink_t *link, void (*handler)(void*, uint8_t node, const uint8_t *data, size_t size))
 {
   if(link->overflow) {
     if(link->rxError)
@@ -260,8 +260,6 @@ static void handleBreak(DgLink_t *link)
       | link->rxStore[link->datagramSize-2];
     int payload = link->datagramSize - sizeof(crc);
     
-    // printf("DG(%u,0x%.4X) ", payload, crc);
-	
     if(crc == crc16(link->crcStateRx, link->rxStore, payload)) {
 #ifdef DG_IS_SLAVE
         uint8_t rxExpected = ((link->rxSeqLast + 1) & 0xFF);
@@ -287,7 +285,7 @@ static void handleBreak(DgLink_t *link)
 #endif      
       link->datagramLastRxMillis = vpTimeMillisApprox;
       link->alive = true;
-      (link->rxHandler)(link->context, link->rxNode,
+      (*handler)(link->context, link->rxNode,
 			&link->rxStore[1], payload-1);
     } else {
 #if DG_DEBUG > 3
@@ -321,7 +319,7 @@ void datagramRxStatus(DgLink_t *link, uint8_t node, uint16_t *totalBuf, uint16_t
         *totalBuf = total;
 }
 
-void datagramRxInput(DgLink_t *link, const uint8_t *buffer, size_t size)
+void datagramRxInputWithHandler(DgLink_t *link, void (*handler)(void*, uint8_t node, const uint8_t *data, size_t size), const uint8_t *buffer, size_t size)
 {
   if(!link->initialized)
     return;
@@ -370,10 +368,16 @@ void datagramRxInput(DgLink_t *link, const uint8_t *buffer, size_t size)
 #ifdef DG_IS_SLAVE
       if(link->rxNode == link->node || link->rxNode == ALN_BROADCAST)
 #endif
-          handleBreak(link);
+          handleBreak(link, handler);
       link->rxBusy = link->overflow = false;
     }
   }
 }
+
+void datagramRxInput(DgLink_t *link, const uint8_t *data, size_t size), const uint8_t *buffer, size_t size)
+{
+  datagramRxInputWithHandler(link, link->rxHandler, buffer. size);
+}
+
 
 
