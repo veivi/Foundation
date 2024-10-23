@@ -627,6 +627,11 @@ void STAP_Initialize(void)
   TCA0.SINGLE.CTRLB = (7<<4) | 3;
   TCA0.SINGLE.PER = ~0;
 #endif
+
+  // ADC
+¤if STAP_USE_ADC
+  ADC0_init();
+#endif
 }
 
 //
