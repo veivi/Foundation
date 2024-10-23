@@ -1,4 +1,5 @@
 #include "ADC.h"
+#include <avr/io.h>
 
 /* This function returns the ADC conversion result */
 uint16_t ADC0_read(void)
