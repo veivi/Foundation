@@ -85,11 +85,11 @@ static void periodTaskWrapper( void *pvParameters )
   if(appTask->type != StaP_Task_Period)
     STAP_Panic(STAP_ERR_TASK_TYPE);
     
-  if(!appTask->code)
+  if(!appTask->code.task)
     STAP_Panic(STAP_ERR_TASK_CODE);
       
   for(;;) {
-    VP_TIME_MICROS_T callAgain = (*appTask->code)();
+    VP_TIME_MICROS_T callAgain = (*appTask->code.task)();
     
     if(!VP_MILLIS_FINITE(appTask->typeSpecific.period))
       // Period if infinite, wait forever
@@ -114,7 +114,7 @@ static void signalTaskWrapper( void *pvParameters )
   if(!appTask->typeSpecific.signal.id)
     STAP_Panic(STAP_ERR_NO_SIGNAL);
     
-  if(!appTask->code)
+  if(!appTask->code-task)
     STAP_Panic(STAP_ERR_TASK_CODE);
       
   for(;;) {
@@ -125,7 +125,7 @@ static void signalTaskWrapper( void *pvParameters )
     else
       STAP_SignalWait(STAP_SignalSet(appTask->typeSpecific.signal.id));
     
-    (*appTask->code)();
+    (*appTask->code.task)();
   }
 }
 
@@ -142,7 +142,7 @@ static void serialTaskWrapper( void *pvParameters )
   if(!link)
     STAP_Panic(STAP_ERR_NO_LINK);
     
-  if(!appTask->code)
+  if(!appTask->code.task)
     STAP_Panic(STAP_ERR_TASK_CODE);
 
   // Wait until the link becomes usable
@@ -199,7 +199,7 @@ static void serialTaskWrapper( void *pvParameters )
     
     // Invoke the code
     
-    invokeAgain = (*appTask->code)();
+    invokeAgain = (*appTask->code.task)();
   }
 }
 
