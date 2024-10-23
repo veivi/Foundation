@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include "Console.h"
 #include "StaP.h"
+#include "PRNG.h"
 #include "Scheduler.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -67,6 +68,8 @@ StaP_SignalSet_T STAP_SignalWaitTimeout(StaP_SignalSet_T mask,
       break;
   }
 
+  randomEntropyInput(STAP_ENTROPY_SRC);
+  
   return status & mask;
 }
 
