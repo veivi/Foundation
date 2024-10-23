@@ -114,7 +114,7 @@ static void signalTaskWrapper( void *pvParameters )
   if(!appTask->typeSpecific.signal.id)
     STAP_Panic(STAP_ERR_NO_SIGNAL);
     
-  if(!appTask->code-task)
+  if(!appTask->code.task)
     STAP_Panic(STAP_ERR_TASK_CODE);
       
   for(;;) {
