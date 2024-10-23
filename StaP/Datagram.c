@@ -376,7 +376,7 @@ void datagramRxInputWithHandler(DgLink_t *link, void (*handler)(void*, uint8_t n
 
 void datagramRxInput(DgLink_t *link, const uint8_t *data, size_t size)
 {
-  datagramRxInputWithHandler(link, link->rxHandler, buffer. size);
+  datagramRxInputWithHandler(link, link->rxHandler, buffer, size);
 }
 
 
