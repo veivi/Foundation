@@ -8,7 +8,7 @@
 // Task structure
 //
 
-typedef enum { StaP_Task_Period, StaP_Task_Signal, StaP_Task_Serial } StaP_TaskType_T;
+typedef enum { StaP_Task_Period, StaP_Task_Signal, StaP_Task_Serial, StaP_Task_Datagram } StaP_TaskType_T;
 
 struct TaskDecl {
   StaP_TaskType_T type;
@@ -31,6 +31,11 @@ struct TaskDecl {
     struct {
       StaP_LinkId_T link;      
     } serial;
+
+    struct {
+      StaP_LinkId_T id;
+      DgLink_t *link;
+    } datagram;
   } typeSpecific;
 };
 
@@ -48,6 +53,8 @@ extern const int StaP_NumOfTasks;
 #define TASK_BY_SERIAL(N, P, C, LINK, ST)	\
   (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
 #define TASK_BY_FREQ(name, pri, code, freq, stack) TASK_BY_PERIOD(name, pri, code, HZ_TO_PERIOD(freq), stack)
+#define TASK_BY_DATAGRAM(N, P, C, ID, LINK, ST)	\
+  (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code = (VP_TIME_MICROS_T (*)(void)) C, .typeSpecific.datagram.ID = ID,.typeSpecific.datagram.link = LINK, .priority = P, .stackSize = ST }
 
 
 void StaP_SchedulerStart( void );
