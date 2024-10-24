@@ -78,8 +78,8 @@ bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout)
 
 void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
 {
-  STAP_FORBID;
-  
+  ForbidContext_T c = STAP_FORBID_SAFE;
+
   if(VPBUFFER_GAUGE(*buffer) > 0 && !(hw->CTRLA & USART_DREIE_bm)) {
     if(VPBUFFER_GAUGE(*buffer) > 0 && (hw->STATUS & USART_DREIF_bm))
     // Place first char in the buffer
@@ -96,7 +96,7 @@ void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
       hw->CTRLA |= USART_DREIE_bm;
   }
 
-  STAP_PERMIT;
+  STAP_PERMIT_SAFE(c);
 }
 
 void USART_TransmitWorker(volatile USART_t *hw, VPBuffer_t *buffer)
