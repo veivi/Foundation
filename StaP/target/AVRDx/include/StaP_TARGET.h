@@ -110,7 +110,7 @@ typedef UBaseType_t ForbidContext_T;
 #define STAP_FORBID            taskENTER_CRITICAL()
 #define STAP_PERMIT            taskEXIT_CRITICAL()
 
-#define STAP_EnterSystem       cli()
+#define STAP_EnterSystem       taskENTER_CRITICAL()
 
 //
 // LED control
