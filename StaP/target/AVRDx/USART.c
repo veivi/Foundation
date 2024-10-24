@@ -79,6 +79,8 @@ bool USART_Drain(volatile USART_t *hw, VP_TIME_MILLIS_T timeout)
 void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
 {
   //  ForbidContext_T c = STAP_FORBID_SAFE;
+
+  STAP_FORBID;
   
   if(VPBUFFER_GAUGE(*buffer) > 0 && !(hw->CTRLA & USART_DREIE_bm)) {
     if(VPBUFFER_GAUGE(*buffer) > 0 && (hw->STATUS & USART_DREIF_bm))
@@ -95,7 +97,8 @@ void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
       // The rest is transmitted on the interrupt
       hw->CTRLA |= USART_DREIE_bm;
   }
-  
+
+  STAP_PERMIT;
   //  STAP_PERMIT_SAFE(c);
 }
 
