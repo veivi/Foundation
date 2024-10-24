@@ -80,8 +80,10 @@ void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
 {
   ForbidContext_T c = STAP_FORBID_SAFE;
   
-  if(VPBUFFER_GAUGE(*buffer) && !(hw->CTRLA & USART_DREIE_bm))
+  if(VPBUFFER_GAUGE(*buffer) && !(hw->CTRLA & USART_DREIE_bm)) {
     hw->CTRLA |= USART_DREIE_bm;
+    USART_TransmitWorker(hw, buffer);
+  }
   
   STAP_PERMIT_SAFE(c);
 }
