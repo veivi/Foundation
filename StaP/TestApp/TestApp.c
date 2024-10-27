@@ -158,7 +158,7 @@ VP_TIME_MICROS_T i2cTestTask(void)
 
 #if TEST == ALL || TEST == 5
 
-#define EEPROM_LINE       (1<<6)
+#define EEPROM_LINE       (1<<4)
 #define EEPROM_I2CADDR    0x50
 #define EEPROM_TEST_VALUE(a)  (uint8_t) (13 + (a & 0xFF))
 
