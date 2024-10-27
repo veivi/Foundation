@@ -81,15 +81,15 @@ void USART_TransmitStart(volatile USART_t *hw, VPBuffer_t *buffer)
   ForbidContext_T c = STAP_FORBID_SAFE;
 
   if(VPBUFFER_GAUGE(*buffer) > 0 && !(hw->CTRLA & USART_DREIE_bm)) {
-    if(VPBUFFER_GAUGE(*buffer) > 0 && (hw->STATUS & USART_DREIF_bm))
-    // Place first char in the buffer
+    if(hw->STATUS & USART_DREIF_bm) {
+      // Place first char in the buffer
       hw->TXDATAL = vpbuffer_extractChar(buffer);
 
-    if(VPBUFFER_GAUGE(*buffer) > 0 && (hw->STATUS & USART_DREIF_bm))
-      // The first went into the shft register, the buffer can accept
-      // another
-      
-      hw->TXDATAL = vpbuffer_extractChar(buffer);
+      if(VPBUFFER_GAUGE(*buffer) > 0 && (hw->STATUS & USART_DREIF_bm))
+        // The first went into the shft register, the buffer can accept
+        // another
+        hw->TXDATAL = vpbuffer_extractChar(buffer);
+    }
 
     if(VPBUFFER_GAUGE(*buffer) > 0)
       // The rest is transmitted on the interrupt
