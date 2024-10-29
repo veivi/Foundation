@@ -81,10 +81,7 @@ void I2C_0_Init(void)
 
 void I2C_0_EndSession(void)
 {
-    if(state == I2C_TIMEOUT) {
-      TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
-    } else
-      TWI0.MCTRLB = TWI_MCMD_STOP_gc;
+  TWI0.MCTRLB = TWI_MCMD_STOP_gc;
 }
 
 static uint8_t i2c_0_WaitW(void)
@@ -113,6 +110,7 @@ static uint8_t i2c_0_WaitW(void)
             state = I2C_ERROR;
         } else if(VP_ELAPSED_MILLIS(started) > TIMEOUT_MILLIS) {
             // Timed out
+            TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
             state = I2C_TIMEOUT;
         }
     } while(!state);
@@ -138,6 +136,7 @@ static uint8_t i2c_0_WaitR(void)
             
         } else if(VP_ELAPSED_MILLIS(started) > TIMEOUT_MILLIS) {
             // Timed out
+            TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
             state = I2C_TIMEOUT;
         }
 
@@ -243,7 +242,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
           TWI0.MADDR = device<<1;
 
           if(i2c_0_WaitW() != I2C_ACKED) {
-            I2C_0_EndSession();    
+//            I2C_0_EndSession();    
             return 0xE0;
           }
          
@@ -254,7 +253,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
           TWI0.MDATA = *upData++;
             
           if(i2c_0_WaitW() != I2C_ACKED) {
-            I2C_0_EndSession();    
+//            I2C_0_EndSession();    
             return 0xE1;
           }
         }
@@ -277,7 +276,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
         /* start transmitting the client address */
         TWI0.MADDR = (device<<1) | 0x01;
         if(i2c_0_WaitW() != I2C_ACKED) {
-            I2C_0_EndSession();    
+//            I2C_0_EndSession();    
             return 0xF0;
         }
 
@@ -289,7 +288,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
           *downData++ = TWI0.MDATA;
           TWI0.MCTRLB = (downSize == 0 && i == numSegments-1) ? TWI_ACKACT_bm | TWI_MCMD_STOP_gc : TWI_MCMD_RECVTRANS_gc;
         } else {
-          I2C_0_EndSession();    
+//          I2C_0_EndSession();    
           return 0xF1;
         }
       }
