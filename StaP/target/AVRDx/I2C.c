@@ -67,7 +67,7 @@ void I2C_0_Init(void)
     TWI0.MBAUD = TWI0_BAUD((I2C_SCL_FREQ), 0.3);
     
     /* Enable TWI */ 
-    TWI0.MCTRLA = TWI_ENABLE_bm;
+    TWI0.MCTRLA = TWI_ENABLE_bm | (0x3<<2);  // Timeout 200 us
     
     /* Initialize the address register */
     TWI0.MADDR = 0x00;
@@ -83,11 +83,11 @@ static bool timedOut = false;
 
 void I2C_0_EndSession(void)
 {
-    if(timedOut) {
+/*    if(timedOut) {
       // TWI0.MCTRLB = TWI_FLUSH_bm;
       TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
     } else
-      TWI0.MCTRLB = TWI_MCMD_STOP_gc;
+*/      TWI0.MCTRLB = TWI_MCMD_STOP_gc;
 
     timedOut = false;
 }
@@ -277,7 +277,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
 
       if(!receiving) {
 	if(transmitting) {
-//	  I2C_0_EndSession();    
+	  I2C_0_EndSession();    
 	  transmitting = false;        
 	}
 	
@@ -303,7 +303,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
     }
   }
 
-//  if(transmitting)
+  if(transmitting)
     I2C_0_EndSession();    
         
   return 0;
