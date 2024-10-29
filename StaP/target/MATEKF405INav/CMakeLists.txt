@@ -14,6 +14,8 @@ main_sources(COMMON_SRC
     AlphaPilot/TARGET/StaP.c
     AlphaPilot/TARGET/Setup.c
     AlphaPilot/Scheduler.c
+    AlphaPilot/Driver/Blinkenlicht.c 
+    AlphaPilot/Driver/LIV3R.c 
     AlphaPilot/Driver/MS4525.c 
     AlphaPilot/Driver/SSD1306.c 
     AlphaPilot/Driver/FontData.c 

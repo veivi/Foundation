@@ -12,6 +12,7 @@
 
 // #define USE_NATIVE_SCHEDULER    1
 
+#define STAP_USE_LIV3R            1
 #define STAP_I2C_BUS              MAG_I2C_BUS
 
 #define STAP_FEATURE_SERIALRX     // EXBUS/SRXL input, disables PPM.
