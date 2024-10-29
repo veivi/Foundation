@@ -79,17 +79,12 @@ void I2C_0_Init(void)
     TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
 }
 
-static bool timedOut = false;
-
 void I2C_0_EndSession(void)
 {
-/*    if(timedOut) {
-      // TWI0.MCTRLB = TWI_FLUSH_bm;
+    if(state == I2C_TIMEOUT) {
       TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
     } else
-*/      TWI0.MCTRLB = TWI_MCMD_STOP_gc;
-
-    timedOut = false;
+      TWI0.MCTRLB = TWI_MCMD_STOP_gc;
 }
 
 static uint8_t i2c_0_WaitW(void)
@@ -119,7 +114,6 @@ static uint8_t i2c_0_WaitW(void)
         } else if(VP_ELAPSED_MILLIS(started) > TIMEOUT_MILLIS) {
             // Timed out
             state = I2C_TIMEOUT;
-            timedOut = true;
         }
     } while(!state);
     
@@ -145,7 +139,6 @@ static uint8_t i2c_0_WaitR(void)
         } else if(VP_ELAPSED_MILLIS(started) > TIMEOUT_MILLIS) {
             // Timed out
             state = I2C_TIMEOUT;
-            timedOut = true;
         }
 
     } while(!state);
