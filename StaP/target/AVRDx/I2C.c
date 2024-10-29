@@ -277,7 +277,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
 
       if(!receiving) {
 	if(transmitting) {
-	  I2C_0_EndSession();    
+//	  I2C_0_EndSession();    
 	  transmitting = false;        
 	}
 	
@@ -303,7 +303,7 @@ uint8_t I2C_0_Transfer(uint8_t device, const StaP_TransferUnit_t *segment, size_
     }
   }
 
-  if(transmitting)
+//  if(transmitting)
     I2C_0_EndSession();    
         
   return 0;
