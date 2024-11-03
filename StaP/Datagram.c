@@ -153,7 +153,7 @@ static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
   if(link->txBegin)
     (link->txBegin)(link->context);
   
-  if(failSafeMode || link->txBusy
+  if(failSafeMode || link->txBusy || link->datagramLastTxMillis == 0
      || VP_ELAPSED_MILLIS(link->datagramLastTxMillis) > 500U)
     outputBreak(link);
 
