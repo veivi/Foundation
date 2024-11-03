@@ -53,16 +53,14 @@ enum {
 
 void I2C_0_Init(void)
 {
+#if STAP_I2C_ALT_PINS
+    /* Select I2C pins PC2/PC3 */
+    PORTMUX.TWIROUTEA = 0x02;
+#else
     /* Select I2C pins PA2/PA3 */
     PORTMUX.TWIROUTEA = 0x00;
-
-    // PORTA.DIRSET = 3<<2;
-
-    // PORTA.DIRCLR = 3<<2;
+#endif
     
-    // PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
-    // PORTA.PIN3CTRL |= PORT_PULLUPEN_bm;
-
     /* Host Baud Rate Control */
     TWI0.MBAUD = TWI0_BAUD((I2C_SCL_FREQ), 0.3);
     
