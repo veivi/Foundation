@@ -25,7 +25,7 @@
 #define ALN_TELEMETRY        (12<<1)
 #define ALN_BROADCAST        (DG_MAX_NODES-1)
 
-// AlphaLink actions
+// AlphaLink datagram types
 
 #define AL_BROADCAST        0
 #define AL_QUERY            1
@@ -115,7 +115,5 @@ struct IMUState {
   uint8_t version, mask;
   uint8_t _pad[2];
 };
-
-
 
 #endif
