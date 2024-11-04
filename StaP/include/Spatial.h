@@ -12,6 +12,14 @@ typedef struct {
 
 #define FLOAT_VECTOR(x,y,z)     (FloatVector_t) { .elem = {(float) (x), (float) (y), (float) (z) } }
 
+// FP quaternion
+
+typedef struct {
+  float elem[4];
+} FloatQuat_t;
+
+#define FLOAT_QUAT(i,x,y,z)     (FloatVector_t) { .elem = {(float) (i), (float) (x), (float) (y), (float) (z) } }
+
 // Fixed-point (decimeter) vector
 
 typedef int16_t DeciScalar_t;
