@@ -42,6 +42,8 @@
 #define ALBCAST_GROUND_ALMANAC    3
 #define ALBCAST_GROUND_EPHEMERIS  4
 #define ALBCAST_IMUDATA           5
+#define ALBCAST_MAGNETIC_FIELD    6
+#define ALBCAST_GRAVITY           7
 
 struct ALQueryHeader {
   uint16_t channel;
