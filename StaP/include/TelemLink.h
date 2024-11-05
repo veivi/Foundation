@@ -29,8 +29,8 @@ struct TelemetryBaroData {
 };
 
 struct TelemetryPositionData {
-  FloatVector_t position;
-  FloatVector_t velocity;
+  DeciVector_t position;
+  DeciVector_t velocity;
 };
 
 #define TELEM_NAME_LEN   10
