@@ -3,16 +3,16 @@
 
 #include "Datagram.h"
 
-#define HL_PING          (DG_HOSTLINK+0)
-#define HL_LOGDATA       (DG_HOSTLINK+1)
-#define HL_LOGINFO       (DG_HOSTLINK+2)
-#define HL_PARAMS        (DG_HOSTLINK+3)
-#define HL_SIMLINK       (DG_HOSTLINK+4)
-#define HL_STATUS        (DG_HOSTLINK+5)
-#define HL_DISCONNECT    (DG_HOSTLINK+6)
-#define HL_PONG          (DG_HOSTLINK+7)
-#define HL_LOGNAME       (DG_HOSTLINK+8)
-#define HL_LOGTXT        (DG_HOSTLINK+9)
+#define DG_HOST_PING          (DG_HOSTLINK+0)
+#define DG_HOST_LOGDATA       (DG_HOSTLINK+1)
+#define DG_HOST_LOGINFO       (DG_HOSTLINK+2)
+#define DG_HOST_PARAMS        (DG_HOSTLINK+3)
+#define DG_HOST_SIMLINK       (DG_HOSTLINK+4)
+#define DG_HOST_STATUS        (DG_HOSTLINK+5)
+#define DG_HOST_DISCONNECT    (DG_HOSTLINK+6)
+#define DG_HOST_PONG          (DG_HOSTLINK+7)
+#define DG_HOST_LOGNAME       (DG_HOSTLINK+8)
+#define DG_HOST_LOGTXT        (DG_HOSTLINK+9)
 
 struct SimLinkSensor {
   float alpha, alt, ias;
