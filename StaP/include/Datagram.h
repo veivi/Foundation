@@ -21,9 +21,9 @@
 // Application specific datagram type blocks
 //
 
-#define DG_BLOCK_TELEMLINK    0x20
-#define DG_BLOCK_ALPHALINK    0x80
-#define DG_BLOCK_HOSTLINK     0xC0
+#define DG_TELEMLINK       0x20
+#define DG_ALPHALINK       0x80
+#define DG_HOSTLINK        0xC0
 
 
 typedef struct DatagramLink {
