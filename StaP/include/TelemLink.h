@@ -18,13 +18,13 @@
 #define DG_TELEM_EPHEMERIS         (DG_TELEMLINK+11)
 
 struct TelemetryAirData {
-  float alpha;
-  float IAS;
+  int16_t alpha;   // decidegrees
+  int16_t IAS;     // dm/s
   uint16_t status;
 };
 
 struct TelemetryBaroData {
-  float alt;
+  int16_t alt;     // decimeters
   //  float windSpeed, windDir;
 };
 
@@ -45,8 +45,8 @@ struct TelemetryConfig {
 };
 
 struct TelemetryIMUData {
-  float bank, pitch, heading;
-  float ball, loadFactor;
+  int16_t bank, pitch, heading;  // decidegrees
+  int16_t ball, loadFactor;      // decidegrees, deciGs
 };
 
 struct TelemetryGroundData {
