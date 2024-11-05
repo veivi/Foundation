@@ -27,13 +27,12 @@
 
 // AlphaLink datagram types
 
-#define AL_BROADCAST        0
-#define AL_QUERY            1
-#define AL_RESPONSE         2
-#define AL_COMMAND          3
-#define AL_SET              4
-#define AL_GET              5
-#define AL_DEBUG            6
+#define AL_BROADCAST        (DG_BLOCK_ALPHALINK+0)
+#define AL_QUERY            (DG_BLOCK_ALPHALINK+1)
+#define AL_RESPONSE         (DG_BLOCK_ALPHALINK+2)
+#define AL_COMMAND          (DG_BLOCK_ALPHALINK+3)
+#define AL_SET              (DG_BLOCK_ALPHALINK+4)
+#define AL_GET              (DG_BLOCK_ALPHALINK+5)
 
 // Broadcast message types
 
@@ -41,7 +40,7 @@
 #define ALBC_GROUND_POSITION   2
 #define ALBC_GROUND_ALMANAC    3
 #define ALBC_GROUND_EPHEMERIS  4
-#define ALBC_IMUDATA           5
+#define ALBC_IMU_STATE         5
 #define ALBC_MAGNETIC_FIELD    6
 #define ALBC_GRAVITY           7
 

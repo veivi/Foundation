@@ -1,8 +1,6 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
-#include "AlphaLink.h"
-#include "HostLink.h"
 #include "Console.h"
 #include "Datagram.h"
 #include "Buffer.h"
@@ -12,7 +10,7 @@
 #define PRINT_FMT_BUFFER   100
 
 DgLink_t *consoleLink;
-bool consoleThrottled, consoleDebug;
+bool consoleThrottled;
 
 static VPBuffer_t consoleBuffer;
 static char consoleBufferStore[CONSOLE_BUFFER];
@@ -56,7 +54,7 @@ static void consoleFlushUnsafe(void)
   s = vpbuffer_extract(&consoleBuffer, buffer, s);
 
   if(s > 0) {
-    datagramTxStart(consoleLink, consoleDebug ? AL_DEBUG : HL_CONSOLE);
+    datagramTxStart(consoleLink, DG_CONSOLE);
     datagramTxOut(consoleLink, (const uint8_t*) buffer, s);
     datagramTxEnd(consoleLink);
   }
@@ -65,7 +63,7 @@ static void consoleFlushUnsafe(void)
 void consoleOut(const char *b, int8_t s)
 {
   if(failSafeMode) {
-    datagramTxStart(consoleLink, HL_CONSOLE);    
+    datagramTxStart(consoleLink, DG_CONSOLE);    
     datagramTxOut(consoleLink, (const uint8_t*) b, s);
     datagramTxEnd(consoleLink);
     
@@ -243,7 +241,6 @@ void consoleDebugf(uint8_t level, const char *f, ...)
   
   if(level <= consoleDebugLevel) {
     char buffer[PRINT_FMT_BUFFER+2];
-    uint8_t header = consoleDebug ? AL_DEBUG : HL_CONSOLE;
     int len = 0;
     va_list argp;
 
@@ -253,7 +250,7 @@ void consoleDebugf(uint8_t level, const char *f, ...)
 
     buffer[len] = '\n';
     
-    if(datagramTxStartNB(consoleLink, header)) {
+    if(datagramTxStartNB(consoleLink, DG_CONSOLE)) {
       datagramTxOut(consoleLink, "## ", 3);
       
       while(failCount-- > 0)

@@ -10,6 +10,22 @@
 #define DG_TRANSMIT_MAX  (1<<9)
 #define DG_MAX_NODES     0x40
 
+//
+// Generic DG types
+//
+
+#define DG_HEARTBEAT       0
+#define DG_CONSOLE         1
+
+//
+// Application specific datagram type blocks
+//
+
+#define DG_BLOCK_TELEMLINK    0x20
+#define DG_BLOCK_ALPHALINK    0x80
+#define DG_BLOCK_HOSTLINK     0xC0
+
+
 typedef struct DatagramLink {
   bool initialized, txBusy, rxBusy, alive, overflow;
   uint8_t node;
