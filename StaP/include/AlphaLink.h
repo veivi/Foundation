@@ -106,6 +106,7 @@ struct GPSView {
 #define IMU_ORIENT_VALID   1
 #define IMU_ACCEL_VALID    2
 #define IMU_RATE_VALID     4
+#define IMU_ORIENT_LOST    0x80    // Warning flag
 
 #define IMU_DATA_VERSION   0
 
