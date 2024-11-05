@@ -40,7 +40,7 @@
 #define ALBC_GROUND_POSITION   2
 #define ALBC_GROUND_ALMANAC    3
 #define ALBC_GROUND_EPHEMERIS  4
-#define ALBC_IMU_STATE         5
+#define ALBC_ORIENTATION       5
 #define ALBC_MAGNETIC_FIELD    6
 #define ALBC_GRAVITY           7
 
