@@ -2,6 +2,7 @@
 #define ALPHALINK_H
 
 #include <stdint.h>
+#include "Datagram.h"
 #include "Spatial.h"
 
 // AlphaLink bitrate
@@ -31,8 +32,9 @@
 #define DG_ALPHA_QUERY            (DG_ALPHALINK+1)
 #define DG_ALPHA_RESPONSE         (DG_ALPHALINK+2)
 #define DG_ALPHA_COMMAND          (DG_ALPHALINK+3)
-#define DG_ALPHA_SET              (DG_ALPHALINK+4)
-#define DG_ALPHA_GET              (DG_ALPHALINK+5)
+#define DG_ALPHA_CONFIGURE        (DG_ALPHALINK+4)
+#define DG_ALPHA_CALIBRATE        (DG_ALPHALINK+5)
+#define DG_ALPHA_RESTORE          (DG_ALPHALINK+6)
 
 // Broadcast message types
 
