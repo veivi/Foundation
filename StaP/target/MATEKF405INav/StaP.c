@@ -301,7 +301,7 @@ void inavStaP_GyroUpdate(void)
   //  consolePrintfLn("quat = %.3f %.3f %.3f %.3f", orientation.q0, orientation.q1, orientation.q2, orientation.q3);
  
   vpFlight.orientation =
-    FLOAT_QUAT(orientation.q0, orientation.q1, orientation.q2, orientation.q3);
+    FLOAT_QUAT(orientation.q3, orientation.q2, orientation.q1, orientation.q0);
   
   // Attitude, earth frame, Euler angles in decidegrees
   
