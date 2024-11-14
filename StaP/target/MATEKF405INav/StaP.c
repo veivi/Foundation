@@ -8,6 +8,7 @@
 #include "Objects.h"
 #include "VPTime.h"
 #include "Console.h"
+#include "Spatial.h"
 #include "platform.h"
 #include "drivers/system.h"
 #include "drivers/time.h"
@@ -284,6 +285,8 @@ void inavStaP_Arm(void)
   consolePrintLnUI(imuConfig()->dcm_ki_acc);  
 }
 
+extern fpQuaternion_t orientation;
+
 void inavStaP_GyroUpdate(void)
 {
   fpVector3_t value = { .v = { 0, 0, 0} };
@@ -293,12 +296,19 @@ void inavStaP_GyroUpdate(void)
   imuUpdateAccelerometer();
   imuUpdateAttitude(micros());
 
+  // Orientation quaternion
+
+  //  consolePrintfLn("quat = %.3f %.3f %.3f %.3f", orientation.q0, orientation.q1, orientation.q2, orientation.q3);
+  
+  vpFlight.orientation =
+    FLOAT_QUAT(orientation.q0, orientation.q1, orientation.q2, orientation.q3);
+  
   // Attitude, earth frame, Euler angles in decidegrees
   
   vpFlight.bank = attitude.values.roll/RADIAN/10;
   vpFlight.pitch = -attitude.values.pitch/RADIAN/10;
   vpFlight.heading = attitude.values.yaw/10;
-  
+
   // Rotation rate, body frame, rad/s
 
   gyroGetMeasuredRotationRate(&value);
