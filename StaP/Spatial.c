@@ -56,3 +56,23 @@ void deciVectorScale(DeciVector_t *result, const DeciVector_t *a, float b)
 {
   *result = DECI_VECTOR(b*a->elem[0], b*a->elem[1], b*a->elem[2]);
 }
+
+float orientationEulerRoll(const FloatQuat_t *atti)
+{
+  return atan2f(2.0f*(atti->elem[0]*atti->elem[1] + atti->elem[2]*atti->elem[3]),
+		1.0f - 2.0f*(atti->elem[1]*atti->elem[1] + atti->elem[2]*atti->elem[2]));
+}
+
+float orientationEulerPitch(const FloatQuat_t *atti)
+{
+  return 2.0f*atan2f(sqrtf(1.0f + 2.0f*(atti->elem[0]*atti->elem[2] - atti->elem[1]*atti->elem[3])),
+		  sqrtf(1.0f - 2.0f*(atti->elem[0]*atti->elem[2] - atti->elem[1]*atti->elem[3])))
+    - PI_F/2;
+}
+
+float orientationEulerHeading(const FloatQuat_t *atti)
+{ 
+  return atan2f(2.0f*(atti->elem[0]*atti->elem[3]+ atti->elem[1]*atti->elem[2]),
+		1.0f - 2.0f*(atti->elem[2]*atti->elem[2] + atti->elem[3]*atti->elem[3]));
+}
+

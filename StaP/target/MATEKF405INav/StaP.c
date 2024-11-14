@@ -299,7 +299,7 @@ void inavStaP_GyroUpdate(void)
   // Orientation quaternion
 
   //  consolePrintfLn("quat = %.3f %.3f %.3f %.3f", orientation.q0, orientation.q1, orientation.q2, orientation.q3);
-  
+ 
   vpFlight.orientation =
     FLOAT_QUAT(orientation.q0, orientation.q1, orientation.q2, orientation.q3);
   

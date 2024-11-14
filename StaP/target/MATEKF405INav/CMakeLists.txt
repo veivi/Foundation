@@ -21,7 +21,7 @@ main_sources(COMMON_SRC
     AlphaPilot/Driver/FontData.c 
     AlphaPilot/Driver/M24Mxx.c 
     AlphaPilot/Driver/AS5048B.c 
-    AlphaPilot/Driver/Spatial.c 
+    AlphaPilot/Spatial.c 
     AlphaPilot/I2CDevice.c 
     AlphaPilot/Objects.c 
     AlphaPilot/VPMath.c 

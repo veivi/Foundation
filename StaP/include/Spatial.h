@@ -5,6 +5,11 @@
 #include <stdbool.h>
 #include <math.h>
 
+// Constants
+
+#define PI_F             ((float) M_PI)
+#define RAD_F            (180.0f/PI_F)
+
 // FP vector
 
 typedef struct {
@@ -58,5 +63,9 @@ float floatVectorNormSquared(const FloatVector_t *a);
 bool deciVectorFromFloat(DeciVector_t *result, const FloatVector_t *a);
 void deciVectorAdd(DeciVector_t *result, const DeciVector_t *a, const DeciVector_t *b);
 void deciVectorScale(DeciVector_t *result, const DeciVector_t *a, float b);
+
+float orientationEulerRoll(const FloatQuat_t *atti);
+float orientationEulerPitch(const FloatQuat_t *atti);
+float orientationEulerHeading(const FloatQuat_t *atti);
 
 #endif
