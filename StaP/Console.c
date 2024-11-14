@@ -269,7 +269,7 @@ void consoleDebugf(uint8_t level, const char *f, ...)
 
 void consolePrint(const char *s)
 {
-  consolePrintN(s, CONSOLE_BUFFER);
+  consoleOut(s, strlen(s));
 }
 
 void consolePrintN(const char *s, int8_t maxlen)
