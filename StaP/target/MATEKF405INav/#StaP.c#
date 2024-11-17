@@ -287,12 +287,11 @@ void inavStaP_Arm(void)
 
 extern fpQuaternion_t orientation;
 
-void inavStaP_IMUStateAcquire(struct IMUState *state)
+void inavStaP_InertialAcquire(struct IMUState *state)
 {
   fpVector3_t value = { .v = { 0, 0, 0} };
   
   gyroUpdate();
-  // gyroFilter();
   imuUpdateAccelerometer();
   imuUpdateAttitude(micros());
 

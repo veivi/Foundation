@@ -97,13 +97,10 @@ bool STAP_SignalLatentFromISR(StaP_Signal_T sig, VP_TIME_MICROS_T);
 
 #define STAP_pwmOutput(num, pulse) inavStaP_pwmOutput(num, pulse)
 
-#define STAP_GyroCalibrate inavStaP_GyroCalibrate()
-#define STAP_GyroIsGood inavStaP_GyroIsGood()
-#define STAP_GyroUpdate inavStaP_GyroUpdate()
+#define STAP_InertialAcquire(s) inavStaP_InertialAcquire(s)
  
 #define STAP_NVStoreRead     M24XXRead
 #define STAP_NVStoreWrite    M24XXWrite
-#define STAP_SensorCalib     inavStaP_CalibrateAccel()
 
 //
 // Mutex
@@ -138,6 +135,7 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
 uint16_t inavStaP_I2CErrorCount(void);
 uint16_t inavStaP_I2CErrorCode(void);
 void inavStaP_pwmOutput(int, const uint16_t []);
+void inavStaP_InertialAcquire(struct IMUState *state);
 void inavStaP_GyroUpdate(void);
 bool inavStaP_GyroIsGood(void);
 void inavStaP_GyroCalibrate(void);

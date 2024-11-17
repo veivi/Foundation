@@ -59,6 +59,8 @@ void floatVectorScale(FloatVector_t *result, const FloatVector_t *a, float b);
 float floatVectorDot(const FloatVector_t *a, const FloatVector_t *b);
 void floatVectorCross(FloatVector_t *result, const FloatVector_t *a, const FloatVector_t *b);
 float floatVectorNormSquared(const FloatVector_t *a);
+float floatQuatNormSquared(const FloatQuat_t *a);
+float floatQuatDot(const FloatQuat_t *a, const FloatQuat_t *b);
 
 bool deciVectorFromFloat(DeciVector_t *result, const FloatVector_t *a);
 void deciVectorAdd(DeciVector_t *result, const DeciVector_t *a, const DeciVector_t *b);

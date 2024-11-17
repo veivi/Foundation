@@ -116,7 +116,7 @@ struct IMUState {
   FloatQuat_t orientation;
   FloatVector_t acceleration;
   FloatVector_t rate;
-  uint8_t version, mask;
+  uint8_t version, flags;
   uint8_t _pad[2];
 };
 

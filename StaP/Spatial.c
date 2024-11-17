@@ -22,6 +22,12 @@ float floatVectorDot(const FloatVector_t *a, const FloatVector_t *b)
   return a->elem[0]*b->elem[0] + a->elem[1]*b->elem[1] + a->elem[2]*b->elem[2];
 }
 
+float floatQuatDot(const FloatQuat_t *a, const FloatQuat_t *b)
+{
+  return a->elem[0]*b->elem[0] + a->elem[1]*b->elem[1] + a->elem[2]*b->elem[2]
+    + a->elem[3]*b->elem[3];
+}
+
 void floatVectorCross(FloatVector_t *result, const FloatVector_t *a, const FloatVector_t *b)
 {
   *result = FLOAT_VECTOR(a->elem[1] * b->elem[2] - a->elem[2] * b->elem[1],
@@ -32,6 +38,11 @@ void floatVectorCross(FloatVector_t *result, const FloatVector_t *a, const Float
 float floatVectorNormSquared(const FloatVector_t *a)
 {
   return floatVectorDot(a, a);
+}
+
+float floatQuatNormSquared(const FloatQuat_t *a)
+{
+  return floatQuatDot(a, a);
 }
 
 #define DECI_RANGE         ((1<<15)/10)
