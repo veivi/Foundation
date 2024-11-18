@@ -5,6 +5,7 @@
 #include "task.h"
 #include "semphr.h"
 #include "VPTime.h"
+#include "AlphaLink.h"
 #include "drivers/light_led.h"
 #include "sensors/gyro.h"
 

@@ -287,12 +287,11 @@ void inavStaP_Arm(void)
 
 extern fpQuaternion_t orientation;
 
-void inavStaP_IMUStateAcquire(struct IMUState *state)
+void inavStaP_InertialAcquire(struct IMUState *state)
 {
   fpVector3_t value = { .v = { 0, 0, 0} };
   
   gyroUpdate();
-  // gyroFilter();
   imuUpdateAccelerometer();
   imuUpdateAttitude(micros());
 
@@ -311,12 +310,6 @@ void inavStaP_IMUStateAcquire(struct IMUState *state)
   else
     state->flags |= IMU_ORIENT_LOST;
      
-  // Attitude, earth frame, Euler angles in decidegrees
-  
-  vpFlight.bank = attitude.values.roll/RADIAN/10;
-  vpFlight.pitch = -attitude.values.pitch/RADIAN/10;
-  vpFlight.heading = attitude.values.yaw/10;
-
   // Rotation rate, body frame, rad/s
 
   gyroGetMeasuredRotationRate(&value);
