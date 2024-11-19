@@ -22,6 +22,7 @@ main_sources(COMMON_SRC
     AlphaPilot/Driver/M24Mxx.c 
     AlphaPilot/Driver/AS5048B.c 
     AlphaPilot/Spatial.c 
+    AlphaPilot/SharedObject.c 
     AlphaPilot/I2CDevice.c 
     AlphaPilot/Objects.c 
     AlphaPilot/VPMath.c 
