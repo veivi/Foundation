@@ -16,6 +16,7 @@
 #define DG_TELEM_GROUNDTIMEDATE    (DG_TELEMLINK+9)
 #define DG_TELEM_ALMANAC           (DG_TELEMLINK+10)
 #define DG_TELEM_EPHEMERIS         (DG_TELEMLINK+11)
+#define DG_TELEM_IMUDATA_STANDBY   (DG_TELEMLINK+12)
 
 struct TelemetryAirData {
   int16_t alpha;   // decidegrees
