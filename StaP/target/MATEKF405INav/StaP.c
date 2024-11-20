@@ -305,11 +305,14 @@ void inavStaP_InertialAcquire(struct IMUState *state)
 
   float normSq = floatQuatNormSquared(&state->orientation);
   
-  if(normSq > 0.99f*0.99f && normSq < 1.01f*1.01f)
+  if(normSq > 0.99f*0.99f && normSq < 1.01f*1.01f) {
     state->flags |= IMU_ORIENT_VALID;
-  else
+  } else {
     state->flags |= IMU_ORIENT_LOST;
-     
+  }
+
+  //  consolePrintf(" flags = %#x", state->flags);
+  
   // Rotation rate, body frame, rad/s
 
   gyroGetMeasuredRotationRate(&value);
