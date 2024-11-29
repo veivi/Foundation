@@ -55,6 +55,7 @@ typedef enum { orient_0 = 0, orient_1, orient_2, orient_3, orient_4, orient_5, o
 
 void floatVectorFromDeci(FloatVector_t *result, const DeciVector_t *a);
 void floatVectorAdd(FloatVector_t *result, const FloatVector_t *a, const FloatVector_t *b);
+void floatVectorSubtract(FloatVector_t *result, const FloatVector_t *a, const FloatVector_t *b);
 void floatVectorScale(FloatVector_t *result, const FloatVector_t *a, float b);
 float floatVectorDot(const FloatVector_t *a, const FloatVector_t *b);
 void floatVectorCross(FloatVector_t *result, const FloatVector_t *a, const FloatVector_t *b);

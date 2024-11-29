@@ -12,6 +12,11 @@ void floatVectorAdd(FloatVector_t *result, const FloatVector_t *a, const FloatVe
   *result = FLOAT_VECTOR(a->elem[0]+b->elem[0], a->elem[1]+b->elem[1], a->elem[2]+b->elem[2]);
 }
 
+void floatVectorSubtract(FloatVector_t *result, const FloatVector_t *a, const FloatVector_t *b)
+{
+  *result = FLOAT_VECTOR(a->elem[0]-b->elem[0], a->elem[1]-b->elem[1], a->elem[2]-b->elem[2]);
+}
+
 void floatVectorScale(FloatVector_t *result, const FloatVector_t *a, float b)
 {
   *result = FLOAT_VECTOR(b*a->elem[0], b*a->elem[1], b*a->elem[2]);
