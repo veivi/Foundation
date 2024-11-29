@@ -44,7 +44,8 @@
 #define ALBC_GROUND_EPHEMERIS  4
 #define ALBC_ORIENTATION       5
 #define ALBC_MAGNETIC_FIELD    6
-#define ALBC_GRAVITY           7
+#define ALBC_GRAVITY           7   // Estimated gravity
+#define ALBC_ACCELERATION      8   // Expected acceleration (so local acceleration used for estimated gravity)
 
 struct ALQueryHeader {
   uint16_t channel;
