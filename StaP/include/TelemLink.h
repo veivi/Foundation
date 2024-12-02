@@ -48,6 +48,7 @@ struct TelemetryConfig {
 struct TelemetryIMUData {
   int16_t bank, pitch, heading;  // decidegrees
   int16_t ball, loadFactor;      // decidegrees, deciGs
+  uint16_t flags;
 };
 
 struct TelemetryGroundData {
