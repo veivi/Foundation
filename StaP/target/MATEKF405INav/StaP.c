@@ -219,7 +219,7 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
   int i = 0;
 
   while(i < num && seg[i].dir == transfer_dir_transmit) {
-    if(txSize+seg[i].size < MAX_I2C_TRANSMIT) {
+    if(txSize + seg[i].size < MAX_I2C_TRANSMIT) {
       memcpy((void*) &txBuffer[txSize], seg[i].data.tx, seg[i].size);
       txSize += seg[i].size;
     } else
