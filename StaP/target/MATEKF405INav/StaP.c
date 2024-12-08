@@ -36,7 +36,7 @@ uint8_t consoleDebugLevel = 0;
 #endif
 
 static STAP_MutexRef_T mutex[StaP_NumOfLinks];
-
+static STAP_MutexRef_T i2cMutex;
 volatile uint8_t nestCount = 0;
 
 struct Transceiver {
@@ -228,6 +228,15 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
 	
     i++;
   }
+
+  STAP_FORBID;
+  
+  if(!i2cMutex && !(i2cMutex = STAP_MutexCreate))
+    STAP_Panic(STAP_ERR_MUTEX_CREATE);
+
+  STAP_PERMIT;
+  
+  STAP_MutexObtain(i2cMutex);
   
   if(i < num) {
     // We encountered a receive segment so it's a read
@@ -244,6 +253,8 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
     
     success = i2cWriteGeneric(STAP_I2C_BUS, addr, 0, NULL, txSize, txBuffer);
   }
+  
+  STAP_MutexRelease(i2cMutex);
   
   return success ? 0 : i2cGetErrorCode();
 }
