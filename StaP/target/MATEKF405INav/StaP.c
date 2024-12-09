@@ -244,14 +244,33 @@ uint8_t inavStaP_I2CTransfer(uint8_t addr, const StaP_TransferUnit_t *seg, int n
     if(i < num-1)
       // More than one transfers remain, we don't support this
       return 0xFD;
-	  
-    success = i2cReadGeneric(STAP_I2C_BUS, addr, txSize, txBuffer,
-			       seg[i].size, seg[i].data.rx); 
 
+    success = i2cReadGeneric(STAP_I2C_BUS, addr, txSize, txBuffer,
+			       seg[i].size, seg[i].data.rx);
+
+    if(txSize == 2) {
+      uint16_t addr;
+      int j;
+      memcpy(&addr, txBuffer, sizeof(addr));
+      consolePrintf(" read addr = %x data = ", addr);
+      for(j = 0; j < seg[i].size; j++)
+	consolePrintf("%.2x", seg[i].data.rx[j]);
+      consoleNL();
+    } 
   } else {
     // It's a write
     
-    success = i2cWriteGeneric(STAP_I2C_BUS, addr, 0, NULL, txSize, txBuffer);
+    success = i2cWriteGeneric(STAP_I2C_BUS, addr, 0, NULL, txSize, txBuffer );
+    /*
+    if(txSize == 66) {
+      uint16_t addr;
+      int j;
+      memcpy(&addr, txBuffer, sizeof(addr));
+      consolePrintf(" write addr = %x data = %d bytes ", addr, txSize-2);
+      for(j = 2; j < txSize; j++)
+      	consolePrintf("%.2x", txBuffer[j]);
+      consoleNL();
+      } */
   }
   
   STAP_MutexRelease(i2cMutex);
