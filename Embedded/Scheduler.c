@@ -12,6 +12,16 @@ TaskHandle_t signalOwner[StaP_NumOfSignals];
 extern int FreeRTOSUp;
 volatile static VP_TIME_MICROS_T idleMicros;
 
+/*
+#define OSKernelNotify(t, s, v) xTaskNotifyIndexed(t, 1, s, v)
+#define OSKernelNotifyFromISR(t, s, v, y) xTaskNotifyIndexedFromISR(t, 1, s, v, y)
+#define OSKernelNotifyWait(a, b, c, t) xTaskNotifyWaitIndexed(1, a, b, c, t)
+*/
+
+#define OSKernelNotify(t, s, v) xTaskNotify(t, s, v)
+#define OSKernelNotifyFromISR(t, s, v, y) xTaskNotifyFromISR(t, s, v, y)
+#define OSKernelNotifyWait(a, b, c, t) xTaskNotifyWait(a, b, c, t)
+
 uint16_t STAP_CPUIdlePermille(void)
 {
   static bool initialized = false;
@@ -37,17 +47,16 @@ uint16_t STAP_CPUIdlePermille(void)
 void STAP_Signal(StaP_Signal_T sig)
 {
   if(signalOwner[sig])
-    xTaskNotifyIndexed(signalOwner[sig], 1, STAP_SignalSet(sig), eSetBits);
+	  OSKernelNotify(signalOwner[sig], STAP_SignalSet(sig), eSetBits);
 
 }
 
 bool STAP_SignalFromISR(StaP_Signal_T sig)
 {
-    UBaseType_t yield = false;
+  BaseType_t yield = false;
   
   if(signalOwner[sig])
-    xTaskNotifyIndexedFromISR(signalOwner[sig], 1,
-			      STAP_SignalSet(sig), eSetBits, &yield);
+	  OSKernelNotifyFromISR(signalOwner[sig], STAP_SignalSet(sig), eSetBits, &yield);
 
   return yield;
 }
@@ -60,7 +69,7 @@ StaP_SignalSet_T STAP_SignalWaitTimeout(StaP_SignalSet_T mask,
   //  status = ulTaskNotifyValueClearIndexed(xTaskGetCurrentTaskHandle(), 1, mask);
 
   while(!(mask & status)) {
-    if(xTaskNotifyWaitIndexed(1, 0, mask, &status,
+    if(OSKernelNotifyWait(0, mask, &status,
 			    VP_MILLIS_FINITE(timeout)
 			    ? pdMS_TO_TICKS(timeout) : portMAX_DELAY)
       == pdFALSE)
@@ -203,7 +212,7 @@ static void serialTaskWrapper( void *pvParameters )
   }
 }
 
-void StaP_SchedulerStart( void )
+void StaP_SchedulerInit( void )
 {
   TaskHandle_t handle = NULL;
   int i = 0;
@@ -272,9 +281,12 @@ void StaP_SchedulerStart( void )
 
     StaP_TaskList[i++].handle = handle;
   }
+}
 
-  FreeRTOSUp = true;
-  vTaskStartScheduler();
+void StaP_SchedulerStart( void )
+{
+	  FreeRTOSUp = true;
+	  vTaskStartScheduler();
 }
 
 void StaP_SchedulerReport(void)
@@ -293,7 +305,7 @@ void StaP_SchedulerReport(void)
   while(i < StaP_NumOfTasks) {
     if(StaP_TaskList[i].handle) {
       configSTACK_DEPTH_TYPE watermark
-	= uxTaskGetStackHighWaterMark2(StaP_TaskList[i].handle);
+	= uxTaskGetStackHighWaterMark(StaP_TaskList[i].handle);
       VP_TIME_MICROS_T runtime
 #if ulTaskGetRunTimeCounter
 	= ulTaskGetRunTimeCounter(StaP_TaskList[i].handle);

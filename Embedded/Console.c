@@ -6,6 +6,7 @@
 #include "Buffer.h"
 #include "StringFmt.h"
 
+
 #define CONSOLE_BUFFER     (1<<5)
 #if STAP_MACHINE_BIG
 #define PRINT_FMT_BUFFER   (1<<8)

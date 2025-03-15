@@ -65,10 +65,11 @@ StaP_ErrorStatus_T STAP_Status(bool clear);
 #define STAP_ERR_DATAGRAM          19
 #define STAP_ERR_RX_OVERRUN_H      20
 #define STAP_ERR_RX_OVERRUN_S      21
-#define STAP_ERR_TIME              22
-#define STAP_ERR_I2C               23
-#define STAP_ERR_TX_TIMEOUT1       24
-#define STAP_ERR_TX_TIMEOUT2       25
+#define STAP_ERR_RX_NOISE          22
+#define STAP_ERR_TIME              23
+#define STAP_ERR_I2C               24
+#define STAP_ERR_TX_TIMEOUT1       25
+#define STAP_ERR_TX_TIMEOUT2       26
 #define STAP_ERR_APPLICATION       28
 #define STAP_ERR_TASK_CREATE       0x20
 #define STAP_ERR_STACK_OVF         0x40
@@ -100,8 +101,6 @@ typedef struct {
 //
 
 void STAP_Initialize(void);
-VP_TIME_MICROS_T STAP_TimeMicros(void);
-VP_TIME_SECS_T STAP_TimeSecs(void);
 void STAP_Reboot(bool bootloader);
 void STAP_Panic(uint8_t reason);
 void STAP_Panicf(uint8_t reason, const char *format, ...);
@@ -110,27 +109,6 @@ size_t STAP_MemoryFree(void);
 void STAP_DelayMillis(uint16_t);
 void STAP_SchedulerReport(void);
 uint8_t STAP_CPUIdlePercent(void);
-
-//
-// HW timer for generating kernel stats
-//
-
-void STAP_TimerInit(void);
-VP_TIME_MICROS_T STAP_TimerCount(void);
-
-
-//
-// Gyro interface
-//
-
-typedef struct stap_Vector3f {
-  float x, y, z;
-} stap_Vector3f_t;
-
-bool stap_gyroUpdate(void);
-bool stap_attiUpdate(void);
-bool stap_accUpdate(void);
-bool stap_sensorRead(stap_Vector3f_t *acc, stap_Vector3f_t *atti, stap_Vector3f_t *rot);
 
 //
 // Serial link definition

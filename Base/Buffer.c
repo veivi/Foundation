@@ -4,19 +4,19 @@
 
 #define CRITICAL_SECTIONS    0    // We don't believe in critical sectoins.
 
-void vpbuffer_init(VPBuffer_t *i, VPBufferSize_t size, char *storage)
+void vpbuffer_init(volatile VPBuffer_t *i, VPBufferSize_t size, char *storage)
 {
   i->inPtr = i->outPtr = 0;
   i->mask = size - 1;
   i->storage = storage;
 }
 
-void vpbuffer_flush(VPBuffer_t *i)
+void vpbuffer_flush(volatile VPBuffer_t *i)
 {
   i->outPtr = i->inPtr;
 }
 
-void vpbuffer_adjust(VPBuffer_t *i, VPBufferIndex_t delta)
+void vpbuffer_adjust(volatile VPBuffer_t *i, VPBufferIndex_t delta)
 {
   if(!i->storage)
     return;
@@ -29,7 +29,7 @@ void vpbuffer_adjust(VPBuffer_t *i, VPBufferIndex_t delta)
   i->inPtr = VPBUFFER_INDEX((*i), i->inPtr, -delta);
 }
 
-VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, bool overwrite)
+VPBufferSize_t vpbuffer_insert(volatile VPBuffer_t *i, const char *b, VPBufferSize_t s, bool overwrite)
 {
   if(!i->storage || s < 1)
     return 0;
@@ -82,14 +82,14 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
   return s;
 }
 
-bool vpbuffer_hasOverrun(VPBuffer_t *i)
+bool vpbuffer_hasOverrun(volatile VPBuffer_t *i)
 {
   bool status = i->overrun;
   i->overrun = false;
   return status;
 }
 
-VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
+VPBufferSize_t vpbuffer_extract(volatile VPBuffer_t *i, char *b, VPBufferSize_t s)
 {
   if(!i->storage || s < 1)
     return 0;
@@ -121,7 +121,7 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   return s;
 }
 
-void vpbuffer_insertChar(VPBuffer_t *i, char b)
+void vpbuffer_insertChar(volatile VPBuffer_t *i, char b)
 {
   if(!i->storage)
     return;
@@ -144,7 +144,7 @@ void vpbuffer_insertChar(VPBuffer_t *i, char b)
 #endif
 }
 
-char vpbuffer_extractChar(VPBuffer_t *i)
+char vpbuffer_extractChar(volatile VPBuffer_t *i)
 {
   char b = 0xFE;
   

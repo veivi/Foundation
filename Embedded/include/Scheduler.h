@@ -61,6 +61,7 @@ extern const int StaP_NumOfTasks;
   (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code.handler = C, .typeSpecific.datagram.id = ID,.typeSpecific.datagram.link = LINK, .priority = P, .stackSize = ST }
 
 
+void StaP_SchedulerInit( void );
 void StaP_SchedulerStart( void );
 void StaP_SchedulerReport(void);
 struct TaskDecl *StaP_CurrentTask(void);
