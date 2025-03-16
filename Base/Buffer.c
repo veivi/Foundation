@@ -1,7 +1,6 @@
 #include "Buffer.h"
 #include "StaP.h"
 #include <string.h>
-// #include "cmsis_compiler.h"
 
 #define CRITICAL_SECTIONS    0    // We don't believe in critical sectoins.
 
@@ -66,15 +65,15 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
 
   if(VPBUFFER_INDEX((*i), i->inPtr, s) < i->inPtr) {
     VPBufferSize_t cut = i->mask + 1 - i->inPtr;
-    memcpy(&i->storage[i->inPtr], b, cut);
+    memcpy((char*) &i->storage[i->inPtr], b, cut);
     
     if(s > cut)
-      memcpy(i->storage, &b[cut], s - cut);
+      memcpy((char*) i->storage, &b[cut], s - cut);
   } else {
-    memcpy(&i->storage[i->inPtr], b, s);
+    memcpy((char*) &i->storage[i->inPtr], b, s);
   }
   
-//  __DMB();
+  STAP_MEM_BARRIER;
 
   i->inPtr = VPBUFFER_INDEX((*i), i->inPtr, s);
 
@@ -110,11 +109,14 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
 
   if(VPBUFFER_INDEX((*i), i->outPtr, s) < i->outPtr) {
     VPBufferSize_t cut = i->mask + 1 - i->outPtr;
-    memcpy(b, &i->storage[i->outPtr], cut);
+
+    STAP_MEM_BARRIER;
+
+    memcpy(b, (char*) &i->storage[i->outPtr], cut);
     if(s > cut)
-      memcpy(&b[cut], i->storage, s - cut);
+      memcpy(&b[cut], (char*) i->storage, s - cut);
   } else {
-    memcpy(b, &i->storage[i->outPtr], s);
+    memcpy(b, (char*) &i->storage[i->outPtr], s);
   }
   
   i->outPtr = VPBUFFER_INDEX((*i), i->outPtr, s);
