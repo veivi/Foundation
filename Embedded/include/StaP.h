@@ -122,9 +122,9 @@ typedef struct StaP_LinkRecord {
   uint8_t txcv;
   uint32_t rate;
   uint8_t mode;
-  volatile VPBuffer_t buffer;
+  VPBuffer_t buffer;
   StaP_Signal_T signal;
-  VP_TIME_MICROS_T latency, lastReceived;
+  volatile VP_TIME_MICROS_T latency, lastReceived;
 } StaP_LinkRecord_T;
 
 extern StaP_LinkRecord_T StaP_LinkTable[];
