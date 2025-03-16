@@ -1,7 +1,7 @@
 #include "Buffer.h"
 #include "StaP.h"
 #include <string.h>
-#include "cmsis_compiler.h"
+// #include "cmsis_compiler.h"
 
 #define CRITICAL_SECTIONS    0    // We don't believe in critical sectoins.
 
