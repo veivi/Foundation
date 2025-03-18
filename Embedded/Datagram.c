@@ -258,7 +258,7 @@ static void handleBreak(DgLink_t *link, void (*handler)(void*, uint8_t node, con
   if(link->datagramSize >= 1+sizeof(uint16_t)) {
     uint16_t crc = ((uint16_t) link->rxStore[link->datagramSize-1]<<8)
       | link->rxStore[link->datagramSize-2];
-    int payload = link->datagramSize - sizeof(crc);
+    int payload = (int) link->datagramSize - sizeof(crc);
     
     if(crc == crc16(link->crcStateRx, link->rxStore, payload)) {
 #ifdef DG_IS_SLAVE
