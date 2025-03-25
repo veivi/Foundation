@@ -12,6 +12,7 @@ extern uint8_t consoleDebugLevel;
 int bufferPrintUL(char *buf, int size, unsigned long v, uint8_t base, uint8_t p);
 int bufferPrintL(char *buf, int size, long v, uint8_t base, uint8_t p);
 
+void consoleOut(const char *b, int8_t s);
 void consoleOutChar(char c);
 void consolePrintULGeneric(unsigned long v, uint8_t base, uint8_t p);
 void consoleAssert(bool, const char *);
