@@ -73,8 +73,10 @@ VPBufferSize_t vpbuffer_insert(VPBuffer_t *i, const char *b, VPBufferSize_t s, b
     memcpy((char*) &i->storage[i->inPtr], b, s);
   }
   
+#ifdef STAP_MEM_BARRIER
   STAP_MEM_BARRIER;
-
+#endif
+  
   i->inPtr = VPBUFFER_INDEX((*i), i->inPtr, s);
 
 #if CRITICAL_SECTIONS
@@ -110,8 +112,10 @@ VPBufferSize_t vpbuffer_extract(VPBuffer_t *i, char *b, VPBufferSize_t s)
   if(VPBUFFER_INDEX((*i), i->outPtr, s) < i->outPtr) {
     VPBufferSize_t cut = i->mask + 1 - i->outPtr;
 
+#ifdef STAP_MEM_BARRIER
     STAP_MEM_BARRIER;
-
+#endif
+    
     memcpy(b, (char*) &i->storage[i->outPtr], cut);
     if(s > cut)
       memcpy(&b[cut], (char*) i->storage, s - cut);
