@@ -64,6 +64,7 @@ void consolevPrintf(const char *s, va_list argp);
 void consolePrintf(const char *s, ...);
 void consolePrintfLn(const char *s, ...);
 void consoleDebugf(uint8_t level, const char *s, ...);
+void consolePrintBlob(const char *name, const void *data, size_t size);
 
 
 #endif

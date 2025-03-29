@@ -9,6 +9,8 @@
 #define BACKOFF_FRACTION   3
 #define MAX_FAILS          3
 
+#define UINT16_HOST_TO_DEVICE(a)  ((((a) & 0xFF)<<8) | (((a)>>8) & 0xFF))
+
 static STAP_MutexRef_T i2cMutex = NULL;
 
 void I2CTargetReset(I2CTarget_t *device)
@@ -147,11 +149,13 @@ uint8_t I2CTargetWriteByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, 
 
 uint8_t I2CTargetReadByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t *data, size_t size)
 {
+  addr = UINT16_HOST_TO_DEVICE(addr);
   return I2CTargetRead(device, subId, (const uint8_t*) &addr, sizeof(addr), data, size);
 }
 
 uint8_t I2CTargetWriteByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, const uint8_t *data, size_t size)
 {
+  addr = UINT16_HOST_TO_DEVICE(addr);
   return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), data, size);
 }
 
@@ -169,11 +173,13 @@ uint8_t I2CTargetWriteUInt16ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t 
 
 uint8_t I2CTargetWriteUInt8ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t value)
 {
+  addr = UINT16_HOST_TO_DEVICE(addr);
   return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), &value, sizeof(value));
 }
 
 uint8_t I2CTargetWriteUInt16ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint16_t value)
 {
+  addr = UINT16_HOST_TO_DEVICE(addr);
   return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), &value, sizeof(value));
 }
 
@@ -198,6 +204,7 @@ uint16_t I2CTargetReadUInt16ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t 
 uint8_t I2CTargetReadUInt8ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t *retCode)
 {
   uint8_t buffer = 0;
+  addr = UINT16_HOST_TO_DEVICE(addr);
   uint8_t status = I2CTargetRead(device, subId, (const uint8_t*) &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
   if(retCode)
     *retCode = status;
@@ -207,6 +214,7 @@ uint8_t I2CTargetReadUInt8ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t 
 uint16_t I2CTargetReadUInt16ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t *retCode)
 {
   uint16_t buffer = 0;
+  addr = UINT16_HOST_TO_DEVICE(addr);
   uint8_t status = I2CTargetRead(device, subId, (const uint8_t*) &addr, sizeof(addr), (uint8_t*) &buffer, sizeof(buffer));
   if(retCode)
     *retCode = status;

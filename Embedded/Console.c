@@ -256,10 +256,10 @@ void consoleDebugf(uint8_t level, const char *f, ...)
     buffer[len] = '\n';
     
     if(datagramTxStartNB(consoleLink, DG_CONSOLE)) {
-      datagramTxOut(consoleLink, "## ", 3);
+      datagramTxOut(consoleLink, (const uint8_t*) "## ", 3);
       
       while(failCount-- > 0)
-	datagramTxOut(consoleLink, "~ ", 2);
+	datagramTxOut(consoleLink, (const uint8_t*) "~ ", 2);
       
       datagramTxOut(consoleLink, (const uint8_t*) buffer, len+1);
       datagramTxEnd(consoleLink);
@@ -447,3 +447,15 @@ void consolePrintPoly(int degree, float *coeff, int p)
   }
 }
 
+void consolePrintBlob(const char *name, const void *data, size_t size)
+{
+  int i = 0;
+
+  consolePrintf("  Blob %s = ", name);
+  
+  for(i = 0; i < size; i++)
+    consolePrintf("%.2X", ((const uint8_t*) data)[i]);
+
+  consoleNL();
+}
+ 
