@@ -285,8 +285,8 @@ void StaP_SchedulerInit( void )
 
 void StaP_SchedulerStart( void )
 {
-	  FreeRTOSUp = true;
-	  vTaskStartScheduler();
+  FreeRTOSUp = true;
+  vTaskStartScheduler();
 }
 
 void StaP_SchedulerReport(void)
