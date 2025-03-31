@@ -141,11 +141,12 @@ static void signalTaskWrapper( void *pvParameters )
 static void serialTaskWrapper( void *pvParameters )
 {
   struct TaskDecl *appTask = (struct TaskDecl*) pvParameters;
-  StaP_LinkId_T link = appTask->typeSpecific.serial.link;
+  StaP_LinkId_T link = 
+    appTask->type == StaP_Task_Serial ? typeSpecific.serial.link : typeSpecific.datagram.link;
   
   VP_TIME_MICROS_T invokeAgain = 0;
   
-  if(appTask->type != StaP_Task_Serial)
+  if(appTask->type != StaP_Task_Serial && appTask->type != StaP_Task_Datagram)
     STAP_Panic(STAP_ERR_TASK_TYPE);
     
   if(!link)
@@ -208,7 +209,16 @@ static void serialTaskWrapper( void *pvParameters )
     
     // Invoke the code
     
-    invokeAgain = (*appTask->code.task)();
+    if(appTask->type == StaP_Task_Datagram) {
+      uint8_t buffer[SERIAL_BLOCKSIZE];
+
+      datagramRxInputWithHandler(appTask.typeSpecific.datagram.dgLink, 
+          appTask->code.task,
+          (const uint8_t*) buffer, STAP_LinkGet(link, buffer, sizeof(buffer)));
+      
+      invokeAgain = 0;
+    } else
+      invokeAgain = (*appTask->code.task)();
   }
 }
 
@@ -260,6 +270,7 @@ void StaP_SchedulerInit( void )
       break;
       
     case StaP_Task_Serial:
+    case StaP_Task_Datagram:
       if(xTaskCreate(serialTaskWrapper, StaP_TaskList[i].name,
 		     configMINIMAL_STACK_SIZE + userStack,
 		     (void*) &StaP_TaskList[i],
