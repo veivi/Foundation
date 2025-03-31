@@ -19,7 +19,7 @@ typedef struct {
   uint16_t crc;
   uint16_t type;
   uint32_t count;
-} NVStoreHeader_t;
+} NVBlockHeader_t;
 
 typedef struct {
   uint16_t crc;
@@ -27,7 +27,7 @@ typedef struct {
   char name[NVSTORE_NAME_MAX+1];
 } NVBlobHeader_t;
 
-#define NVSTORE_BLOCK_PAYLOAD (NVSTORE_BLOCKSIZE - sizeof(NVStoreHeader_t))
+#define NVSTORE_BLOCK_PAYLOAD (NVSTORE_BLOCKSIZE - sizeof(NVBlockHeader_t))
 #define NVSTORE_BLOB_PAYLOAD (NVSTORE_BLOCK_PAYLOAD - sizeof(NVBlobHeader_t))
 #define NVSTORE_ADDR(p, i) ((p->start + (i))*NVSTORE_BLOCKSIZE)
 
@@ -51,7 +51,7 @@ static uint16_t crc16OfRecord(uint16_t initial, const uint8_t *record, int size)
   return crc16(initial, &record[sizeof(uint16_t)], size - sizeof(uint16_t));
 }
 
-static bool validateBlock(const uint8_t *buffer, NVStoreHeader_t *header)
+static bool validateBlock(const uint8_t *buffer, NVBlockHeader_t *header)
 {
   memcpy(header, buffer, sizeof(*header));
   return header->type != nvb_invalid_c
@@ -74,7 +74,7 @@ static bool startup(NVStorePartition_t *p)
 	
   while(ptr < p->size) {
     uint8_t buffer[NVSTORE_BLOCKSIZE];
-    NVStoreHeader_t header;
+    NVBlockHeader_t header;
     
     if(!readBlock(p, ptr, buffer)) {
       consoleNotefLn("NVStore %s startup readBlock() fail", p->name);
@@ -113,7 +113,7 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
   bool status = false;
   
   if(p->index < p->size) {
-    NVStoreHeader_t header = { .crc = 0, .count = p->count + 1, .type = type };
+    NVBlockHeader_t header = { .crc = 0, .count = p->count + 1, .type = type };
 
     header.crc = crc16OfRecord(0xFFFF, (const uint8_t*) &header, sizeof(header));
     header.crc = crc16(header.crc, (const uint8_t*) data, NVSTORE_BLOCK_PAYLOAD);
@@ -136,7 +136,7 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
   return status;
 }
 
-static bool recallBlock(NVStorePartition_t *p, uint32_t delta, NVStoreHeader_t *header, uint8_t *buffer)
+static bool recallBlock(NVStorePartition_t *p, uint32_t delta, NVBlockHeader_t *header, uint8_t *buffer)
 {
   return readBlock(p, (p->index + p->size - 1 - delta) % p->size, buffer)
     && validateBlock(buffer, header);
@@ -152,7 +152,7 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
     uint32_t delta = 0;
 
     while(delta < p->size) {
-      NVStoreHeader_t header;
+      NVBlockHeader_t header;
       uint8_t buffer[NVSTORE_BLOCKSIZE];
       
       if(recallBlock(p, delta, &header, buffer) && header.type == nvb_blob_c) {
