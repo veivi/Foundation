@@ -209,13 +209,11 @@ static void serialTaskWrapper( void *pvParameters )
       } 	
     }
     
-    // Invoke the code
-    
     if(appTask->type == StaP_Task_Datagram) {
       uint8_t buffer[SERIAL_BLOCKSIZE];
 
       datagramRxInputWithHandler(appTask.typeSpecific.datagram.link, 
-          appTask->code.task,
+          appTask->code.handler,
           (const uint8_t*) buffer, STAP_LinkGet(link, buffer, sizeof(buffer)));
       
       invokeAgain = 0;
