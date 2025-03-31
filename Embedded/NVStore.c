@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
@@ -54,7 +53,7 @@ static uint16_t crc16OfRecord(uint16_t initial, const uint8_t *record, int size)
 static bool validateBlock(const uint8_t *buffer, NVBlockHeader_t *header)
 {
   memcpy(header, buffer, sizeof(*header));
-  return header->type != nvb_invalid_c
+  return (header->type == nvb_blob_c || header->type == nvb_data_c)
     && header->crc == crc16OfRecord(0xFFFF, buffer, NVSTORE_BLOCKSIZE);
 }
   
@@ -264,7 +263,8 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
   if(startup(p)) {
     NVBlobHeader_t header = { .crc = 0, .size = size };
     uint8_t buffer[NVSTORE_BLOCK_PAYLOAD];
-    
+
+    memset(header.name, 0, sizeof(header.name));
     strncpy(header.name, name, NVSTORE_NAME_MAX);
     
     header.crc =
