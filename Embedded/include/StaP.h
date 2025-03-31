@@ -40,6 +40,10 @@ extern StaP_ErrorStatus_T StaP_ErrorState;
 StaP_ErrorStatus_T STAP_Status(bool clear);
 
 //
+
+VP_TIME_MICROS_T STAP_TimeMicros(void);
+
+//
 // Common error code definitions
 //
 
