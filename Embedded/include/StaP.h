@@ -40,8 +40,11 @@ extern StaP_ErrorStatus_T StaP_ErrorState;
 StaP_ErrorStatus_T STAP_Status(bool clear);
 
 //
+// Time source
+//
 
 VP_TIME_MICROS_T STAP_TimeMicros(void);
+VP_TIME_SECS_T STAP_TimeSecs(void);
 
 //
 // Common error code definitions
