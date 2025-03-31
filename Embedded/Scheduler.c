@@ -144,7 +144,7 @@ static void serialTaskWrapper( void *pvParameters )
 {
   struct TaskDecl *appTask = (struct TaskDecl*) pvParameters;
   StaP_LinkId_T link = 
-    appTask->type == StaP_Task_Serial ? typeSpecific.serial.link : typeSpecific.datagram.id;
+    appTask->type == StaP_Task_Serial ? typeSpecific.serial.link : typeSpecific.datagram.link;
   
   VP_TIME_MICROS_T invokeAgain = 0;
   
@@ -212,7 +212,7 @@ static void serialTaskWrapper( void *pvParameters )
     if(appTask->type == StaP_Task_Datagram) {
       uint8_t buffer[SERIAL_BLOCKSIZE];
 
-      datagramRxInputWithHandler(appTask.typeSpecific.datagram.link, 
+      datagramRxInputWithHandler(appTask.typeSpecific.datagram.state, 
           appTask->code.handler,
           (const uint8_t*) buffer, STAP_LinkGet(link, buffer, sizeof(buffer)));
       
