@@ -130,7 +130,7 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
     } else
       consoleNotefLn("NVStore %s writeBlock() write fail", p->name);
   } else
-    consoleNotefLn("NVStore %s writeBlock(%#x) illegal index", p->name, index);
+    consoleNotefLn("NVStore %s writeBlock(%#x) illegal index", p->name, p->index);
 
   return status;
 }

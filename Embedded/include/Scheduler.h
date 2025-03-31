@@ -18,7 +18,7 @@ struct TaskDecl {
   uint16_t stackSize;
   union {
     VP_TIME_MICROS_T (*task)(void);
-    void (*handler)(const uint8_t *data, size_t size);
+    void (*handler)(void *context, uint8_t, const uint8_t *data, size_t size);
   } code;
   void *handle;
   VP_TIME_MICROS_T runTime;
@@ -58,7 +58,7 @@ extern const int StaP_NumOfTasks;
   (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code.task = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
 #define TASK_BY_FREQ(name, pri, code, freq, stack) TASK_BY_PERIOD(name, pri, code, HZ_TO_PERIOD(freq), stack)
 #define TASK_BY_DATAGRAM(N, P, C, DG, LINK, ST)	\
-  (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code.handler = C, .typeSpecific.datagram.link = LINK,.typeSpecific.datagram.state = DG, .priority = P, .stackSize = ST }
+  (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code.handler = C, .typeSpecific.datagram.link = LINK, .typeSpecific.datagram.state = DG, .priority = P, .stackSize = ST }
 
 
 void StaP_SchedulerInit( void );

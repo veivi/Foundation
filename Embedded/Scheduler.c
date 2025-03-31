@@ -8,7 +8,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define SERIAL_BLOCKSIZE   (1<<32)
+#define SERIAL_BLOCKSIZE   (1<<5)
 
 TaskHandle_t signalOwner[StaP_NumOfSignals];
 extern int FreeRTOSUp;
@@ -144,7 +144,8 @@ static void serialTaskWrapper( void *pvParameters )
 {
   struct TaskDecl *appTask = (struct TaskDecl*) pvParameters;
   StaP_LinkId_T link = 
-    appTask->type == StaP_Task_Serial ? typeSpecific.serial.link : typeSpecific.datagram.link;
+    appTask->type == StaP_Task_Serial
+    ? appTask->typeSpecific.serial.link : appTask->typeSpecific.datagram.link;
   
   VP_TIME_MICROS_T invokeAgain = 0;
   
@@ -208,13 +209,14 @@ static void serialTaskWrapper( void *pvParameters )
 		<= StaP_LinkTable[link].buffer.watermark);
       } 	
     }
-    
-    if(appTask->type == StaP_Task_Datagram) {
-      uint8_t buffer[SERIAL_BLOCKSIZE];
 
-      datagramRxInputWithHandler(appTask.typeSpecific.datagram.state, 
-          appTask->code.handler,
-          (const uint8_t*) buffer, STAP_LinkGet(link, buffer, sizeof(buffer)));
+    if(appTask->type == StaP_Task_Datagram) {
+      char buffer[SERIAL_BLOCKSIZE];
+
+      datagramRxInputWithHandler(appTask->typeSpecific.datagram.state, 
+				 appTask->code.handler,
+				 (const uint8_t*) buffer,
+				 STAP_LinkGet(link, buffer, sizeof(buffer)));
       
       invokeAgain = 0;
     } else
