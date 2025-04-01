@@ -48,18 +48,26 @@ extern const int StaP_NumOfTasks;
 
 #define HZ_TO_PERIOD(f) (f) > 0 ? ((VP_TIME_MILLIS_T) (1.0e3f/(f))) : VP_TIME_MILLIS_MAX
 
-#define TASK_BY_PERIOD(N, P, C, PER, ST)		\
+#define PERIODIC_TASK(N, P, C, PER, ST)		\
   (struct TaskDecl) { .type = StaP_Task_Period, .name = N, .code.task = C, .typeSpecific.period = PER, .priority = P, .stackSize = ST }
-#define TASK_BY_SIGNAL(N, P, C, SIG, T, ST)	\
+#define SYNCHRONOUS_TASK(N, P, C, SIG, T, ST)	\
   (struct TaskDecl) { .type = StaP_Task_Signal, .name = N, .code.task = C, .typeSpecific.signal.id = SIG, .typeSpecific.signal.timeOut = T, .priority = P, .stackSize = ST }
-#define TASK_BY_SIGNAL_NOTO(N, P, C, SIG, ST) \
+#define SYNCHRONOUS_TASK_NOTO(N, P, C, SIG, ST) \
   TASK_BY_SIGNAL(N, P, C, SIG, VP_TIME_MILLIS_MAX, ST)
-#define TASK_BY_SERIAL(N, P, C, LINK, ST)	\
+#define RECEIVER_TASK(N, P, C, LINK, ST)	\
   (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code.task = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
-#define TASK_BY_FREQ(name, pri, code, freq, stack) TASK_BY_PERIOD(name, pri, code, HZ_TO_PERIOD(freq), stack)
-#define TASK_BY_DATAGRAM(N, P, C, DG, LINK, ST)	\
+#define PERIODIC_TASK_F(name, pri, code, freq, stack) PERIODIC_TASK(name, pri, code, HZ_TO_PERIOD(freq), stack)
+#define DATAGRAM_TASK(N, P, C, DG, LINK, ST)	\
   (struct TaskDecl) { .type = StaP_Task_Datagram, .name = N, .code.handler = C, .typeSpecific.datagram.link = LINK, .typeSpecific.datagram.state = DG, .priority = P, .stackSize = ST }
 
+// Old names for backward compat
+
+#define TASK_BY_PERIOD       PERIODIC_TASK
+#define TASK_BY_FREQ         PERIODIC_TASK_F
+#define TASK_BY_SIGNAL       SYNCHRONOUS_TASK
+#define TASK_BY_SIGNAL_NOTO  SYNCHRONOUS_TASK_NOTO
+#define TASK_BY_SERIAL       RECEIVER_TASK
+#define TASK_BY_DATAGRAM     DATAGRAM_TASK
 
 void StaP_SchedulerInit( void );
 void StaP_SchedulerStart( void );
