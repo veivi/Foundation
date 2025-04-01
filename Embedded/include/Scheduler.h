@@ -53,7 +53,7 @@ extern const int StaP_NumOfTasks;
 #define SYNCHRONOUS_TASK_TO(N, P, C, SIG, TO, ST)	\
   (struct TaskDecl) { .type = StaP_Task_Signal, .name = N, .code.task = C, .typeSpecific.signal.id = SIG, .typeSpecific.signal.timeOut = TO, .priority = P, .stackSize = ST }
 #define SYNCHRONOUS_TASK(N, P, C, SIG, ST) \
-  TASK_BY_SIGNAL(N, P, C, SIG, VP_TIME_MILLIS_MAX, ST)
+  SYNCHRONOUS_TASK_TO(N, P, C, SIG, VP_TIME_MILLIS_MAX, ST)
 #define RECEIVER_TASK(N, P, C, LINK, ST)	\
   (struct TaskDecl) { .type = StaP_Task_Serial, .name = N, .code.task = C, .typeSpecific.serial.link = LINK, .priority = P, .stackSize = ST }
 #define PERIODIC_TASK_F(name, pri, code, freq, stack) PERIODIC_TASK(name, pri, code, HZ_TO_PERIOD(freq), stack)
