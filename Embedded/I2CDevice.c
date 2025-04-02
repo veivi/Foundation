@@ -104,7 +104,7 @@ uint8_t I2CTargetTransfer(I2CTarget_t *device, uint8_t subId, const StaP_Transfe
 
 uint8_t I2CTargetWrite(I2CTarget_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, const uint8_t *value, size_t valueSize)
 {
-  StaP_TransferUnit_t buffer[] = { 
+  const StaP_TransferUnit_t buffer[] = { 
     { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },
     { .data.tx = value, .size = valueSize, .dir = transfer_dir_transmit } };
   uint8_t status = 0xFF;
@@ -121,7 +121,7 @@ uint8_t I2CTargetWrite(I2CTarget_t *device, uint8_t subId, const uint8_t *addr, 
 
 uint8_t I2CTargetRead(I2CTarget_t *device, uint8_t subId, const uint8_t *addr, size_t addrSize, uint8_t *value, size_t valueSize)
 {
-    StaP_TransferUnit_t buffer[] = { 
+    const StaP_TransferUnit_t buffer[] = { 
       { .data.tx = addr, .size = addrSize, .dir = transfer_dir_transmit },
       { .data.rx = value, .size = valueSize, .dir = transfer_dir_receive } };
 
@@ -130,7 +130,7 @@ uint8_t I2CTargetRead(I2CTarget_t *device, uint8_t subId, const uint8_t *addr, s
     criticalBegin();
 	
     if(I2CTargetMaybeOnline(device))
-      status = I2CTargetInvoke(device, subId, STAP_I2CTransfer(device->id + subId, &buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
+      status = I2CTargetInvoke(device, subId, STAP_I2CTransfer(device->id + subId, buffer, sizeof(buffer)/sizeof(StaP_TransferUnit_t)));
 	
     criticalEnd();
 	
@@ -168,7 +168,7 @@ uint8_t I2CTargetWriteUInt8ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t a
 
 uint8_t I2CTargetWriteUInt16ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, uint16_t value)
 {
-   return I2CTargetWrite(device, subId, &addr, sizeof(addr), &value, sizeof(value));
+  return I2CTargetWrite(device, subId, &addr, sizeof(addr), (const uint8_t*) &value, sizeof(value));
 }
 
 uint8_t I2CTargetWriteUInt8ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint8_t value)
@@ -180,7 +180,7 @@ uint8_t I2CTargetWriteUInt8ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t
 uint8_t I2CTargetWriteUInt16ByUInt16(I2CTarget_t *device, uint8_t subId, uint16_t addr, uint16_t value)
 {
   addr = UINT16_HOST_TO_DEVICE(addr);
-  return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), &value, sizeof(value));
+  return I2CTargetWrite(device, subId, (const uint8_t*) &addr, sizeof(addr), (const uint8_t*) &value, sizeof(value));
 }
 
 uint8_t I2CTargetReadUInt8ByUInt8(I2CTarget_t *device, uint8_t subId, uint8_t addr, uint8_t *retCode)
