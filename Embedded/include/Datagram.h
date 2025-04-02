@@ -25,7 +25,6 @@
 #define DG_ALPHALINK       0x80
 #define DG_HOSTLINK        0xC0
 
-
 typedef struct DatagramLink {
   bool initialized, txBusy, rxBusy, alive, overflow;
   uint8_t node;
