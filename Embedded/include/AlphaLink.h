@@ -121,4 +121,13 @@ struct IMUState {
   uint8_t _pad[2];
 };
 
+//
+// SERVO data structures
+//
+
+struct ServoState {
+  float supplyVolt0, supplyVolt1;
+  float servoVolt, servoCurr;
+};
+
 #endif
