@@ -8,7 +8,7 @@ struct StapError {
 
 static struct StapError stapErrorTable[] = {
   { STAP_ERR_HALT, "HALT" },
-  { STAP_ERR_MALLOC_FAIL, "FAIL" },
+  { STAP_ERR_MALLOC_FAIL, "MALLOC_FAIL" },
   { STAP_ERR_MUTEX_CREATE, "MUTEX_CREATE" },
   { STAP_ERR_MUTEX, "MUTEX" },
   { STAP_ERR_ISR_USARTRX_HW, "ISR_USARTRX_HW" },
