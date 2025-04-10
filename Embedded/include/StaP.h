@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include "VPTime.h"
 #include "Buffer.h"
+#include "Support.h"
 
 //
 // SW configuration related stuff
@@ -33,11 +34,9 @@ extern bool failSafeMode;  // Interrupts disabled
 
 uint16_t STAP_CPUIdlePermille(void);
 
-typedef uint32_t StaP_ErrorStatus_T;
 extern StaP_ErrorStatus_T StaP_ErrorState;
 
 #define STAP_Error(e) StaP_ErrorState |= (e) < 32 ? (1UL<<(e)) : (1UL<<31)
-StaP_ErrorStatus_T STAP_Status(bool clear);
 
 //
 // Time source
