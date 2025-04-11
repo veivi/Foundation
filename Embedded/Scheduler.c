@@ -24,6 +24,66 @@ volatile static VP_TIME_MICROS_T idleMicros;
 #define OSKernelNotifyFromISR(t, s, v, y) xTaskNotifyFromISR(t, s, v, y)
 #define OSKernelNotifyWait(a, b, c, t) xTaskNotifyWait(a, b, c, t)
 
+void STAP_Panic(uint8_t reason)
+{
+  STAP_FailSafe;
+  
+  while(1) {
+    STAP_Indicate(reason);
+  }
+}
+
+void STAP_Panicf(uint8_t reason, const char *format, ...)
+{
+  va_list argp;
+  
+  STAP_FailSafe;
+
+  while(1) {
+    va_start(argp, format);
+  
+    consoleNotef("PANIC(%#x) ", reason);
+    consolevPrintf(format, argp);
+    consoleNL();
+    consoleFlush();
+
+    va_end(argp);
+    
+    STAP_Indicate(reason);
+  }
+}
+
+void STAP_MutexObtain(STAP_MutexRef_T m)
+{ 
+  if(xSemaphoreTake(m, portMAX_DELAY) != pdPASS)
+    STAP_Panic(STAP_ERR_MUTEX);
+} 
+
+void STAP_MutexInit(STAP_MutexRef_T *m)
+{ 
+  STAP_FORBID;
+
+  if(!*m && !(*m = STAP_MutexCreate))
+    STAP_Panic(STAP_ERR_MUTEX_CREATE);
+
+  STAP_PERMIT;
+
+  if(xSemaphoreTake(*m, portMAX_DELAY) != pdPASS)
+    STAP_Panic(STAP_ERR_MUTEX);
+} 
+
+void STAP_DelayMillis(VP_TIME_MILLIS_T d)
+{
+  if(d > 0)
+    vTaskDelay(pdMS_TO_TICKS(d));
+}
+
+void STAP_DelayUntil(STAP_NativeTime_T *start, VP_TIME_MILLIS_T d)
+{
+  if(d > 0)
+    vTaskDelayUntil(start, pdMS_TO_TICKS(d));
+}
+
 uint16_t STAP_CPUIdlePermille(void)
 {
   static bool initialized = false;

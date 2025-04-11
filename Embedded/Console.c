@@ -5,7 +5,7 @@
 #include "Datagram.h"
 #include "Buffer.h"
 #include "StringFmt.h"
-
+#include "Scheduler.h"
 
 #define CONSOLE_BUFFER     (1<<5)
 #if STAP_MACHINE_BIG

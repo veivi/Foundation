@@ -6,6 +6,36 @@
 #include "StaP.h"
 
 //
+// Multitasking friendly delay
+//
+
+void STAP_DelayMillis(VP_TIME_MILLIS_T);
+void STAP_DelayUntil(STAP_NativeTime_T*, VP_TIME_MILLIS_T);
+
+//
+// Panic
+//
+
+void STAP_Panic(uint8_t reason);
+void STAP_Panicf(uint8_t reason, const char *format, ...);
+
+//
+// Mutex
+//
+
+//
+// Mutex
+//
+
+typedef SemaphoreHandle_t    STAP_MutexRef_T;
+#define STAP_MutexCreate     xSemaphoreCreateMutex()
+#define STAP_MutexAttempt(m) (xSemaphoreTake(m, 0) == pdPASS)
+#define STAP_MutexRelease(m) xSemaphoreGive(m)
+
+void STAP_MutexObtain(STAP_MutexRef_T m);
+void STAP_MutexInit(STAP_MutexRef_T *m);
+
+//
 // Task structure
 //
 

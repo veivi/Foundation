@@ -3,6 +3,7 @@
 #include "I2CDevice.h"
 #include "Console.h"
 #include "PRNG.h"
+#include "Scheduler.h"
 
 #define BACKOFF_INITIAL    (0.1e3)
 #define BACKOFF_MAX        (20e3)

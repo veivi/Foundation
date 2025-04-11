@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "StaP.h"
+#include "Scheduler.h"
 
 #define NVSTORE_BLOCKSIZE     (1<<6)
 #define NVSTORE_NAME_MAX      ((1<<4) - 1)

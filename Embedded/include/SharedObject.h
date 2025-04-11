@@ -2,6 +2,7 @@
 #define SHAREDOBJECT_H
 
 #include "StaP.h"
+#include "Scheduler.h"
 
 struct SharedObject {
   STAP_MutexRef_T mutex;
