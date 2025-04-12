@@ -1,6 +1,8 @@
 #include "StaP.h"
 #include "Console.h"
 
+static StaP_ErrorStatus_T StaP_ErrorState;
+
 struct StapError {
   uint8_t code;
   const char *text;
@@ -47,6 +49,15 @@ const char *STAP_ErrorDecode(uint8_t code)
 
   return NULL;
 }
+
+void STAP_Error(uint8_t e)
+{
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  StaP_ErrorState |= (e) < 32 ? (1UL<<(e)) : (1UL<<31);
+  STAP_PERMIT_SAFE(c);
+}
+
+// #define STAP_Error(e) StaP_ErrorState |= (e) < 32 ? (1UL<<(e)) : (1UL<<31)
 
 StaP_ErrorStatus_T STAP_Status(void)
 {

@@ -33,18 +33,8 @@ extern bool failSafeMode;  // Interrupts disabled
 #define STAP_FailSafe          { STAP_EnterSystem; failSafeMode = true; }
 
 uint16_t STAP_CPUIdlePermille(void);
-
-extern StaP_ErrorStatus_T StaP_ErrorState;
-
-#define STAP_Error(e) StaP_ErrorState |= (e) < 32 ? (1UL<<(e)) : (1UL<<31)
-
-//
-// Time source
-//
-
-VP_TIME_MICROS_T STAP_TimeMicros(void);
-VP_TIME_SECS_T STAP_TimeSecs(void);
-
+void STAP_DelayMillisFromISR(VP_TIME_MILLIS_T value);
+  
 //
 // Common error code definitions
 //

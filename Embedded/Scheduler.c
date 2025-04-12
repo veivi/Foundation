@@ -24,6 +24,25 @@ volatile static VP_TIME_MICROS_T idleMicros;
 #define OSKernelNotifyFromISR(t, s, v, y) xTaskNotifyFromISR(t, s, v, y)
 #define OSKernelNotifyWait(a, b, c, t) xTaskNotifyWait(a, b, c, t)
 
+void STAP_Indicate(uint8_t code)
+{
+  int i = 0;
+
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  
+  while(i++ < 8) {
+    STAP_LED1_ON;
+    STAP_DelayMillisFromISR((code & 0x80) ? 300 : 100);
+    STAP_LED1_OFF;
+    STAP_DelayMillisFromISR(150);
+    code <<= 1;
+  }
+
+  STAP_DelayMillisFromISR(2000);
+    
+  STAP_PERMIT_SAFE(c);
+}
+
 void STAP_Panic(uint8_t reason)
 {
   STAP_FailSafe;
