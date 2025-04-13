@@ -144,11 +144,7 @@ static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
   if(!failSafeMode && interDelay < link->minInterDelay)
     STAP_DelayMillis(link->minInterDelay - interDelay);
   
-#ifdef DG_IS_SLAVE
-  uint8_t buffer[] = { START(node), link->txSeq++ };
-#else
   uint8_t buffer[] = { START(node), link->txSeq[node]++ };
-#endif
   
   if(link->txBegin)
     (link->txBegin)(link->context);
@@ -261,28 +257,14 @@ static void handleBreak(DgLink_t *link, void (*handler)(void*, uint8_t node, con
     int payload = (int) link->datagramSize - sizeof(crc);
     
     if(crc == crc16(link->crcStateRx, link->rxStore, payload)) {
-#ifdef DG_IS_SLAVE
-        uint8_t rxExpected = ((link->rxSeqLast + 1) & 0xFF);
-#else
-        uint8_t rxExpected = ((link->rxSeqLast[link->rxNode] + 1) & 0xFF);
-#endif
+      uint8_t rxExpected = ((link->rxSeqLast[link->rxNode] + 1) & 0xFF);
       uint8_t rxSeq = link->rxStore[0], lost = rxSeq - rxExpected;
 
-#ifdef DG_IS_SLAVE
-      link->datagramsGood++;
-      link->datagramsLost += lost;
-#else
       link->datagramsGood[link->rxNode]++;
       link->datagramsLost[link->rxNode] += lost;
-#endif
       
       link->datagramBytes += payload;
-
-#ifdef DG_IS_SLAVE
-      link->rxSeqLast = rxSeq;
-#else
       link->rxSeqLast[link->rxNode] = rxSeq;
-#endif      
       link->datagramLastRxMillis = vpTimeMillisApprox;
       link->alive = true;
 
@@ -306,13 +288,8 @@ static void handleBreak(DgLink_t *link, void (*handler)(void*, uint8_t node, con
 
 void datagramRxStatus(DgLink_t *link, uint8_t node, uint16_t *totalBuf, uint16_t *lostBuf)
 {
-#ifdef DG_IS_SLAVE
-    uint16_t lost = link->datagramsLost, total = lost + link->datagramsGood;
-    link->datagramsLost = link->datagramsGood = 0;
-#else
     uint16_t lost = link->datagramsLost[node], total = lost + link->datagramsGood[node];
     link->datagramsLost[node] = link->datagramsGood[node] = 0;
-#endif
         
     if(lostBuf)
         *lostBuf = lost;

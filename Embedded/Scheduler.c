@@ -9,10 +9,11 @@
 #include "task.h"
 
 #define SERIAL_BLOCKSIZE   (1<<5)
+// #define STAP_TEST_TASK     1
 
 TaskHandle_t signalOwner[StaP_NumOfSignals];
 extern int FreeRTOSUp;
-volatile static VP_TIME_MICROS_T idleMicros;
+static volatile VP_TIME_MICROS_T idleMicros;
 
 /*
 #define OSKernelNotify(t, s, v) xTaskNotifyIndexed(t, 1, s, v)
@@ -111,18 +112,18 @@ uint16_t STAP_CPUIdlePermille(void)
   uint16_t result = 0;
 
   if(!initialized) {
-    prev = vpTimeMillis();
+    prev = vpTimeMicros();
     idleMicros = 0;
     initialized = true;
     result = 0;
   } else {
     elapsed = VP_ELAPSED_MICROS(prev);
-    result = 1000*idleMicros / elapsed;
+    result = 1000 * idleMicros / elapsed;
     idleMicros = 0;
     prev += elapsed;
   }
 
-  return result;  
+  return (uint16_t) (result & 0xFFFF);  
 }
 
 void STAP_Signal(StaP_Signal_T sig)
@@ -303,17 +304,48 @@ static void serialTaskWrapper( void *pvParameters )
   }
 }
 
+#ifdef STAP_TEST_TASK
+
+extern uint32_t ticks;
+STAP_JiffyTime_t primitiveJiffies(void);
+
+static void STAP_TestTask(void *params)
+{
+  for(;;) {
+    // consolePrintf("Time = %u", vpTimeMicros());
+    // consolePrintfLn("tick = %u count = %u", (int) ticks, STAP_AVRDX_TIME_TCB.CNT);
+
+    //STAP_JiffyTime_t now = primitiveJiffies();
+    //consolePrintBlob("jiffytime", (void*) &now, sizeof(now));
+    (void) STAP_Status();
+    // consolePrintfLn("millis = %u", vpTimeMillis());
+    consolePrintfLn("micros/100 = %u", (unsigned int) (vpTimeMicros()/100));
+    STAP_DelayMillis(100);
+  } 
+} 
+
+#endif
+
 void StaP_SchedulerInit( void )
 {
   TaskHandle_t handle = NULL;
-  int i = 0;
 
   portDISABLE_INTERRUPTS();
   
   // Clear the signal owner table
   
   memset((void*) signalOwner, 0, sizeof(signalOwner));
-	 
+
+#ifdef STAP_TEST_TASK
+  if(xTaskCreate(STAP_TestTask, "Test Task",
+		 configMINIMAL_STACK_SIZE + (1<<9),
+		 NULL,
+		 tskIDLE_PRIORITY + 1,
+		 &handle) != pdPASS)
+    STAP_Panic(STAP_ERR_TASK_CREATE);
+#else
+  int i = 0;
+  
   while(i < StaP_NumOfTasks) {
 #ifdef STAP_ONLY_TASK_NAME
     if(strcmp(ONLY_TASK_NAME, StaP_TaskList[i].name)) {
@@ -373,6 +405,8 @@ void StaP_SchedulerInit( void )
 
     StaP_TaskList[i++].handle = handle;
   }
+  #endif
+  
 }
 
 void StaP_SchedulerStart( void )
@@ -424,19 +458,18 @@ void StaP_SchedulerReport(void)
 
 void vApplicationIdleHook( void )
 {
-  VP_TIME_MICROS_T prev = 0;
-  VP_TIME_MICROS_T elapsed = 0;
+  static VP_TIME_MICROS_T prev = 0, elapsed = 0;
 
   for(;;) {
     elapsed = VP_ELAPSED_MICROS(prev);
   
     STAP_FORBID;
 
-    if(elapsed < 100)
+    if(elapsed < 150)
       idleMicros += elapsed;
 
     STAP_PERMIT;
-    
+
     prev += elapsed;
   }
 }

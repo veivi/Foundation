@@ -32,7 +32,7 @@ typedef struct DatagramLink {
   uint16_t crcStateTx, crcStateRx;
   uint16_t flagRunLength;
   size_t datagramSize;
-#ifdef DG_IS_SLAVE
+#if 0 // def DG_IS_SLAVE
   uint8_t rxSeqLast;
   uint16_t datagramsGood, datagramsLost;
   uint8_t txSeq;

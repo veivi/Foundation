@@ -49,9 +49,9 @@ typedef struct VPEventTimer {
 void vpEventTimerReset(VPEventTimer_t*);
 bool vpEventTimerElapsed(VPEventTimer_t*);
 
-extern VP_TIME_MICROS_T vpTimeMicrosApprox;
-extern VP_TIME_MILLIS_T vpTimeMillisApprox;
-extern VP_TIME_SECS_T vpTimeSecsApprox;
+extern volatile VP_TIME_MICROS_T vpTimeMicrosApprox;
+extern volatile VP_TIME_MILLIS_T vpTimeMillisApprox;
+extern volatile VP_TIME_SECS_T vpTimeSecsApprox;
 
 void vpTimeAcquire(void);
 VP_TIME_MICROS_T vpTimeMicros(void);

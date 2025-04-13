@@ -1,27 +1,33 @@
 #include "VPTime.h"
 #include "StaP.h"
 
-VP_TIME_MICROS_T vpTimeMicrosApprox;
-VP_TIME_MILLIS_T vpTimeMillisApprox;
-VP_TIME_SECS_T vpTimeSecsApprox;
+// #define VPTIME_MONOTONOUS_CHECK    1
+
+volatile VP_TIME_MICROS_T vpTimeMicrosApprox;
+volatile VP_TIME_MILLIS_T vpTimeMillisApprox;
+volatile VP_TIME_SECS_T vpTimeSecsApprox;
 
 void vpTimeAcquire(void)
 {
-  volatile static STAP_JiffyTime_t prev = 0;
-	
+#if VPTIME_MONOTONOUS_CHECK
+  static volatile STAP_JiffyTime_t prev = 0;
+#endif
+  
   ForbidContext_T c = STAP_FORBID_SAFE;
 
   STAP_JiffyTime_t jiffies = STAP_TimeJiffies();
 
+#if VPTIME_MONOTONOUS_CHECK
   if(jiffies < prev)
     STAP_Error(STAP_ERR_TIME);
 
   prev = jiffies;
+#endif
   
   STAP_PERMIT_SAFE(c);
   
-  vpTimeMicrosApprox = (VP_TIME_MICROS_T) ((STAP_JiffyTime_t) 1000 * jiffies
-					   / STAP_JiffiesPerMilliSec);
+  vpTimeMicrosApprox =
+    (VP_TIME_MICROS_T) ((STAP_JiffyTime_t) 1000 * jiffies / STAP_JiffiesPerMilliSec);
   
   vpTimeMillisApprox = (VP_TIME_MILLIS_T) (vpTimeMicrosApprox>>10);
   vpTimeSecsApprox = (VP_TIME_SECS_T) STAP_TimeSecs();
