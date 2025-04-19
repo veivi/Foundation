@@ -172,6 +172,7 @@ StaP_SignalSet_T STAP_SignalWait(StaP_SignalSet_T mask)
 static void periodTaskWrapper( void *pvParameters )
 {
   struct TaskDecl *appTask = (struct TaskDecl*) pvParameters;
+  TickType_t activation = 0;
   
   if(appTask->type != StaP_Task_Period)
     STAP_Panic(STAP_ERR_TASK_TYPE);
@@ -188,7 +189,7 @@ static void periodTaskWrapper( void *pvParameters )
 	vTaskDelay(portMAX_DELAY);
     else if(appTask->typeSpecific.period)
       // Period is finite
-      vTaskDelay(pdMS_TO_TICKS(appTask->typeSpecific.period));
+      vTaskDelayUntil(&activation, pdMS_TO_TICKS(appTask->typeSpecific.period));
     else
       // Period is zero, we go by what the code returned
       vTaskDelay(pdMS_TO_TICKS(callAgain / 1000));
