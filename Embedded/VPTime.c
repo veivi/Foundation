@@ -1,13 +1,13 @@
 #include "VPTime.h"
 #include "StaP.h"
 
-// #define VPTIME_MONOTONOUS_CHECK    1
+#define VPTIME_MONOTONOUS_CHECK    1
 
-volatile VP_TIME_MICROS_T vpTimeMicrosApprox;
-volatile VP_TIME_MILLIS_T vpTimeMillisApprox;
-volatile VP_TIME_SECS_T vpTimeSecsApprox;
+static volatile VP_TIME_MICROS_T vpTimeMicrosValue;
+static volatile VP_TIME_MILLIS_T vpTimeMillisValue;
+static volatile VP_TIME_SECS_T vpTimeSecsValue;
 
-void vpTimeAcquire(void)
+static void vpTimeAcquire(void)
 {
 #if VPTIME_MONOTONOUS_CHECK
   static volatile STAP_JiffyTime_t prev = 0;
@@ -24,39 +24,58 @@ void vpTimeAcquire(void)
   prev = jiffies;
 #endif
   
-  STAP_PERMIT_SAFE(c);
-  
-  vpTimeMicrosApprox =
+  vpTimeMicrosValue =
     (VP_TIME_MICROS_T) ((STAP_JiffyTime_t) 1000 * jiffies / STAP_JiffiesPerMilliSec);
   
-  vpTimeMillisApprox = (VP_TIME_MILLIS_T) (vpTimeMicrosApprox>>10);
-  vpTimeSecsApprox = (VP_TIME_SECS_T) STAP_TimeSecs();
+  vpTimeMillisValue = (VP_TIME_MILLIS_T) (vpTimeMicrosValue>>10);
+  vpTimeSecsValue = (VP_TIME_SECS_T) STAP_TimeSecs();
+
+  STAP_PERMIT_SAFE(c);
+}
+
+VP_TIME_MICROS_T vpApproxMicros(void)
+{
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  VP_TIME_MICROS_T now = vpTimeMicrosValue;
+  STAP_PERMIT_SAFE(c);
+  
+  return now;
+}
+
+VP_TIME_MILLIS_T vpApproxMillis(void)
+{
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  VP_TIME_MILLIS_T now = vpTimeMillisValue;
+  STAP_PERMIT_SAFE(c);
+  
+  return now;
 }
 
 VP_TIME_MICROS_T vpTimeMicros(void)
 {
   vpTimeAcquire();
-  return vpTimeMicrosApprox;
+  return vpApproxMicros();
 }
 
 VP_TIME_MILLIS_T vpTimeMillis(void)
 {
   vpTimeAcquire();
-  return vpTimeMillisApprox;  
+  return vpApproxMillis();  
 }
 
-void vpDelayMillis(VP_TIME_MILLIS_T x)
+VP_TIME_SECS_T vpTimeSecs(void)
 {
-  VP_TIME_MILLIS_T start = vpTimeMillis();
+  ForbidContext_T c = STAP_FORBID_SAFE;
+  VP_TIME_SECS_T now = vpTimeSecsValue;
+  STAP_PERMIT_SAFE(c);
   
-  while(VP_ELAPSED_MILLIS(start) < x)
-    vpTimeAcquire();
+  return now;
 }
 
 bool vpPeriodicEvent(VPPeriodicTimer_t *timer)
 {
   if(VP_ELAPSED_MILLIS(timer->previousEvent) >= timer->period) {
-    timer->previousEvent = vpTimeMillisApprox;
+    timer->previousEvent = vpTimeMillisValue;
     return true;
   } else
     return false;
@@ -64,7 +83,7 @@ bool vpPeriodicEvent(VPPeriodicTimer_t *timer)
 
 void vpEventTimerReset(VPEventTimer_t *timer)
 {
-  timer->startTime = vpTimeMillisApprox;
+  timer->startTime = vpTimeMillisValue;
 }
 
 bool vpEventTimerElapsed(VPEventTimer_t *timer)
@@ -77,11 +96,11 @@ static bool vpInertiaOnOff(VPInertiaTimer_t *timer, bool state, bool force)
   bool status = false;
 
   if(*timer->state == state)
-    timer->lastStable = vpTimeMillisApprox;
+    timer->lastStable = vpTimeMillisValue;
 
   else if(VP_ELAPSED_MILLIS(timer->lastStable) >= timer->inertia || force) {
     *timer->state = state;
-    timer->lastStable = vpTimeMillisApprox;
+    timer->lastStable = vpTimeMillisValue;
     status = true;
   }
 

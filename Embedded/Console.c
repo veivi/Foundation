@@ -7,11 +7,11 @@
 #include "StringFmt.h"
 #include "Scheduler.h"
 
-#define CONSOLE_BUFFER     (1<<5)
+#define CONSOLE_BUFFER     (1<<6)
 #if STAP_MACHINE_BIG
 #define PRINT_FMT_BUFFER   (1<<8)
 #else
-#define PRINT_FMT_BUFFER   (1<<6)
+#define PRINT_FMT_BUFFER   (1<<7)
 #endif
 
 DgLink_t *consoleLink;

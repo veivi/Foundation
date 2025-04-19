@@ -265,7 +265,7 @@ static void handleBreak(DgLink_t *link, void (*handler)(void*, uint8_t node, con
       
       link->datagramBytes += payload;
       link->rxSeqLast[link->rxNode] = rxSeq;
-      link->datagramLastRxMillis = vpTimeMillisApprox;
+      link->datagramLastRxMillis = vpApproxMillis();
       link->alive = true;
 
       if(handler)

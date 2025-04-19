@@ -15,7 +15,7 @@ typedef uint32_t VP_TIME_SECS_T;
 
 #define VP_ELAPSED_MILLIS(start) (VP_TIME_MILLIS_T) ((vpTimeMillis() - start) & 0xFFFF)
 #define VP_ELAPSED_MICROS(start) (VP_TIME_MICROS_T) ((vpTimeMicros() - start) & 0xFFFFFFFFUL)
-#define VP_ELAPSED_SECS(start) (VP_TIME_SECS_T) ((vpTimeSecsApprox - start) & 0xFFFFFFFFUL)
+#define VP_ELAPSED_SECS(start) (VP_TIME_SECS_T) ((vpTimeSecs() - start) & 0xFFFFFFFFUL)
 
 typedef struct VPInertiaTimer {
   bool *state;
@@ -49,13 +49,12 @@ typedef struct VPEventTimer {
 void vpEventTimerReset(VPEventTimer_t*);
 bool vpEventTimerElapsed(VPEventTimer_t*);
 
-extern volatile VP_TIME_MICROS_T vpTimeMicrosApprox;
-extern volatile VP_TIME_MILLIS_T vpTimeMillisApprox;
-extern volatile VP_TIME_SECS_T vpTimeSecsApprox;
-
-void vpTimeAcquire(void);
 VP_TIME_MICROS_T vpTimeMicros(void);
 VP_TIME_MILLIS_T vpTimeMillis(void);
+VP_TIME_SECS_T vpTimeSecs(void);
+
+VP_TIME_MICROS_T vpApproxMicros(void);
+VP_TIME_MILLIS_T vpApproxMillis(void);
 
 void vpDelayMillis(VP_TIME_MILLIS_T);
 

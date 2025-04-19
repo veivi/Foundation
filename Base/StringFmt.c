@@ -226,6 +226,13 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
       len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       break;
 
+    case 'D':
+      if(p < 0)
+	p = 0;
+      fieldLen = bufferPrintL(field, PRINT_FMT_FIELD, (long) va_arg(args, long), 10, p);
+      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
+      break;
+
     case 'x':
     case 'X':
       if(p < 0)
@@ -233,9 +240,9 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
       if(print0x) {
 	field[0] = '0';
 	field[1] = 'x';
-	fieldLen = 2 + bufferPrintUL(&field[2], PRINT_FMT_FIELD-2, (unsigned long) va_arg(args, int), 16, p);
+	fieldLen = 2 + bufferPrintUL(&field[2], PRINT_FMT_FIELD-2, (unsigned long) va_arg(args, unsigned int), 16, p);
       } else
-	fieldLen = bufferPrintUL(field, PRINT_FMT_FIELD, (unsigned long) va_arg(args, int), 16, p);
+	fieldLen = bufferPrintUL(field, PRINT_FMT_FIELD, (unsigned long) va_arg(args, unsigned int), 16, p);
 	
       len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       break;
@@ -244,6 +251,13 @@ int vStringFmt(char *b, int size, const char *f, va_list args)
       if(p < 0)
 	p = 0;
       fieldLen = bufferPrintUL(field, PRINT_FMT_FIELD, (unsigned long) va_arg(args, unsigned int), 10, p);
+      len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
+      break;
+
+    case 'U':
+      if(p < 0)
+	p = 0;
+      fieldLen = bufferPrintUL(field, PRINT_FMT_FIELD, (unsigned long) va_arg(args, unsigned long), 10, p);
       len += stringAppendPadded(&b[len], size - len, w, field, fieldLen, padChar, leftJust);
       break;
 

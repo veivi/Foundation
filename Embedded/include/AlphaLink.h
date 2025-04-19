@@ -126,6 +126,7 @@ struct IMUState {
 //
 
 struct ServoState {
+  float controlRate, jitter;
   float supplyVolt0, supplyVolt1;
   float servoVolt, servoCurr;
 };
