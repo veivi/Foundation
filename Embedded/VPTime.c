@@ -1,38 +1,35 @@
 #include "VPTime.h"
 #include "StaP.h"
 
-#define VPTIME_MONOTONOUS_CHECK    1
-
 static volatile VP_TIME_MICROS_T vpTimeMicrosValue;
 static volatile VP_TIME_MILLIS_T vpTimeMillisValue;
 static volatile VP_TIME_SECS_T vpTimeSecsValue;
 
 static void vpTimeAcquire(void)
 {
-#if VPTIME_MONOTONOUS_CHECK
-  static volatile STAP_JiffyTime_t prev = 0;
-#endif
-  
+  volatile static VP_TIME_JIFFIES_T prev = 0;
   ForbidContext_T c = STAP_FORBID_SAFE;
+  VP_TIME_JIFFIES_T jiffies = STAP_TimeJiffies();
 
-  STAP_JiffyTime_t jiffies = STAP_TimeJiffies();
+  if(jiffies > prev) {
+    // Only update if monotonous
+    
+    vpTimeMicrosValue = STAP_JiffiesToMicros(jiffies);
+    vpTimeMillisValue = vpTimeMicrosValue >> 10;  
+    vpTimeSecsValue = (VP_TIME_SECS_T) STAP_TimeSecs();
 
-#if VPTIME_MONOTONOUS_CHECK
-  if(jiffies < prev)
+    prev = jiffies;
+  } else
     STAP_Error(STAP_ERR_TIME);
-
-  prev = jiffies;
-#endif
   
-  vpTimeMicrosValue =
-    (VP_TIME_MICROS_T) ((STAP_JiffyTime_t) 1000 * jiffies / STAP_JiffiesPerMilliSec);
-  
-  vpTimeMillisValue = (VP_TIME_MILLIS_T) (vpTimeMicrosValue>>10);
-  vpTimeSecsValue = (VP_TIME_SECS_T) STAP_TimeSecs();
-
   STAP_PERMIT_SAFE(c);
 }
 
+VP_TIME_MICROS_T vpApproxMicrosFromISR(void)
+{
+  return vpTimeMicrosValue;
+}
+  
 VP_TIME_MICROS_T vpApproxMicros(void)
 {
   ForbidContext_T c = STAP_FORBID_SAFE;

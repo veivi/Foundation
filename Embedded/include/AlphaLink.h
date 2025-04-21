@@ -7,7 +7,7 @@
 
 // AlphaLink bitrate
 
-#define AL_BITRATE           100000UL
+#define AL_BITRATE           133000UL
 
 // AlphaLink node type declarations, the LSB is used for ID
 
@@ -15,7 +15,7 @@
 #define ALN_ALPHA            (1<<1)
 #define ALN_PITOT            (2<<1)
 #define ALN_BAROMETER        (3<<1)
-#define ALN_MAGNETOMETER     (4<<1)
+#define ALN_COMPASS          (4<<1)
 #define ALN_GNSS             (5<<1)
 #define ALN_RANGEFINDER      (6<<1)
 #define ALN_FORCE            (7<<1)
@@ -35,6 +35,7 @@
 #define DG_ALPHA_CONFIGURE        (DG_ALPHALINK+4)
 #define DG_ALPHA_CALIBRATE        (DG_ALPHALINK+5)
 #define DG_ALPHA_RESTORE          (DG_ALPHALINK+6)
+#define DG_ALPHA_DEBUG            (DG_ALPHALINK+7)
 
 // Broadcast message types
 

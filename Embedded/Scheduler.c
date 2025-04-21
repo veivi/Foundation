@@ -106,24 +106,11 @@ void STAP_DelayUntil(STAP_NativeTime_T *start, VP_TIME_MILLIS_T d)
 
 uint16_t STAP_CPUIdlePermille(void)
 {
-  static bool initialized = false;
-  static VP_TIME_MICROS_T prev = 0;
-  VP_TIME_MICROS_T elapsed = 0;
-  uint16_t result = 0;
-
-  if(!initialized) {
-    prev = vpTimeMicros();
-    idleMicros = 0;
-    initialized = true;
-    result = 0;
-  } else {
-    elapsed = VP_ELAPSED_MICROS(prev);
-    result = 1000 * idleMicros / elapsed;
-    idleMicros = 0;
-    prev += elapsed;
-  }
-
-  return (uint16_t) (result & 0xFFFF);  
+#if INCLUDE_ulTaskGetIdleRunTimePercent
+  return ulTaskGetIdleRunTimePercent()*10;
+#else
+  return 0xFA17;
+#endif
 }
 
 void STAP_Signal(StaP_Signal_T sig)
@@ -407,24 +394,28 @@ void StaP_SchedulerInit( void )
     StaP_TaskList[i++].handle = handle;
   }
   #endif
-  
 }
 
 void StaP_SchedulerStart( void )
 {
   FreeRTOSUp = true;
   vTaskStartScheduler();
+
+  // Should never get here
+
+  STAP_Panicf(STAP_ERR_FELLTHROUGH, "vTaskStartScheduler() failed (free mem %d)",
+	      STAP_MemoryFree());
 }
 
 void StaP_SchedulerReport(void)
 {
-  static VP_TIME_MICROS_T prev;
-  VP_TIME_MICROS_T delta = VP_ELAPSED_MICROS(prev);
+  static VP_TIME_JIFFIES_T prev;
+  VP_TIME_JIFFIES_T delta = VP_ELAPSED_JIFFIES(prev);
   int i = 0;
 
   consolePrint("\033[2J\033[0;0H");
-  consolePrintfLn("OS STATUS (CPU load %.1f%%) %u bytes free",
-		  (1000 - STAP_CPUIdlePermille()) / 10.0f,
+  consolePrintfLn("OS STATUS (CPU load %d%%) %u bytes free",
+		  (1000 - STAP_CPUIdlePermille())/10,
 		  STAP_MemoryFree());
   consolePrintLn("Task           Stack   CPU");
   consolePrintLn("---------------------------");
@@ -433,18 +424,16 @@ void StaP_SchedulerReport(void)
     if(StaP_TaskList[i].handle) {
       configSTACK_DEPTH_TYPE watermark
 	= uxTaskGetStackHighWaterMark(StaP_TaskList[i].handle);
-      VP_TIME_MICROS_T runtime
-#if ulTaskGetRunTimeCounter
-	= ulTaskGetRunTimeCounter(StaP_TaskList[i].handle);
+      VP_TIME_JIFFIES_T runtime =
+#if INCLUDE_ulTaskGetRunTimeCounter
+        ulTaskGetRunTimeCounter(StaP_TaskList[i].handle);
 #else
-      = 0;
+        0;
 #endif
-      
       consolePrintfLn("%s %t%u %t %.1f%%",
 		      StaP_TaskList[i].name,
 		      15, watermark,
-		      22, 100.0f * (float) (runtime - StaP_TaskList[i].runTime)
-		      / delta);
+		      22, 100.0f * (float) (runtime - StaP_TaskList[i].runTime) / delta);
 
       StaP_TaskList[i].runTime = runtime;
     }
@@ -453,26 +442,6 @@ void StaP_SchedulerReport(void)
   }
 
   prev += delta;
-}
-
-// Idle hook
-
-void vApplicationIdleHook( void )
-{
-  static VP_TIME_MICROS_T prev = 0, elapsed = 0;
-
-  for(;;) {
-    elapsed = VP_ELAPSED_MICROS(prev);
-  
-    STAP_FORBID;
-
-    if(elapsed < 150)
-      idleMicros += elapsed;
-
-    STAP_PERMIT;
-
-    prev += elapsed;
-  }
 }
 
 /* vApplicationStackOverflowHook is called when a stack overflow occurs.
