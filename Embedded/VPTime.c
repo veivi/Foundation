@@ -20,7 +20,7 @@ static void vpTimeAcquire(void)
 
     prev = jiffies;
   } else
-    STAP_Error(STAP_ERR_TIME);
+    ;//STAP_Error(STAP_ERR_TIME);
   
   STAP_PERMIT_SAFE(c);
 }

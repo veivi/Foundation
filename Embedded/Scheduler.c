@@ -294,20 +294,12 @@ static void serialTaskWrapper( void *pvParameters )
 
 #ifdef STAP_TEST_TASK
 
-extern uint32_t ticks;
-STAP_JiffyTime_t primitiveJiffies(void);
-
 static void STAP_TestTask(void *params)
 {
   for(;;) {
-    // consolePrintf("Time = %u", vpTimeMicros());
-    // consolePrintfLn("tick = %u count = %u", (int) ticks, STAP_AVRDX_TIME_TCB.CNT);
-
-    //STAP_JiffyTime_t now = primitiveJiffies();
-    //consolePrintBlob("jiffytime", (void*) &now, sizeof(now));
     (void) STAP_Status();
-    // consolePrintfLn("millis = %u", vpTimeMillis());
-    consolePrintfLn("micros/100 = %u", (unsigned int) (vpTimeMicros()/100));
+
+    consolePrintfLn("micros = %U", vpTimeMicros());
     STAP_DelayMillis(100);
   } 
 } 
