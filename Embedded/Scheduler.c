@@ -15,15 +15,15 @@ TaskHandle_t signalOwner[StaP_NumOfSignals];
 extern int FreeRTOSUp;
 static volatile VP_TIME_MICROS_T idleMicros;
 
-/*
-#define OSKernelNotify(t, s, v) xTaskNotifyIndexed(t, 1, s, v)
-#define OSKernelNotifyFromISR(t, s, v, y) xTaskNotifyIndexedFromISR(t, 1, s, v, y)
-#define OSKernelNotifyWait(a, b, c, t) xTaskNotifyWaitIndexed(1, a, b, c, t)
-*/
-
-#define OSKernelNotify(t, s, v) xTaskNotify(t, s, v)
-#define OSKernelNotifyFromISR(t, s, v, y) xTaskNotifyFromISR(t, s, v, y)
-#define OSKernelNotifyWait(a, b, c, t) xTaskNotifyWait(a, b, c, t)
+#if configTASK_NOTIFICATION_ARRAY_ENTRIES > 1
+#define OSKernelNotify(t, s, v)             xTaskNotifyIndexed(t, 1, s, v)
+#define OSKernelNotifyFromISR(t, s, v, y)   xTaskNotifyIndexedFromISR(t, 1, s, v, y)
+#define OSKernelNotifyWait(a, b, c, t)      xTaskNotifyWaitIndexed(1, a, b, c, t)
+#else
+#define OSKernelNotify(t, s, v)             xTaskNotify(t, s, v)
+#define OSKernelNotifyFromISR(t, s, v, y)   xTaskNotifyFromISR(t, s, v, y)
+#define OSKernelNotifyWait(a, b, c, t)      xTaskNotifyWait(a, b, c, t)
+#endif
 
 void STAP_Indicate(uint8_t code)
 {
