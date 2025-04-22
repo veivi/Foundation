@@ -401,8 +401,8 @@ void StaP_SchedulerStart( void )
 
 void StaP_SchedulerReport(void)
 {
-  static VP_TIME_JIFFIES_T prev;
-  VP_TIME_JIFFIES_T delta = VP_ELAPSED_JIFFIES(prev);
+  static VP_TIME_MICROS_T prev;
+  VP_TIME_MICROS_T delta = VP_ELAPSED_MICROS(prev);
   int i = 0;
 
   consolePrint("\033[2J\033[0;0H");
@@ -416,9 +416,9 @@ void StaP_SchedulerReport(void)
     if(StaP_TaskList[i].handle) {
       configSTACK_DEPTH_TYPE watermark
 	= uxTaskGetStackHighWaterMark(StaP_TaskList[i].handle);
-      VP_TIME_JIFFIES_T runtime =
+      VP_TIME_MICROS_T runtime =
 #if INCLUDE_ulTaskGetRunTimeCounter
-        ulTaskGetRunTimeCounter(StaP_TaskList[i].handle);
+        STAP_JiffiesToMicros(ulTaskGetRunTimeCounter(StaP_TaskList[i].handle));
 #else
         0;
 #endif
