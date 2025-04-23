@@ -41,7 +41,7 @@ struct TelemetryConfig {
   float maxAlpha, shakerAlpha, threshAlpha;
   float trimIAS, stallIAS, margin;
   float fuelFlow;
-  uint8_t fuel, flap, gear, load, latency;
+  int8_t fuel, flap, gear, load, latency;
   char name[TELEM_NAME_LEN+1];
 };
 
