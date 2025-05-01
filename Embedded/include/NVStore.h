@@ -18,9 +18,9 @@ typedef enum { NVStore_Status_OK = 0,
 	       NVStore_Status_WriteFailed } NVStore_Status_t;
 
 typedef struct {
-  uint8_t (*deviceRead)(uint32_t addr, uint8_t *data, size_t size);
-  uint8_t (*deviceWrite)(uint32_t addr, const uint8_t *data, size_t size);
-  uint8_t (*deviceDrain)(void);
+  bool (*deviceRead)(uint32_t addr, uint8_t *data, size_t size);
+  bool (*deviceWrite)(uint32_t addr, const uint8_t *data, size_t size);
+  bool (*deviceDrain)(void);
 } NVStoreDevice_t;
 
 typedef struct {

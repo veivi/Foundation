@@ -166,12 +166,12 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
         	  continue;
           }
 
-          consoleNotefLn("NVStore %s ReadBlob(%s) delta = %d, size = %d, crc = %#X",
-        		  p->name, blob.name, delta, blob.size, blob.crc);
+          consoleNotefLn("NVStore %s ReadBlob(%s) delta = %#x, size = %d, crc = %#X",
+			 p->name, blob.name, delta, blob.size, (uint32_t) blob.crc);
 			 
           if(blob.size != size) {
         	  consoleNotefLn("NVStore %s ReadBlob(%s) size mismatch (%d vs %d)",
-				 p->name, blob.name, blob.size, size);
+				 p->name, blob.name, blob.size, (uint16_t) size);
         	  status = NVStore_Status_SizeMismatch;
           } else {
 	  if(size > NVSTORE_BLOB_PAYLOAD) {
@@ -217,7 +217,7 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 		status = NVStore_Status_OK;
 	      }  else {
 		consoleNotefLn("NVStore %s ReadBlob(%s) CRC fail (%#X vs %#X)",
-			       p->name, blob.name, crc, blob.crc);
+			       p->name, blob.name, (uint32_t) crc, (uint32_t) blob.crc);
 		status = NVStore_Status_CRCFail;
 	      }
 	    }
@@ -331,6 +331,8 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
 
   STAP_MutexRelease(p->mutex);
 
+  STAP_DEBUG(0, "BLOB");
+  
   return status;
 }
 

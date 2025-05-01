@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include "VPTime.h"
 #include "StaP.h"
+#include "AlphaLink.h"
 
 #define DG_TRANSMIT_MAX  (1<<9)
 #define DG_MAX_NODES     0x40
@@ -32,15 +33,9 @@ typedef struct DatagramLink {
   uint16_t crcStateTx, crcStateRx;
   uint16_t flagRunLength;
   size_t datagramSize;
-#if 0 // def DG_IS_SLAVE
-  uint8_t rxSeqLast;
-  uint16_t datagramsGood, datagramsLost;
-  uint8_t txSeq;
-#else
   uint8_t rxSeqLast[DG_MAX_NODES];
   uint16_t datagramsGood[DG_MAX_NODES], datagramsLost[DG_MAX_NODES];
   uint8_t txSeq[DG_MAX_NODES];
-#endif
   uint16_t datagramBytes, datagramBytesRaw;
   VP_TIME_MILLIS_T datagramLastTxMillis, datagramLastRxMillis;
   uint8_t *rxStore;

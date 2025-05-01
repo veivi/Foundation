@@ -133,6 +133,5 @@ extern StaP_LinkRecord_T StaP_LinkTable[];
 #include "StaP_TARGET.h"
 #endif
 
-
 #endif
 

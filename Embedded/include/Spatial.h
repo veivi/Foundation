@@ -43,12 +43,12 @@ typedef enum { orient_0 = 0, orient_1, orient_2, orient_3, orient_4, orient_5, o
 // Orientation to local frame
 
 #define ORIENTATION_0(v)   {  v[0],  v[1],  v[2] }
-#define ORIENTATION_1(v)   { -v[1],  v[0],  v[2] }
+#define ORIENTATION_1(v)   { v[1],  -v[0],  v[2] }
 #define ORIENTATION_2(v)   { -v[0], -v[1],  v[2] }
-#define ORIENTATION_3(v)   {  v[1], -v[0],  v[2] }
-#define ORIENTATION_4(v)   { -v[0],  v[1], -v[2] }
+#define ORIENTATION_3(v)   { -v[1],  v[0],  v[2] }
+#define ORIENTATION_4(v)   { v[0],  -v[1], -v[2] }
 #define ORIENTATION_5(v)   { -v[1], -v[0], -v[2] }
-#define ORIENTATION_6(v)   {  v[0], -v[1], -v[2] }
+#define ORIENTATION_6(v)   { -v[0],  v[1], -v[2] }
 #define ORIENTATION_7(v)   {  v[1],  v[0], -v[2] }
 
 // Vector arithmetic
