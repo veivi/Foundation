@@ -312,21 +312,16 @@ void datagramRxInputWithHandler(DgLink_t *link, void (*handler)(void*, uint8_t n
       if(link->overflow) {
 	// Ignore the rest
       } else if(link->rxBusy) {
-#ifdef DG_IS_SLAVE
-          if(link->rxNode == link->node || link->rxNode == ALN_BROADCAST) {
-#endif
-	if(link->flagCnt) {
-	  //printf("FLAGS %d ", c);
-	  while(c-- != FLAG)
-	    storeByte(link, FLAG);
-    } else {
-        //printf("+%x ", c);
-        storeByte(link, c);
-    }
-#ifdef DG_IS_SLAVE
+          if(link->node == 0 || link->rxNode == link->node || link->rxNode == ALN_BROADCAST) {
+	          if(link->flagCnt) {
+	            while(c-- != FLAG)
+	              storeByte(link, FLAG);
+            } else {
+             storeByte(link, c);
+            }
           }
-#endif
-	link->datagramBytesRaw++;
+	      
+	      link->datagramBytesRaw++;
       } else {
 	//printf("S %x ", c);
 	link->rxNode = (~FLAG) - c;
@@ -341,11 +336,7 @@ void datagramRxInputWithHandler(DgLink_t *link, void (*handler)(void*, uint8_t n
     
       link->flagCnt = 0;
     } else if(++link->flagCnt > 1 && link->rxBusy) {
-	//printf("BRK ");
-	
-#ifdef DG_IS_SLAVE
-      if(link->rxNode == link->node || link->rxNode == ALN_BROADCAST)
-#endif
+      if(link->node == 0 || link->rxNode == link->node || link->rxNode == ALN_BROADCAST)
           handleBreak(link, handler);
       link->rxBusy = link->overflow = false;
     }
