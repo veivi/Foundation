@@ -121,8 +121,10 @@ void datagramTxOut(DgLink_t *link, const uint8_t *data, size_t l)
     }
   }
 
-  if(runLength > 0)
+  if(runLength > 0) {
     (link->txOut)(link->context, runStart, runLength);
+    link->totalTxBytes += runLength;
+  }
 }
 
 static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
@@ -163,6 +165,7 @@ static bool datagramTxStartGeneric(DgLink_t *link, uint8_t node, bool canblock)
   
   datagramTxOut(link, buffer, sizeof(buffer));
   link->txBusy = true;
+  link->totalTxBytes += sizeof(buffer);
 
   return true;
 }
@@ -227,6 +230,7 @@ void datagramTxEnd(DgLink_t *link)
     link->datagramLastTxMillis = vpTimeMillis();
   
   link->txBusy = false;
+  link->totalTxDatagrams++;
   
 #ifdef STAP_MutexCreate
   if(!failSafeMode)
@@ -263,7 +267,9 @@ static void handleBreak(DgLink_t *link, void (*handler)(void*, uint8_t node, con
       link->datagramsGood[link->rxNode]++;
       link->datagramsLost[link->rxNode] += lost;
       
-      link->datagramBytes += payload;
+      link->totalRxBytes += payload;
+      link->totalRxDatagrams++;
+      
       link->rxSeqLast[link->rxNode] = rxSeq;
       link->datagramLastRxMillis = vpApproxMillis();
       link->alive = true;
@@ -321,7 +327,7 @@ void datagramRxInputWithHandler(DgLink_t *link, void (*handler)(void*, uint8_t n
             }
           }
 	      
-	      link->datagramBytesRaw++;
+	      link->totalRxBytesRaw++;
       } else {
 	//printf("S %x ", c);
 	link->rxNode = (~FLAG) - c;
