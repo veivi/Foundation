@@ -70,6 +70,8 @@ static void flagRunEnd(DgLink_t *link)
       ? 0xFF : link->flagRunLength;
     const uint8_t buffer[] = { FLAG, FLAG + (uint8_t) piece };
     (link->txOut)(link->context, buffer, sizeof(buffer));
+    link->totalTxBytesRaw += sizeof(buffer);
+    link->totalTxBytes += piece;
     link->flagRunLength -= piece;
   }
 }
@@ -104,6 +106,8 @@ void datagramTxOut(DgLink_t *link, const uint8_t *data, size_t l)
     if(data[i] == FLAG) {
       if(runLength > 0) {
 	(link->txOut)(link->context, runStart, runLength);
+	link->totalTxBytesRaw += runLength;
+	link->totalTxBytes += runLength;
 	runLength = 0;
       }
 
@@ -123,6 +127,7 @@ void datagramTxOut(DgLink_t *link, const uint8_t *data, size_t l)
 
   if(runLength > 0) {
     (link->txOut)(link->context, runStart, runLength);
+    link->totalTxBytesRaw += runLength;
     link->totalTxBytes += runLength;
   }
 }
@@ -305,10 +310,11 @@ void datagramRxStatus(DgLink_t *link, uint8_t node, uint16_t *totalBuf, uint16_t
 
 void datagramLinkStatus(DgLink_t *link, uint16_t *totalRxBytesBuf, uint16_t *totalTxBytesBuf, uint16_t *totalRxDgBuf, uint16_t *totalTxDgBuf)
 {
-  uint16_t totalRx = link->totalRxBytes, totalTx = link->totalTxBytes, totalRxDg = link->totalRxDatagrams, totalTxDg = link->totalTxDatagrams;
+  uint16_t totalRx = link->totalRxBytesRaw, totalTx = link->totalTxBytesRaw,
+    totalRxDg = link->totalRxDatagrams, totalTxDg = link->totalTxDatagrams;
 
-  link->totalRxBytes = link->totalTxBytes = link->totalRxDatagrams = link->totalTxDatagrams
-    = 0;
+  link->totalRxBytesRaw = link->totalTxBytesRaw
+    = link->totalRxDatagrams = link->totalTxDatagrams = 0;
 
   if(totalRxBytesBuf)
     *totalRxBytesBuf = totalRx;
