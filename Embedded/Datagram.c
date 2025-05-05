@@ -303,6 +303,26 @@ void datagramRxStatus(DgLink_t *link, uint8_t node, uint16_t *totalBuf, uint16_t
         *totalBuf = total;
 }
 
+void datagramLinkStatus(DgLink_t *link, uint16_t *totalRxBytesBuf, uint16_t *totalTxBytesBuf, uint16_t *totalRxDgBuf, uint16_t *totalTxDgBuf)
+{
+  uint16_t totalRx = link->totalRxBytes, totalTx = link->totalTxBytes, totalRxDg = link->totalRxDatagrams, totalTxDg = link->totalTxDatagrams;
+
+  link->totalRxBytes = link->totalTxBytes = link->totalRxDatagrams = link->totalTxDatagrams
+    = 0;
+
+  if(totalRxBytesBuf)
+    *totalRxBytesBuf = totalRx;
+  
+  if(totalTxBytesBuf)
+    *totalTxBytesBuf = totalTx;
+  
+  if(totalRxDgBuf)
+    *totalRxDgBuf = totalRxDg;
+  
+  if(totalTxDgBuf)
+    *totalTxDgBuf = totalTxDg;
+}
+  
 void datagramRxInputWithHandler(DgLink_t *link, void (*handler)(void*, uint8_t node, const uint8_t *data, size_t size), const uint8_t *buffer, size_t size)
 {
   if(!link->initialized)
