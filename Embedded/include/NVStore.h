@@ -6,7 +6,6 @@
 #include "StaP.h"
 #include "Scheduler.h"
 
-#define NVSTORE_BLOCKSIZE     (1<<6)
 #define NVSTORE_NAME_MAX      ((1<<4) - 1)
 
 typedef enum { NVStore_Status_OK = 0,
@@ -27,6 +26,8 @@ typedef struct {
   const char *name;
   const NVStoreDevice_t *device;
   uint32_t start, size;
+  size_t pageSize;
+  uint8_t *buffer;
   uint32_t index, count;
   bool running;
   STAP_MutexRef_T mutex;
