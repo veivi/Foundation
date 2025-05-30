@@ -26,16 +26,16 @@ typedef struct {
   char name[NVSTORE_NAME_MAX+1];
 } NVBlobHeader_t;
 
-#define NVSTORE_BLOCK_PAYLOAD(p) ((p)->pageSize - sizeof(NVBlockHeader_t))
+#define NVSTORE_BLOCK_PAYLOAD(p) ((p)->device->pageSize - sizeof(NVBlockHeader_t))
 #define NVSTORE_BLOB_PAYLOAD(p) (NVSTORE_BLOCK_PAYLOAD(p) - sizeof(NVBlobHeader_t))
-#define NVSTORE_ADDR(p, i) ((p->start + (i)) * (p)->pageSize)
+#define NVSTORE_ADDR(p, i) ((p->start + (i)) * (p)->device->pageSize)
 
 static bool readBlock(NVStorePartition_t *p, uint32_t index, uint8_t *buffer)
 {
   bool status = false;
   
   if(index < p->size) {
-    if((*p->device->deviceRead)(NVSTORE_ADDR(p, index), buffer, p->pageSize))
+    if((*p->device->deviceRead)(NVSTORE_ADDR(p, index), buffer, p->device->pageSize))
       status = true;
     else
       consoleNotefLn("NVStore %s readBlock(%#x) read fail", p->name, index);
@@ -59,7 +59,7 @@ static bool validateBlock(const uint8_t *buffer, size_t pageSize, NVBlockHeader_
   
 static bool startup(NVStorePartition_t *p)
 {
-  if(!p->buffer || !p->pageSize)
+  if(!p->device->buffer || !p->device->pageSize)
     STAP_Panicf(0xFF, "NVStore(%s) buffer invalid", p->name);
   
   if(p->running)
@@ -77,12 +77,12 @@ static bool startup(NVStorePartition_t *p)
   while(ptr < p->size) {
     NVBlockHeader_t header;
     
-    if(!readBlock(p, ptr, p->buffer)) {
+    if(!readBlock(p, ptr, p->device->buffer)) {
       consoleNotefLn("NVStore %s startup readBlock() fail", p->name);
       return false;
     }
 
-    if(validateBlock(p->buffer, p->pageSize, &header)) {      
+    if(validateBlock(p->device->buffer, p->device->pageSize, &header)) {      
       if(!valid) {
 	count = header.count;
 	index = ptr;
@@ -140,14 +140,14 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
 static bool recallBlock(NVStorePartition_t *p, uint32_t delta, NVBlockHeader_t *header, uint8_t *buffer)
 {
   return readBlock(p, (p->index + p->size - 1 - delta) % p->size, buffer)
-    && validateBlock(buffer, p->pageSize, header);
+    && validateBlock(buffer, p->device->pageSize, header);
 }
 
 NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_t *data, size_t size)
 {
   NVStore_Status_t status = NVStore_Status_NotConnected;
 
-  STAP_MutexInit(&p->mutex);
+  SHARED_ACCESS_BEGIN(*(p->device));
   
   if(startup(p)) {
     uint32_t delta = 0;
@@ -155,11 +155,11 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
     while(delta < p->size) {
       NVBlockHeader_t header;
       
-      if(recallBlock(p, delta, &header, p->buffer) && header.type == nvb_blob_c) {
+      if(recallBlock(p, delta, &header, p->device->buffer) && header.type == nvb_blob_c) {
     	  // Found a blob header
 
     	  NVBlobHeader_t blob;
-    	  memcpy(&blob, &p->buffer[sizeof(header)], sizeof(blob));
+    	  memcpy(&blob, &p->device->buffer[sizeof(header)], sizeof(blob));
 
           if(strncmp(blob.name, name, NVSTORE_NAME_MAX)) {
         	 // The name doesn't match
@@ -180,7 +180,7 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 	    size_t remaining = size;
 
 	    // Extract the part in the blob block
-	    memcpy(ptr, &p->buffer[sizeof(header) + sizeof(blob)], NVSTORE_BLOB_PAYLOAD(p));
+	    memcpy(ptr, &p->device->buffer[sizeof(header) + sizeof(blob)], NVSTORE_BLOB_PAYLOAD(p));
 
 	    ptr += NVSTORE_BLOB_PAYLOAD(p);
 	    remaining -= NVSTORE_BLOB_PAYLOAD(p);
@@ -190,14 +190,14 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 	    while(remaining > 0 && delta > 0) {
 	      delta--;
 	      
-	      if(recallBlock(p, delta, &header, p->buffer)
+	      if(recallBlock(p, delta, &header, p->device->buffer)
 		 && header.type == nvb_data_c) {
 		size_t segment = remaining;
 		
 		if(segment > NVSTORE_BLOCK_PAYLOAD(p))
 		  segment = NVSTORE_BLOCK_PAYLOAD(p);
 
-		memcpy(ptr, &p->buffer[sizeof(header)], segment);
+		memcpy(ptr, &p->device->buffer[sizeof(header)], segment);
 		
 		ptr += segment;
 		remaining -= segment;
@@ -223,9 +223,9 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 	      }
 	    }
 	  } else {
-	    if(blob.crc == crc16OfRecord(0xFFFF, (const uint8_t*) &p->buffer[sizeof(header)],
+	    if(blob.crc == crc16OfRecord(0xFFFF, (const uint8_t*) &p->device->buffer[sizeof(header)],
 					   sizeof(blob) + blob.size)) {
-	      memcpy(data, &p->buffer[sizeof(header) + sizeof(blob)], size);
+	      memcpy(data, &p->device->buffer[sizeof(header) + sizeof(blob)], size);
 	      status = NVStore_Status_OK;
 	    } else {
 	      consoleNotefLn("NVStore %s ReadBlob(%s) CRC fail", p->name, blob.name);
@@ -246,7 +246,7 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
     }
   }
 
-  STAP_MutexRelease(p->mutex);
+  SHARED_ACCESS_END(*(p->device));
 
   if(status != NVStore_Status_OK)
     // Error returns all zeros
@@ -259,7 +259,7 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
 {
   NVStore_Status_t status = NVStore_Status_NotConnected;
 
-  STAP_MutexInit(&p->mutex);
+  SHARED_ACCESS_BEGIN(*(p->device));
   
   if(startup(p)) {
     NVBlobHeader_t header = { .crc = 0, .size = size };
@@ -273,13 +273,13 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
     if(size > NVSTORE_BLOB_PAYLOAD(p)) {
       // Write the blob block with the start of the data
 
-      memcpy(p->buffer, &header, sizeof(header));
-      memcpy(&p->buffer[sizeof(header)], data, NVSTORE_BLOB_PAYLOAD(p));
+      memcpy(p->device->buffer, &header, sizeof(header));
+      memcpy(&p->device->buffer[sizeof(header)], data, NVSTORE_BLOB_PAYLOAD(p));
       
       data += NVSTORE_BLOB_PAYLOAD(p);
       size -= NVSTORE_BLOB_PAYLOAD(p);
 
-      if(!storeBlock(p, nvb_blob_c, p->buffer)) {
+      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
 	consoleNotefLn("NVStore WriteBlob blob write (2) fail", p->name);
 	status = NVStore_Status_WriteFailed;
       } else {
@@ -291,11 +291,11 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
 	  if(segment > NVSTORE_BLOCK_PAYLOAD(p))
 	    segment = NVSTORE_BLOCK_PAYLOAD(p);
 	  else
-	    memset(p->buffer, 0, p->pageSize);
+	    memset(p->device->buffer, 0, p->device->pageSize);
 	  
-	  memcpy(p->buffer, data, segment);
+	  memcpy(p->device->buffer, data, segment);
 	    
-	  if(!storeBlock(p, nvb_data_c, p->buffer)) {
+	  if(!storeBlock(p, nvb_data_c, p->device->buffer)) {
 	    consoleNotefLn("NVStore WriteBlob data write fail", p->name);
 	    status = NVStore_Status_WriteFailed;
 	    break;
@@ -312,11 +312,11 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
     } else {
       // The contents fit in the blob block
       
-      memset(p->buffer, 0, p->pageSize);
-      memcpy(p->buffer, &header, sizeof(header));
-      memcpy(&p->buffer[sizeof(header)], data, size);
+      memset(p->device->buffer, 0, p->device->pageSize);
+      memcpy(p->device->buffer, &header, sizeof(header));
+      memcpy(&p->device->buffer[sizeof(header)], data, size);
       
-      if(!storeBlock(p, nvb_blob_c, p->buffer)) {
+      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
 	consoleNotefLn("NVStore WriteBlob blob write (1) fail", p->name);
 	status = NVStore_Status_WriteFailed;
       } else
@@ -329,7 +329,7 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
     status = NVStore_Status_WriteFailed;
   }
 
-  STAP_MutexRelease(p->mutex);
+  SHARED_ACCESS_END(*(p->device));
 
   STAP_DEBUG(0, "BLOB");
   
