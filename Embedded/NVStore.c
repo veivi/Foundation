@@ -7,6 +7,7 @@
 #include "CRC16.h"
 
 #define STARTUP_DELAY  50
+#define TEST           1
 
 typedef enum {
   nvb_invalid_c = 0,
@@ -53,15 +54,25 @@ static uint16_t crc16OfRecord(uint16_t initial, const uint8_t *record, int size)
 static bool validateBlock(const uint8_t *buffer, size_t pageSize, NVBlockHeader_t *header)
 {
   memcpy(header, buffer, sizeof(*header));
-  return (header->type == nvb_blob_c || header->type == nvb_data_c)
-    && header->crc == crc16OfRecord(0xFFFF, buffer, pageSize);
+
+  if(header->type != nvb_blob_c && header->type != nvb_data_c) {
+    consoleNotefLn("block header weird type %d", header->type);
+    return false;
+  }
+  
+  if(header->crc != crc16OfRecord(0xFFFF, buffer, pageSize)) {
+    consoleNotefLn("block header crc fail %#x", header->crc);
+    return false;
+  }
+
+  return true;
 }
   
 static bool startup(NVStorePartition_t *p)
 {
   if(!p->device->buffer || !p->device->pageSize)
     STAP_Panicf(0xFF, "NVStore(%s) buffer invalid", p->name);
-  
+
   if(p->running)
     return true;
 
@@ -119,6 +130,8 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
     header.crc = crc16OfRecord(0xFFFF, (const uint8_t*) &header, sizeof(header));
     header.crc = crc16(header.crc, (const uint8_t*) data, NVSTORE_BLOCK_PAYLOAD(p));
 
+    consoleNotefLn("NVStoreBlock %s count %U index %U", p->name, header.count, p->index);
+      
     if(p->device->deviceWrite(NVSTORE_ADDR(p, p->index),
     		(const uint8_t*) &header, sizeof(header))
        && p->device->deviceWrite(NVSTORE_ADDR(p, p->index) + sizeof(header),
@@ -324,7 +337,7 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
     }
   }
 
-  if(status == NVStore_Status_OK && !p->device->deviceDrain()) {
+  if(status == NVStore_Status_OK && p->device->deviceDrain && !p->device->deviceDrain()) {
     consoleNotefLn("NVStore WriteBlob device drain fail", p->name);    
     status = NVStore_Status_WriteFailed;
   }

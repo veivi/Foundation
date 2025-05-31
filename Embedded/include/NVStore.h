@@ -27,6 +27,8 @@ typedef struct {
 
 #define NVSTORE_DEVICE(name, store) { .deviceRead = name ## Read, .deviceWrite = name ## Write, .deviceDrain = name ## Drain, .pageSize = sizeof(store), .buffer = store }
 
+#define NVSTORE_PAGEDEVICE(name, store) { .deviceRead = name ## ReadPage, .deviceWrite = name ## WritePage, .deviceDrain = NULL, .pageSize = sizeof(store), .buffer = store }
+
 typedef struct {
   const char *name;
   NVStoreDevice_t *device;
