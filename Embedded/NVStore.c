@@ -56,12 +56,12 @@ static bool validateBlock(const uint8_t *buffer, size_t pageSize, NVBlockHeader_
   memcpy(header, buffer, sizeof(*header));
 
   if(header->type != nvb_blob_c && header->type != nvb_data_c) {
-    consoleNotefLn("block header weird type %d", header->type);
+    //    consoleNotefLn("block header weird type %d", header->type);
     return false;
   }
   
   if(header->crc != crc16OfRecord(0xFFFF, buffer, pageSize)) {
-    consoleNotefLn("block header crc fail %#x", header->crc);
+    //    consoleNotefLn("block header crc fail %#x", header->crc);
     return false;
   }
 
