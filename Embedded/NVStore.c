@@ -6,8 +6,7 @@
 #include "Console.h"
 #include "CRC16.h"
 
-#define STARTUP_DELAY  50
-#define TEST           1
+#define STARTUP_DELAY  10
 
 typedef enum {
   nvb_invalid_c = 0,
