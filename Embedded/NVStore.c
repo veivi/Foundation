@@ -138,6 +138,87 @@ static bool recallBlock(NVStorePartition_t *p, uint32_t index, NVBlockHeader_t *
     && validateBlock(buffer, p->device->pageSize, header);
 }
 
+NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const uint8_t *data, size_t size)
+{
+  NVStore_Status_t status = NVStore_Status_NotConnected;
+
+  SHARED_ACCESS_BEGIN(*(p->device));
+  
+  if(startup(p)) {
+    NVBlobHeader_t header = { .crc = 0, .size = size };
+
+    memset(header.name, 0, sizeof(header.name));
+    strncpy(header.name, name, NVSTORE_NAME_MAX);
+    
+    header.crc =
+      crc16(crc16OfRecord(0xFFFF, (const uint8_t*) &header, sizeof(header)), data, size);
+
+    if(size > NVSTORE_BLOB_PAYLOAD(p)) {
+      // Write the blob block with the start of the data
+
+      memcpy(p->device->buffer, &header, sizeof(header));
+      memcpy(&p->device->buffer[sizeof(header)], data, NVSTORE_BLOB_PAYLOAD(p));
+      
+      data += NVSTORE_BLOB_PAYLOAD(p);
+      size -= NVSTORE_BLOB_PAYLOAD(p);
+
+      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
+	consoleNotefLn("NVStore WriteBlob blob write (2) fail", p->name);
+	status = NVStore_Status_WriteFailed;
+      } else {
+	// Write the remaining data as data blocks
+
+	while(size > 0) {
+	  size_t segment = size;
+	  
+	  if(segment > NVSTORE_BLOCK_PAYLOAD(p))
+	    segment = NVSTORE_BLOCK_PAYLOAD(p);
+	  else
+	    memset(p->device->buffer, 0, p->device->pageSize);
+	  
+	  memcpy(p->device->buffer, data, segment);
+	    
+	  if(!storeBlock(p, nvb_data_c, p->device->buffer)) {
+	    consoleNotefLn("NVStore WriteBlob data write fail", p->name);
+	    status = NVStore_Status_WriteFailed;
+	    break;
+	  }
+
+	  data += segment;
+	  size -= segment;
+	}
+
+	if(size == 0)
+	  // We're good
+	  status = NVStore_Status_OK;
+      }       
+    } else {
+      // The contents fit in the blob block
+      
+      memset(p->device->buffer, 0, p->device->pageSize);
+      memcpy(p->device->buffer, &header, sizeof(header));
+      memcpy(&p->device->buffer[sizeof(header)], data, size);
+      
+      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
+	consoleNotefLn("NVStore WriteBlob blob write (1) fail", p->name);
+	status = NVStore_Status_WriteFailed;
+      } else
+	status = NVStore_Status_OK;
+    }
+  }
+
+  if(status == NVStore_Status_OK && p->device->deviceDrain && !p->device->deviceDrain()) {
+    consoleNotefLn("NVStore WriteBlob device drain fail", p->name);    
+    status = NVStore_Status_WriteFailed;
+  }
+
+  SHARED_ACCESS_END(*(p->device));
+
+  STAP_DEBUG(0, "BLOB");
+  
+  return status;
+}
+
 NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_t *data, size_t size)
 {
   NVStore_Status_t status = NVStore_Status_NotConnected;
@@ -313,7 +394,7 @@ NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size)
     	  NVBlobHeader_t blob;
     	  memcpy(&blob, &s->partition->device->buffer[sizeof(header)], sizeof(blob));
 
-          if(!strncmp(blob.name, s->name, NVSTORE_NAME_MAX)) {
+          if(!strncmp(blob.name, s->name, NVSTORE_NAME_MAX) && blob.size == size) {
 	    consoleNotefLn("NVStore %s Scan(%s) index = %#x",
 			   s->partition->name, blob.name, s->index);
 	    status = NVStore_Status_OK;
@@ -336,85 +417,5 @@ NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size)
   return status;
 }
 
-NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const uint8_t *data, size_t size)
-{
-  NVStore_Status_t status = NVStore_Status_NotConnected;
-
-  SHARED_ACCESS_BEGIN(*(p->device));
-  
-  if(startup(p)) {
-    NVBlobHeader_t header = { .crc = 0, .size = size };
-
-    memset(header.name, 0, sizeof(header.name));
-    strncpy(header.name, name, NVSTORE_NAME_MAX);
-    
-    header.crc =
-      crc16(crc16OfRecord(0xFFFF, (const uint8_t*) &header, sizeof(header)), data, size);
-
-    if(size > NVSTORE_BLOB_PAYLOAD(p)) {
-      // Write the blob block with the start of the data
-
-      memcpy(p->device->buffer, &header, sizeof(header));
-      memcpy(&p->device->buffer[sizeof(header)], data, NVSTORE_BLOB_PAYLOAD(p));
-      
-      data += NVSTORE_BLOB_PAYLOAD(p);
-      size -= NVSTORE_BLOB_PAYLOAD(p);
-
-      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
-	consoleNotefLn("NVStore WriteBlob blob write (2) fail", p->name);
-	status = NVStore_Status_WriteFailed;
-      } else {
-	// Write the remaining data as data blocks
-
-	while(size > 0) {
-	  size_t segment = size;
-	  
-	  if(segment > NVSTORE_BLOCK_PAYLOAD(p))
-	    segment = NVSTORE_BLOCK_PAYLOAD(p);
-	  else
-	    memset(p->device->buffer, 0, p->device->pageSize);
-	  
-	  memcpy(p->device->buffer, data, segment);
-	    
-	  if(!storeBlock(p, nvb_data_c, p->device->buffer)) {
-	    consoleNotefLn("NVStore WriteBlob data write fail", p->name);
-	    status = NVStore_Status_WriteFailed;
-	    break;
-	  }
-
-	  data += segment;
-	  size -= segment;
-	}
-
-	if(size == 0)
-	  // We're good
-	  status = NVStore_Status_OK;
-      }       
-    } else {
-      // The contents fit in the blob block
-      
-      memset(p->device->buffer, 0, p->device->pageSize);
-      memcpy(p->device->buffer, &header, sizeof(header));
-      memcpy(&p->device->buffer[sizeof(header)], data, size);
-      
-      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
-	consoleNotefLn("NVStore WriteBlob blob write (1) fail", p->name);
-	status = NVStore_Status_WriteFailed;
-      } else
-	status = NVStore_Status_OK;
-    }
-  }
-
-  if(status == NVStore_Status_OK && p->device->deviceDrain && !p->device->deviceDrain()) {
-    consoleNotefLn("NVStore WriteBlob device drain fail", p->name);    
-    status = NVStore_Status_WriteFailed;
-  }
-
-  SHARED_ACCESS_END(*(p->device));
-
-  STAP_DEBUG(0, "BLOB");
-  
-  return status;
-}
 
   
