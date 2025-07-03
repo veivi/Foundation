@@ -37,7 +37,36 @@ typedef struct {
   bool running;
 } NVStorePartition_t;
 
+typedef struct {
+  NVStorePartition_t *partition;
+  char name[NVSTORE_NAME_MAX+1];
+  uint32_t index, count;
+} NVStoreScanState_t;
+
 NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_t *data, size_t size);
 NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const uint8_t *data, size_t size);
+
+NVStore_Status_t NVStoreScanStart(NVStoreScanState_t *s, NVStorePartition_t *p, const char *name);
+NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size);
+
+typedef enum {
+  nvb_invalid_c = 0,
+  nvb_blob_c,
+  nvb_data_c
+} NVStoreBlockType_t;
+
+typedef struct {
+  uint16_t crc;
+  uint16_t type;
+  uint32_t count;
+} NVBlockHeader_t;
+
+typedef struct {
+  uint16_t crc;
+  uint16_t size;
+  char name[NVSTORE_NAME_MAX+1];
+} NVBlobHeader_t;
+
+#define NVSTORE_BLOB_OVERHEAD   (sizeof(NVBlockHeader_t) + sizeof(NVBlobHeader_t))
 
 #endif

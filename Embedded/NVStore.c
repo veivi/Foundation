@@ -8,27 +8,10 @@
 
 #define STARTUP_DELAY  10
 
-typedef enum {
-  nvb_invalid_c = 0,
-  nvb_blob_c,
-  nvb_data_c
-} NVStoreBlockType_t;
-
-typedef struct {
-  uint16_t crc;
-  uint16_t type;
-  uint32_t count;
-} NVBlockHeader_t;
-
-typedef struct {
-  uint16_t crc;
-  uint16_t size;
-  char name[NVSTORE_NAME_MAX+1];
-} NVBlobHeader_t;
-
 #define NVSTORE_BLOCK_PAYLOAD(p) ((p)->device->pageSize - sizeof(NVBlockHeader_t))
 #define NVSTORE_BLOB_PAYLOAD(p) (NVSTORE_BLOCK_PAYLOAD(p) - sizeof(NVBlobHeader_t))
 #define NVSTORE_ADDR(p, i) ((p->start + (i)) * (p)->device->pageSize)
+#define NVSTORE_DELTA(p, delta) ((p->index + p->size - 1 - (delta)) % p->size)
 
 static bool readBlock(NVStorePartition_t *p, uint32_t index, uint8_t *buffer)
 {
@@ -149,9 +132,9 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
   return status;
 }
 
-static bool recallBlock(NVStorePartition_t *p, uint32_t delta, NVBlockHeader_t *header, uint8_t *buffer)
+static bool recallBlock(NVStorePartition_t *p, uint32_t index, NVBlockHeader_t *header, uint8_t *buffer)
 {
-  return readBlock(p, (p->index + p->size - 1 - delta) % p->size, buffer)
+  return readBlock(p, index, buffer)
     && validateBlock(buffer, p->device->pageSize, header);
 }
 
@@ -167,7 +150,8 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
     while(delta < p->size) {
       NVBlockHeader_t header;
       
-      if(recallBlock(p, delta, &header, p->device->buffer) && header.type == nvb_blob_c) {
+      if(recallBlock(p, NVSTORE_DELTA(p, delta), &header, p->device->buffer)
+	 && header.type == nvb_blob_c) {
     	  // Found a blob header
 
     	  NVBlobHeader_t blob;
@@ -202,7 +186,7 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 	    while(remaining > 0 && delta > 0) {
 	      delta--;
 	      
-	      if(recallBlock(p, delta, &header, p->device->buffer)
+	      if(recallBlock(p, NVSTORE_DELTA(p, delta), &header, p->device->buffer)
 		 && header.type == nvb_data_c) {
 		size_t segment = remaining;
 		
@@ -263,6 +247,91 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
   if(status != NVStore_Status_OK)
     // Error returns all zeros
     memset(data, 0, size);
+  
+  return status;
+}
+
+NVStore_Status_t NVStoreScanStart(NVStoreScanState_t *s, NVStorePartition_t *p, const char *name)
+{
+  NVStore_Status_t status = NVStore_Status_NotConnected;
+
+  SHARED_ACCESS_BEGIN(*(p->device));
+
+  s->partition = p;
+  strncpy(s->name, name, NVSTORE_NAME_MAX);
+  
+  if(startup(p)) {
+    uint32_t delta = p->size;
+
+    do {
+      NVBlockHeader_t header;
+      
+      delta--;
+		  
+      if(recallBlock(p, NVSTORE_DELTA(p, delta), &header, p->device->buffer) && header.type == nvb_blob_c) {
+    	  // Found a blob header
+
+    	  NVBlobHeader_t blob;
+    	  memcpy(&blob, &p->device->buffer[sizeof(header)], sizeof(blob));
+
+          if(!strncmp(blob.name, name, NVSTORE_NAME_MAX)) {
+	    consoleNotefLn("NVStore %s ScanStart(%s) delta = %#x",
+			   p->name, blob.name, delta);
+	    s->count = delta + 1;
+	    s->index = NVSTORE_DELTA(p, delta);
+	    status = NVStore_Status_OK;
+	    break;
+	  }
+      } 
+    } while(delta > 0);
+
+    if(status != NVStore_Status_OK) {
+      consoleNotefLn("NVStore %s ScanStart(%s) blob not found", p->name, name);
+      status = NVStore_Status_NotFound;
+    }
+  }
+
+  SHARED_ACCESS_END(*(p->device));
+  
+  return status;
+}
+
+NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size)
+{
+  NVStore_Status_t status = NVStore_Status_NotConnected;
+
+  SHARED_ACCESS_BEGIN(*(s->partition->device));
+
+  if(startup(s->partition)) {
+    while(s->count > 0) {
+      NVBlockHeader_t header;
+      		  
+      if(recallBlock(s->partition, s->index, &header, s->partition->device->buffer)
+	 && header.type == nvb_blob_c) {
+    	  // It's a blob header
+
+    	  NVBlobHeader_t blob;
+    	  memcpy(&blob, &s->partition->device->buffer[sizeof(header)], sizeof(blob));
+
+          if(!strncmp(blob.name, s->name, NVSTORE_NAME_MAX)) {
+	    consoleNotefLn("NVStore %s Scan(%s) index = %#x",
+			   s->partition->name, blob.name, s->index);
+	    status = NVStore_Status_OK;
+	    break;
+	  }
+      } 
+
+      s->index = (s->index + 1) % s->partition->size;
+      s->count--;
+    }
+
+    if(status != NVStore_Status_OK) {
+      consoleNotefLn("NVStore %s Scan(%s) finished", s->partition->name, s->name);
+      status = NVStore_Status_NotFound;
+    }
+  }
+
+  SHARED_ACCESS_END(*(s->partition->device));
   
   return status;
 }
