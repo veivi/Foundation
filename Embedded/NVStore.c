@@ -138,6 +138,73 @@ static bool recallBlock(NVStorePartition_t *p, uint32_t index, NVBlockHeader_t *
     && validateBlock(buffer, p->device->pageSize, header);
 }
 
+static NVStore_Status_t recallBlob(NVStorePartition_t *p, uint32_t index, NVBlobHeader_t *blob, uint8_t *data)
+{
+  NVStore_Status_t status = NVStore_Status_NotConnected;
+  NVBlockHeader_t header;
+
+  if(blob->size > NVSTORE_BLOB_PAYLOAD(p)) {
+    uint8_t *ptr = data;
+    size_t remaining = blob->size;
+
+    // Extract the part in the blob block
+    memcpy(ptr, &p->device->buffer[NVSTORE_BLOB_OVERHEAD], NVSTORE_BLOB_PAYLOAD(p));
+
+    ptr += NVSTORE_BLOB_PAYLOAD(p);
+    remaining -= NVSTORE_BLOB_PAYLOAD(p);
+
+    // Read the needed data blocks
+	    
+    while(remaining > 0 && index != p->index) {
+      index = (index + 1) % p->size;
+	      
+      if(recallBlock(p, index, &header, p->device->buffer)
+	 && header.type == nvb_data_c) {
+	size_t segment = remaining;
+		
+	if(segment > NVSTORE_BLOCK_PAYLOAD(p))
+	  segment = NVSTORE_BLOCK_PAYLOAD(p);
+
+	memcpy(ptr, &p->device->buffer[sizeof(header)], segment);
+		
+	ptr += segment;
+	remaining -= segment;
+      }
+    }
+	    
+    if(remaining > 0) {
+      // Ran out of data blocks
+      consoleNotefLn("NVStore %s ReadBlob(%s) data block(s) missing",
+		     p->name, blob->name);
+      status = NVStore_Status_ReadFailed;
+    } else {
+      uint16_t crc =
+	crc16(crc16OfRecord(0xFFFF, (const uint8_t*) blob, sizeof(*blob)),
+	      (const uint8_t*) data, blob->size);
+	      
+      if(crc == blob->crc) {
+	status = NVStore_Status_OK;
+      }  else {
+	consoleNotefLn("NVStore %s ReadBlob(%s) CRC fail (%#X vs %#X)",
+		       p->name, blob->name, (uint32_t) crc, (uint32_t) blob->crc);
+	status = NVStore_Status_CRCFail;
+      }
+    }
+  } else {
+    if(blob->crc == crc16OfRecord(0xFFFF,
+				 (const uint8_t*) &p->device->buffer[sizeof(header)],
+				 sizeof(*blob) + blob->size)) {
+      memcpy(data, &p->device->buffer[NVSTORE_BLOB_OVERHEAD], blob->size);
+      status = NVStore_Status_OK;
+    } else {
+      consoleNotefLn("NVStore %s ReadBlob(%s) CRC fail", p->name, blob->name);
+      status = NVStore_Status_CRCFail;
+    }
+  }
+  
+  return status;
+}
+
 NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const uint8_t *data, size_t size)
 {
   NVStore_Status_t status = NVStore_Status_NotConnected;
@@ -252,6 +319,9 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 				 p->name, blob.name, blob.size, (uint16_t) size);
         	  status = NVStore_Status_SizeMismatch;
           } else {
+	    status = recallBlob(p, NVSTORE_DELTA(p, delta), &blob, data);
+	    
+	    /*
 	    if(size > NVSTORE_BLOB_PAYLOAD(p)) {
 	    uint8_t *ptr = data;
 	    size_t remaining = size;
@@ -309,6 +379,7 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 	      status = NVStore_Status_CRCFail;
 	    }
 	  }
+	    */
 	}
 	
 	break;
@@ -397,7 +468,7 @@ NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size)
           if(!strncmp(blob.name, s->name, NVSTORE_NAME_MAX) && blob.size == size) {
 	    consoleNotefLn("NVStore %s Scan(%s) index = %#x",
 			   s->partition->name, blob.name, s->index);
-	    status = NVStore_Status_OK;
+	    status = recallBlob(s->partition, s->index, &blob, data);
 	    break;
 	  }
       } 
