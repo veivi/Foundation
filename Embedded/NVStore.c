@@ -113,11 +113,12 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
     header.crc = crc16(header.crc, (const uint8_t*) data, NVSTORE_BLOCK_PAYLOAD(p));
 
     consoleNotefLn("NVStoreBlock %s count %U index %U", p->name, header.count, p->index);
-      
-    if(p->device->deviceWrite(NVSTORE_ADDR(p, p->index),
-    		(const uint8_t*) &header, sizeof(header))
-       && p->device->deviceWrite(NVSTORE_ADDR(p, p->index) + sizeof(header),
-				 (const uint8_t*) data, NVSTORE_BLOCK_PAYLOAD(p))) {
+
+    memcpy(p->device->buffer, (const uint8_t*) &header, sizeof(header));
+    memcpy(&p->device->buffer[sizeof(header)], data, NVSTORE_BLOCK_PAYLOAD(p));
+	   
+    if(p->device->deviceWrite(NVSTORE_ADDR(p, p->index), p->device->buffer,
+			      p->device->pageSize)) {
       // Success
       
       p->index = (p->index + 1) % p->size;
