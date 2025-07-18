@@ -206,6 +206,20 @@ static NVStore_Status_t recallBlob(NVStorePartition_t *p, uint32_t index, NVBlob
   return status;
 }
 
+NVStore_Status_t NVStoreInit(NVStorePartition_t *p)
+{
+  NVStore_Status_t status = NVStore_Status_NotConnected;
+
+  SHARED_ACCESS_BEGIN(*(p->device));
+  
+  if(startup(p))
+    status = NVStore_Status_OK;
+
+  SHARED_ACCESS_END(*(p->device));
+
+  return status;
+}
+  
 NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const uint8_t *data, size_t size)
 {
   NVStore_Status_t status = NVStore_Status_NotConnected;

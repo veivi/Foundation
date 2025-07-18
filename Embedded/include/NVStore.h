@@ -43,6 +43,7 @@ typedef struct {
   uint32_t index, count;
 } NVStoreScanState_t;
 
+NVStore_Status_t NVStoreInit(NVStorePartition_t *p);
 NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_t *data, size_t size);
 NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const uint8_t *data, size_t size);
 
