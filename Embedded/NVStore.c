@@ -102,7 +102,7 @@ static bool startup(NVStorePartition_t *p)
   return true;
 }
 
-static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data)
+static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *payHeader, size_t headerSize, const uint8_t *payData, size_t dataSize)
 {
   bool status = false;
   
@@ -110,13 +110,21 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *data
     NVBlockHeader_t header = { .crc = 0, .count = p->count + 1, .type = type };
 
     header.crc = crc16OfRecord(0xFFFF, (const uint8_t*) &header, sizeof(header));
-    header.crc = crc16(header.crc, (const uint8_t*) data, NVSTORE_BLOCK_PAYLOAD(p));
-
-    consoleNotefLn("NVStoreBlock %s count %U index %U", p->name, header.count, p->index);
+    
+    if(headerSize > 0)
+      header.crc = crc16(header.crc, payHeader, headerSize);
+    
+    header.crc = crc16(header.crc, payData, dataSize);
 
     memcpy(p->device->buffer, (const uint8_t*) &header, sizeof(header));
-    memcpy(&p->device->buffer[sizeof(header)], data, NVSTORE_BLOCK_PAYLOAD(p));
+
+    if(headerSize > 0)
+      memcpy(&p->device->buffer[sizeof(header)], payHeader, headerSize);
+    
+    memcpy(&p->device->buffer[sizeof(header) + headerSize], payData, dataSize);
 	   
+    consoleNotefLn("NVStoreBlock %s count %U index %U", p->name, header.count, p->index);
+
     if(p->device->deviceWrite(NVSTORE_ADDR(p, p->index), p->device->buffer,
 			      p->device->pageSize)) {
       // Success
@@ -237,16 +245,11 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
 
     if(size > NVSTORE_BLOB_PAYLOAD(p)) {
       // Write the blob block with the start of the data
-
-      // FIXME!!! Trying too use the buffer both here and in storeBlock() !!!
-      
-      memcpy(p->device->buffer, &header, sizeof(header));
-      memcpy(&p->device->buffer[sizeof(header)], data, NVSTORE_BLOB_PAYLOAD(p));
       
       data += NVSTORE_BLOB_PAYLOAD(p);
       size -= NVSTORE_BLOB_PAYLOAD(p);
 
-      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
+      if(!storeBlock(p, nvb_blob_c, (const uint8_t*) &header, sizeof(header), data, size)) {
 	consoleNotefLn("NVStore WriteBlob blob write (2) fail", p->name);
 	status = NVStore_Status_WriteFailed;
       } else {
@@ -257,12 +260,8 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
 	  
 	  if(segment > NVSTORE_BLOCK_PAYLOAD(p))
 	    segment = NVSTORE_BLOCK_PAYLOAD(p);
-	  else
-	    memset(p->device->buffer, 0, p->device->pageSize);
-	  
-	  memcpy(p->device->buffer, data, segment);
 	    
-	  if(!storeBlock(p, nvb_data_c, p->device->buffer)) {
+	  if(!storeBlock(p, nvb_data_c, NULL, 0, data, size)) {
 	    consoleNotefLn("NVStore WriteBlob data write fail", p->name);
 	    status = NVStore_Status_WriteFailed;
 	    break;
@@ -278,14 +277,8 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
       }       
     } else {
       // The contents fit in the blob block
-      
-      // FIXME!!! Trying too use the buffer both here and in storeBlock() !!!
-      
-      memset(p->device->buffer, 0, p->device->pageSize);
-      memcpy(p->device->buffer, &header, sizeof(header));
-      memcpy(&p->device->buffer[sizeof(header)], data, size);
-      
-      if(!storeBlock(p, nvb_blob_c, p->device->buffer)) {
+            
+      if(!storeBlock(p, nvb_blob_c, (const uint8_t*) &header, sizeof(header), data, size)) {
 	consoleNotefLn("NVStore WriteBlob blob write (1) fail", p->name);
 	status = NVStore_Status_WriteFailed;
       } else
