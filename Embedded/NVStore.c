@@ -238,6 +238,8 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
     if(size > NVSTORE_BLOB_PAYLOAD(p)) {
       // Write the blob block with the start of the data
 
+      // FIXME!!! Trying too use the buffer both here and in storeBlock() !!!
+      
       memcpy(p->device->buffer, &header, sizeof(header));
       memcpy(&p->device->buffer[sizeof(header)], data, NVSTORE_BLOB_PAYLOAD(p));
       
@@ -276,6 +278,8 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
       }       
     } else {
       // The contents fit in the blob block
+      
+      // FIXME!!! Trying too use the buffer both here and in storeBlock() !!!
       
       memset(p->device->buffer, 0, p->device->pageSize);
       memcpy(p->device->buffer, &header, sizeof(header));
