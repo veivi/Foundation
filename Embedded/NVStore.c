@@ -116,6 +116,7 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *payH
     
     header.crc = crc16(header.crc, payData, dataSize);
 
+    memset(p->device->buffer, 0xFF, p->device->pageSize);
     memcpy(p->device->buffer, (const uint8_t*) &header, sizeof(header));
 
     if(headerSize > 0)
