@@ -48,7 +48,9 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
 NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const uint8_t *data, size_t size);
 
 NVStore_Status_t NVStoreScanStart(NVStoreScanState_t *s, NVStorePartition_t *p, const char *name);
+NVStore_Status_t NVStoreScanStartFrom(NVStoreScanState_t *s, NVStorePartition_t *p, const char *name, const char *start);
 NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size);
+NVStore_Status_t NVStoreWriteDelimiter(NVStorePartition_t *p, const char *name);
 
 typedef enum {
   nvb_invalid_c = 0,

@@ -109,21 +109,19 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *payH
   if(p->index < p->size) {
     NVBlockHeader_t header = { .crc = 0, .count = p->count + 1, .type = type };
 
-    header.crc = crc16OfRecord(0xFFFF, (const uint8_t*) &header, sizeof(header));
-    
-    if(headerSize > 0)
-      header.crc = crc16(header.crc, payHeader, headerSize);
-    
-    header.crc = crc16(header.crc, payData, dataSize);
-
     memset(p->device->buffer, 0xFF, p->device->pageSize);
     memcpy(p->device->buffer, (const uint8_t*) &header, sizeof(header));
 
     if(headerSize > 0)
       memcpy(&p->device->buffer[sizeof(header)], payHeader, headerSize);
-    
-    memcpy(&p->device->buffer[sizeof(header) + headerSize], payData, dataSize);
+
+    if(dataSize > 0)
+      memcpy(&p->device->buffer[sizeof(header) + headerSize], payData, dataSize);
 	   
+    header.crc = crc16OfRecord(0xFFFF, p->device->buffer, p->device->pageSize);
+    
+    memcpy(p->device->buffer, (const uint8_t*) &header, sizeof(header));
+    
     consoleNotefLn("NVStoreBlock %s count %U index %U", p->name, header.count, p->index);
 
     if(p->device->deviceWrite(NVSTORE_ADDR(p, p->index), p->device->buffer,
@@ -202,8 +200,8 @@ static NVStore_Status_t recallBlob(NVStorePartition_t *p, uint32_t index, NVBlob
     }
   } else {
     if(blob->crc == crc16OfRecord(0xFFFF,
-				 (const uint8_t*) &p->device->buffer[sizeof(header)],
-				 sizeof(*blob) + blob->size)) {
+				  (const uint8_t*) &p->device->buffer[sizeof(header)],
+				  sizeof(*blob) + blob->size)) {
       memcpy(data, &p->device->buffer[NVSTORE_BLOB_OVERHEAD], blob->size);
       status = NVStore_Status_OK;
     } else {
@@ -297,6 +295,11 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
   STAP_DEBUG(0, "BLOB");
   
   return status;
+}
+
+NVStore_Status_t NVStoreWriteDelimiter(NVStorePartition_t *p, const char *name)
+{
+  return NVStoreWriteBlob(p, name, NULL, 0);
 }
 
 NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_t *data, size_t size)
@@ -416,7 +419,7 @@ NVStore_Status_t NVStoreReadBlob(NVStorePartition_t *p, const char *name, uint8_
   return status;
 }
 
-NVStore_Status_t NVStoreScanStart(NVStoreScanState_t *s, NVStorePartition_t *p, const char *name)
+NVStore_Status_t NVStoreScanStartFrom(NVStoreScanState_t *s, NVStorePartition_t *p, const char *name, const char *startName)
 {
   NVStore_Status_t status = NVStore_Status_NotConnected;
 
@@ -426,29 +429,35 @@ NVStore_Status_t NVStoreScanStart(NVStoreScanState_t *s, NVStorePartition_t *p, 
   strncpy(s->name, name, NVSTORE_NAME_MAX);
   
   if(startup(p)) {
-    uint32_t delta = p->size;
+    uint32_t delta = 0;
 
     do {
       NVBlockHeader_t header;
       
-      delta--;
-		  
+      if((delta & 0xFF) == 0)
+	consoleNotefLn("NVStore %s ScanStart(%s) delta %#x", p->name, name, delta);
+			   
       if(recallBlock(p, NVSTORE_DELTA(p, delta), &header, p->device->buffer) && header.type == nvb_blob_c) {
-    	  // Found a blob header
+	// Found a blob header
 
-    	  NVBlobHeader_t blob;
-    	  memcpy(&blob, &p->device->buffer[sizeof(header)], sizeof(blob));
+	NVBlobHeader_t blob;
+	memcpy(&blob, &p->device->buffer[sizeof(header)], sizeof(blob));
 
-          if(!strncmp(blob.name, name, NVSTORE_NAME_MAX)) {
-	    consoleNotefLn("NVStore %s ScanStart(%s) delta = %#x",
-			   p->name, blob.name, delta);
-	    s->count = delta + 1;
-	    s->index = NVSTORE_DELTA(p, delta);
-	    status = NVStore_Status_OK;
-	    break;
-	  }
-      } 
-    } while(delta > 0);
+	if(startName && !strncmp(blob.name, startName, NVSTORE_NAME_MAX))
+	  // It's a START notification
+	  break;
+	  
+	else if(!strncmp(blob.name, name, NVSTORE_NAME_MAX)) {
+	  // It's whatever we're looking for
+	  
+	  s->count = delta + 1;
+	  s->index = NVSTORE_DELTA(p, delta);
+	  status = NVStore_Status_OK;
+	}
+      }
+
+      delta++;
+    } while(delta < p->size-1);
 
     if(status != NVStore_Status_OK) {
       consoleNotefLn("NVStore %s ScanStart(%s) blob not found", p->name, name);
@@ -461,6 +470,11 @@ NVStore_Status_t NVStoreScanStart(NVStoreScanState_t *s, NVStorePartition_t *p, 
   return status;
 }
 
+NVStore_Status_t NVStoreScanStart(NVStoreScanState_t *s, NVStorePartition_t *p, const char *name)
+{
+  return NVStoreScanStartFrom(s, p, name, NULL);
+}
+
 NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size)
 {
   NVStore_Status_t status = NVStore_Status_NotConnected;
@@ -468,7 +482,7 @@ NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size)
   SHARED_ACCESS_BEGIN(*(s->partition->device));
 
   if(startup(s->partition)) {
-    while(s->count > 0) {
+    while(s->count > 0 && status != NVStore_Status_OK) {
       NVBlockHeader_t header;
       		  
       if(recallBlock(s->partition, s->index, &header, s->partition->device->buffer)
@@ -479,10 +493,10 @@ NVStore_Status_t NVStoreScan(NVStoreScanState_t *s, uint8_t *data, size_t size)
     	  memcpy(&blob, &s->partition->device->buffer[sizeof(header)], sizeof(blob));
 
           if(!strncmp(blob.name, s->name, NVSTORE_NAME_MAX) && blob.size == size) {
-	    consoleNotefLn("NVStore %s Scan(%s) index = %#x",
-			   s->partition->name, blob.name, s->index);
+	    if((s->count & 0xFF) == 0)
+	      consoleNotefLn("NVStore %s Scan(%s) index = %#x",
+			     s->partition->name, blob.name, s->index);
 	    status = recallBlob(s->partition, s->index, &blob, data);
-	    break;
 	  }
       } 
 
