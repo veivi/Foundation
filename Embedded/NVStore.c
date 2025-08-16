@@ -95,7 +95,7 @@ static bool startup(NVStorePartition_t *p)
   p->index = (index + 1) % p->size;
   p->count = count;
   
-  consoleNotefLn("  NVStore %s head at %#x, count = %#x", p->name, p->index, p->count);
+  consoleNotefLn("  NVStore(%s) MOUNTED (head at %#x, count = %#x)", p->name, p->index, p->count);
   
   p->running = true;
 
@@ -122,7 +122,7 @@ static bool storeBlock(NVStorePartition_t *p, uint16_t type, const uint8_t *payH
     
     memcpy(p->device->buffer, (const uint8_t*) &header, sizeof(header));
     
-    consoleNotefLn("NVStoreBlock %s count %U index %U", p->name, header.count, p->index);
+    // consoleNotefLn("NVStoreBlock %s count %U index %U", p->name, header.count, p->index);
 
     if(p->device->deviceWrite(NVSTORE_ADDR(p, p->index), p->device->buffer,
 			      p->device->pageSize)) {
@@ -292,7 +292,7 @@ NVStore_Status_t NVStoreWriteBlob(NVStorePartition_t *p, const char *name, const
 
   SHARED_ACCESS_END(*(p->device));
 
-  STAP_DEBUG(0, "BLOB");
+  //  STAP_DEBUG(0, "BLOB");
   
   return status;
 }
